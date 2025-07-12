@@ -1,0 +1,19 @@
+/* You can add global styles to this file, and also import other style files */
+.message {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.success {
+  background-color: #e0ffe0;
+  color: #2d7a2d;
+}
+
+.cancel {
+  background-color: #ffe0e0;
+  color: #a12d2d;
+}

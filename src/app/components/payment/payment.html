@@ -1,0 +1,15 @@
+<div class="payment-container">
+  <h2>Pay with Stripe</h2>
+
+  <label>
+    Product Name:
+    <input [(ngModel)]="productName" placeholder="Product name" />
+  </label>
+
+  <label>
+    Amount (USD):
+    <input type="number" [(ngModel)]="amount" />
+  </label>
+
+  <button (click)="payNow()">Pay Now</button>
+</div>
