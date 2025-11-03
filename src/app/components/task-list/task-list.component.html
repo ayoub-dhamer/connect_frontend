@@ -1,0 +1,21 @@
+<div>
+  <h2>Tasks</h2>
+  <button (click)="add()">New Task</button>
+  <div *ngIf="loading">Loading...</div>
+  <table *ngIf="!loading">
+    <thead><tr><th>Name</th><th>Project</th><th>Priority</th><th>Status</th><th>Assignees</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let t of tasks">
+        <td>{{ t.name }}</td>
+        <td>{{ t.project?.name }}</td>
+        <td>{{ t.priority }}</td>
+        <td>{{ t.status }}</td>
+        <td>{{ getAssignedEmails(t) }}</td>
+        <td>
+          <button (click)="edit(t)">Edit</button>
+          <button (click)="delete(t)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

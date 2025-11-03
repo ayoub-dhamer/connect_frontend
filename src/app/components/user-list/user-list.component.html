@@ -1,0 +1,19 @@
+<div>
+  <h2>Users</h2>
+  <button (click)="add()">New User</button>
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <table *ngIf="!loading">
+    <thead><tr><th>Email</th><th>Name</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.email }}</td>
+        <td>{{ u.name }}</td>
+        <td>
+          <button (click)="edit(u)">Edit</button>
+          <button (click)="deleteUser(u)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

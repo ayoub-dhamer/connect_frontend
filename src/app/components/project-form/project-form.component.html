@@ -1,0 +1,29 @@
+<div>
+  <h2>{{ id ? 'Edit Project' : 'New Project' }}</h2>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div>
+      <label>Name</label>
+      <input formControlName="name" />
+    </div>
+
+    <div>
+      <label>Owner</label>
+      <select formControlName="ownerId">
+        <option [ngValue]="null">-- choose --</option>
+        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.email }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Participants</label>
+      <select formControlName="participantIds" multiple>
+        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.email }}</option>
+      </select>
+    </div>
+
+    <div>
+      <button type="submit" [disabled]="form.invalid">Save</button>
+      <button type="button" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+</div>

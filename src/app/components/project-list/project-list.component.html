@@ -1,0 +1,22 @@
+<div>
+  <h2>Projects</h2>
+  <button (click)="add()">New Project</button>
+  <div *ngIf="loading">Loading...</div>
+  <table *ngIf="!loading">
+    <thead><tr><th>Name</th><th>Owner</th><th>Participants</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let p of projects">
+        <td>{{ p.name }}</td>
+        <td>{{ p.owner?.email }}</td>
+       
+        <td>
+  {{ getParticipantEmails(p) }}
+</td>
+        <td>
+          <button (click)="edit(p)">Edit</button>
+          <button (click)="delete(p)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

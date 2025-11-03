@@ -1,0 +1,22 @@
+.payment-container {
+  max-width: 400px;
+  margin: auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+input {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+}
+
+button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #635bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
