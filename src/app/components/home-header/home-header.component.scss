@@ -1,0 +1,98 @@
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+ul {
+  li {
+    list-style: none;
+  }
+}
+button {
+  outline: none;
+  border: 0;
+  background: transparent;
+}
+.user {
+  font-size: 14px;
+}
+mat-toolbar {
+  background: #f7f7f7;
+}
+.user-image {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  &-icon {
+    height: 18px;
+    font-size: 16px;
+  }
+}
+
+::ng-deep {
+  .mat-menu-content {
+    width: 100%;
+  }
+}
+
+///
+///
+
+.notifi-box {
+  background-color: grey;
+  width: 300px;
+  height: 0px;
+  opacity: 1;
+  border-radius: 15px;
+  position: absolute;
+  top: 63px;
+  right: 35px;
+  transition: 1s opacity, 250ms height;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.notifi-box h2 {
+  font-size: 14px;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  color: #999;
+}
+.notifi-item {
+  display: flex;
+  border-radius: 15px;
+  border-bottom: 1px solid #eee;
+  padding: 15px 5px;
+  background-color: white;
+  cursor: pointer;
+  margin: 3px;
+  height: 80px;
+}
+.notifi-item:hover {
+  background-color: lightgrey;
+}
+.notifi-item img {
+  display: block;
+  width: 50px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+.notifi-item .text h4 {
+  color: #777;
+  font-size: 16px;
+}
+.notifi-item .text p {
+  color: #aaa;
+  font-size: 12px;
+  position: relative;
+  bottom: 15px;
+}
+
+.example-viewport {
+  height: 88%;
+  width: 100%;
+}
+
+.example-viewport::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,101 @@
+<div [dir]="'dir' | translate">
+  <mat-nav-list>
+    <div class="logo py-4">
+      <img
+        src="../../../assets/img/logo.png"
+        style="border-radius: 80px; width: 100%"
+        alt="Company Logo"
+      />
+    </div>
+    <mat-divider></mat-divider>
+    <h2 matSubheader class="mt-2">
+      {{ "hi" | translate }}
+    </h2>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/adminDashboard"
+    >
+      <mat-icon>dashboard</mat-icon
+      >{{ "adminSideNavBarDashboardLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/manageMembers"
+    >
+      <mat-icon>group</mat-icon
+      >{{ "adminSideNavBarManageMembersLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/manageHr"
+    >
+      <mat-icon>group</mat-icon>{{ "adminSideNavBarManageHrLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/gallery"
+    >
+      <mat-icon>photo_camera</mat-icon
+      >{{ "adminSideNavBarGalleryLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/createNewCategory"
+    >
+      <mat-icon>group</mat-icon
+      >{{ "adminSideNavBarCreateCategoryLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/manageAnnouncement"
+    >
+      <mat-icon>group</mat-icon
+      >{{ "adminSideNavBarAddAnnouncementLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/calendar"
+    >
+      <mat-icon>calendar_today</mat-icon
+      >{{ "adminSideNavBarCalendarLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/manageValidity"
+    >
+      <mat-icon> local_offer</mat-icon>
+      {{ "adminSideNavBarManageValidityLabel" | translate }}
+    </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/admin/manageSuppliers"
+    >
+      <mat-icon> local_offer</mat-icon>
+      {{ "adminSideNavBarManageSuppliersLabel" | translate }}
+    </a>
+  </mat-nav-list>
+</div>
+
+<mat-select (selectionChange)="switchLang($event.value)">
+  <mat-option value="en">English</mat-option>
+  <mat-option value="fr">Français</mat-option>
+</mat-select>
+
+

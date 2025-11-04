@@ -7,6 +7,7 @@ import { CancelComponent } from './components/cancel/cancel.component';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { UserComponent } from './components/user/user.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
@@ -20,6 +21,8 @@ import { ProjectListComponent } from './components/project-list/project-list.com
 import { TaskListComponent } from './components/task-list/task-list.component';
 import { ProjectFormComponent } from './components/project-form/project-form.component';
 import { TaskFormComponent } from './components/task-form/task-form.component';
+
+import { SideNavBarComponent } from './components/side-nav-bar/side-nav-bar.component';
 
 /*export const routes: Routes = [
   //{ path: '', component: App },
@@ -46,19 +49,28 @@ const routes: Routes = [
     path: 'admin',
     component: AdminComponent,
     canActivate: [RoleGuard],
-     data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] }
+     data: { roles: ['ROLE_ADMIN'] }
+  },
+  {
+    path: 'user',
+    component: UserComponent,
+    canActivate: [RoleGuard],
+     data: { roles: ['ROLE_USER'] }
   },
   { path: 'payment', component: PaymentComponent },
    { path: 'video', component: VideoCallComponent },
   { path: 'chat', component: ChatComponent },
 
-  { path: 'users', component: UserListComponent },
+  { path: 'users', component: UserListComponent, canActivate: [RoleGuard],
+     data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] } },
   { path: 'projects', component: ProjectListComponent },
   { path: 'projects/new', component: ProjectFormComponent },
   { path: 'projects/:id', component: ProjectFormComponent },
   { path: 'tasks', component: TaskListComponent },
   { path: 'tasks/new', component: TaskFormComponent },
   { path: 'tasks/:id', component: TaskFormComponent },
+
+  { path: 'side', component: SideNavBarComponent },
 
   /*{
     path: 'user',

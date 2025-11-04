@@ -32,6 +32,8 @@ export class ProjectFormComponent implements OnInit {
 
     this.userService.getAll().subscribe(u => this.users = u);
 
+    console.log(this.users);
+
     this.route.paramMap.subscribe(params => {
       const idStr = params.get('id');
       if (idStr && idStr !== 'new') {

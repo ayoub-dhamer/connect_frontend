@@ -5,7 +5,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.css']
+  styleUrls: ['./admin.component.scss']
 })
 export class AdminComponent {
  constructor(
@@ -13,6 +13,12 @@ export class AdminComponent {
     private authService: AuthService,
     private router: Router
   ) {}
+
+  sideBarOpen = true;
+
+  sideBarToggler() {
+    this.sideBarOpen = !this.sideBarOpen;
+  }
 
   ngOnInit(): void {
     console.log(this.authService.getToken());
