@@ -40,10 +40,12 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpLoaderFactory } from './translate-loader.factory';
 import { UserComponent } from './components/user/user.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -65,7 +67,8 @@ import { UserComponent } from './components/user/user.component';
     TaskFormComponent,
     SideNavBarComponent,
     HomeHeaderComponent,
-    UserComponent
+    UserComponent,
+    AdminDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -88,6 +91,7 @@ import { UserComponent } from './components/user/user.component';
     MatMenuModule,
     MatBadgeModule,
     ScrollingModule,
+    MatProgressBarModule,
     BrowserAnimationsModule,
 
     MatListModule,

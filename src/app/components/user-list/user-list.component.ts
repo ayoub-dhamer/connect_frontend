@@ -24,7 +24,7 @@ export class UserListComponent implements OnInit {
   }
 
   edit(u: any) { this.router.navigate(['/users', u.id]); }
-  add() { this.router.navigate(['/users/new']); }
+  
   deleteUser(u: any) {
     if (!u.id || !confirm(`Delete ${u.email}?`)) return;
     this.userService.delete(u.id).subscribe(() => this.load());

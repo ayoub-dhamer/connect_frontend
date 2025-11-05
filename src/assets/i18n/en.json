@@ -1,5 +1,6 @@
 {
     "dir": "ltr",
 
-    "hi": "hi"
+    "_comment": "Side-Nav-Bar",
+    "usersLabel": "Users"
 }

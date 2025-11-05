@@ -1,5 +1,6 @@
 {
     "dir": "rtl",
 
-    "hi": "أهلاً"
+    "_comment": "Side-Nav-Bar",
+    "usersLabel": "المستخدمين"
 }

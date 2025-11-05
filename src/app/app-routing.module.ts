@@ -5,6 +5,7 @@ import { PaymentComponent } from './components/payment/payment.component';
 import { SuccessComponent } from './components/success/success.component';
 import { CancelComponent } from './components/cancel/cancel.component';
 import { LoginComponent } from './components/login/login.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { UserComponent } from './components/user/user.component';
@@ -49,7 +50,19 @@ const routes: Routes = [
     path: 'admin',
     component: AdminComponent,
     canActivate: [RoleGuard],
-     data: { roles: ['ROLE_ADMIN'] }
+     data: { roles: ['ROLE_ADMIN'] },
+     children: [
+      {
+        path: '',
+        component: AdminDashboardComponent,
+        canActivate: [AuthGuard],
+        data: {
+          roles: ['ROLE_ADMIN'],
+        },
+      },
+      { path: 'users', component: UserListComponent, canActivate: [RoleGuard],
+     data: { roles: ['ROLE_ADMIN'] } },
+    ]
   },
   {
     path: 'user',
@@ -61,8 +74,7 @@ const routes: Routes = [
    { path: 'video', component: VideoCallComponent },
   { path: 'chat', component: ChatComponent },
 
-  { path: 'users', component: UserListComponent, canActivate: [RoleGuard],
-     data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] } },
+  
   { path: 'projects', component: ProjectListComponent },
   { path: 'projects/new', component: ProjectFormComponent },
   { path: 'projects/:id', component: ProjectFormComponent },

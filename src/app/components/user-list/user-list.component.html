@@ -1,19 +1,53 @@
-<div>
-  <h2>Users</h2>
-  <button (click)="add()">New User</button>
-  <div *ngIf="loading">Loading...</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
-  <table *ngIf="!loading">
-    <thead><tr><th>Email</th><th>Name</th><th>Actions</th></tr></thead>
-    <tbody>
-      <tr *ngFor="let u of users">
-        <td>{{ u.email }}</td>
-        <td>{{ u.name }}</td>
-        <td>
-          <button (click)="edit(u)">Edit</button>
-          <button (click)="deleteUser(u)">Delete</button>
+<mat-card class="user-card">
+  <mat-toolbar color="primary" class="toolbar">
+    <span>👥 Users</span>
+    <span class="spacer"></span>
+    
+  </mat-toolbar>
+
+  <div *ngIf="loading" class="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+
+  <mat-error *ngIf="error" class="error-text">{{ error }}</mat-error>
+
+  <div *ngIf="!loading">
+    <table mat-table [dataSource]="users" class="mat-elevation-z2">
+
+      <!-- Email Column -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let u">{{ u.email }}</td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let u">{{ u.name }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let u">
+          <button mat-icon-button color="primary" (click)="edit(u)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteUser(u)" matTooltip="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
         </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+      </ng-container>
+
+      <!-- Table Header and Rows -->
+      <tr mat-header-row *matHeaderRowDef="['email', 'name', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['email', 'name', 'actions'];"></tr>
+
+    </table>
+
+    <div class="no-data" *ngIf="!users?.length">
+      <mat-icon>sentiment_dissatisfied</mat-icon>
+      <p>No users found.</p>
+    </div>
+  </div>
+</mat-card>
