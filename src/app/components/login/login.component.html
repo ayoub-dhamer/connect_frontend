@@ -1,4 +1,18 @@
- <div class="login-container">
-      <h2>Login</h2>
-      <button (click)="loginWithGoogle()">Login with Google</button>
+<div class="login-page">
+  <mat-card class="login-card">
+    <div class="login-header">
+      <img src="assets/img/app-logo.png" alt="App Logo" class="logo" />
+      <h2>Welcome Back</h2>
+      <p>Sign in to continue</p>
     </div>
+
+    <button mat-stroked-button color="primary" class="google-btn" (click)="loginWithGoogle()">
+      <img src="assets/img/google-icon.svg" alt="Google" class="google-icon" />
+      <span>Sign in with Google</span>
+    </button>
+
+    <div class="footer-text">
+      <p>By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+    </div>
+  </mat-card>
+</div>

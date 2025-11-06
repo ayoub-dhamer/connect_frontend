@@ -42,6 +42,10 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatSortModule } from '@angular/material/sort';
+
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpLoaderFactory } from './translate-loader.factory';
 import { UserComponent } from './components/user/user.component';
@@ -92,6 +96,9 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
     MatBadgeModule,
     ScrollingModule,
     MatProgressBarModule,
+    MatTooltipModule,
+    MatChipsModule,
+    MatSortModule,
     BrowserAnimationsModule,
 
     MatListModule,

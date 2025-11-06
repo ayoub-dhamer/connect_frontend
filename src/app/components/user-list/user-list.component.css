@@ -1,42 +1,135 @@
 .user-card {
-  margin: 1rem auto;
-  padding: 0;
-  width: 90%;
-  max-width: 900px;
+  margin: 1.5rem auto;
+  width: 95%;
+  max-width: 1000px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
 }
 
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 1rem;
+
+  .title {
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+
+  .search-field {
+    width: 220px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: #fff;
+  }
+
+  mat-icon {
+    color: rgba(255, 255, 255, 0.9);
+  }
 }
 
-.spacer {
-  flex: 1 1 auto;
+.loading {
+  width: 100%;
+}
+
+.table-container {
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
-  margin-top: 1rem;
+  min-width: 600px;
+  border-spacing: 0;
+  background: #fff;
+}
+
+th.mat-header-cell {
+  font-weight: 600;
+  color: #444;
+  background-color: #f7f9fb;
+}
+
+td.mat-cell, th.mat-header-cell {
+  padding: 0.75rem 1rem;
+}
+
+.center {
+  text-align: center;
 }
 
 .no-data {
   text-align: center;
   padding: 2rem;
-  color: #888;
+  color: #999;
+
   mat-icon {
-    font-size: 48px;
-    display: block;
+    font-size: 3rem;
     margin-bottom: 0.5rem;
+    color: #ccc;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
   }
 }
 
-.error-text {
-  color: #e53935;
-  padding: 0.5rem;
-  text-align: center;
-}
+/* Responsive Design */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 1rem;
 
-.loading {
-  margin-top: 1rem;
+    .search-field {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+  }
+
+  table {
+    display: none;
+  }
+
+  .table-container {
+    overflow: hidden;
+  }
+
+  /* Mobile Card View */
+  .user-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 1rem;
+
+    .user-item {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+
+        span {
+          font-size: 0.95rem;
+        }
+
+        small {
+          color: #666;
+        }
+      }
+
+      button {
+        margin-left: 1rem;
+      }
+    }
+  }
 }
