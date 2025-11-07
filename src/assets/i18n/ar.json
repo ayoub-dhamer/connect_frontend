@@ -2,5 +2,6 @@
     "dir": "rtl",
 
     "_comment": "Side-Nav-Bar",
-    "usersLabel": "المستخدمين"
+    "usersLabel": "المستخدمين",
+    "dashboardLabel": "لوحة القيادة"
 }

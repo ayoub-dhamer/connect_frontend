@@ -2,5 +2,6 @@
     "dir": "ltr",
 
     "_comment": "Side-Nav-Bar",
-    "usersLabel": "Users"
+    "usersLabel": "Users",
+    "dashboardLabel": "Dashboard"
 }
