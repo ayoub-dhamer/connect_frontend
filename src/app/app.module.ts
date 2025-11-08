@@ -40,6 +40,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -99,6 +100,7 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
     MatTooltipModule,
     MatChipsModule,
     MatSortModule,
+    MatPaginatorModule,
     BrowserAnimationsModule,
 
     MatListModule,

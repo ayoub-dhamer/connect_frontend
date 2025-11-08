@@ -1,135 +1,255 @@
-.user-card {
-  margin: 1.5rem auto;
-  width: 95%;
+/* Container and Title */
+.user-table-container {
   max-width: 1000px;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
-.toolbar {
+.table-title {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Search box */
+.search-box {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.search-box input {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 250px;
+  transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 4px rgba(37, 99, 235, 0.3);
+}
+
+/* Table styling */
+.responsive-table {
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+  width: 100%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.responsive-table caption {
+  font-size: 1.3em;
+  margin: 0.5em 0 0.75em;
+  font-weight: 600;
+  color: #334155;
+}
+
+.responsive-table th,
+.responsive-table td {
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.responsive-table th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* Row and hover */
+.responsive-table tr {
+  border: 1px solid #e2e8f0;
+  transition: background 0.2s ease;
+}
+
+.responsive-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Roles badges */
+.role {
+  display: inline-block;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  margin: 2px;
+  font-weight: 500;
+}
+
+/* Buttons */
+.delete-btn {
+  background-color: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+/* No data message */
+.no-data {
+  text-align: center;
+  padding: 1rem;
+  color: #94a3b8;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .search-box {
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .responsive-table {
+    border: 0;
+  }
+
+  .responsive-table caption {
+    font-size: 1.1em;
+  }
+
+  .responsive-table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  .responsive-table tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: 0.8rem;
+    background: #fff;
+    border-radius: 10px;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .responsive-table td {
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85em;
+    text-align: right;
+    padding: 0.5rem 0;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+  }
+
+  .responsive-table td:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* Extra Small Screens */
+@media screen and (max-width: 480px) {
+  .table-title {
+    font-size: 1.3rem;
+  }
+
+  .delete-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+}
+
+
+.pagination-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1rem;
-
-  .title {
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-
-  .search-field {
-    width: 220px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-    color: #fff;
-  }
-
-  mat-icon {
-    color: rgba(255, 255, 255, 0.9);
-  }
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-.loading {
-  width: 100%;
+.page-size label {
+  margin-right: 0.5rem;
+  font-weight: 500;
+  color: #475569;
 }
 
-.table-container {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  min-width: 600px;
-  border-spacing: 0;
+.page-size select {
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
   background: #fff;
+  cursor: pointer;
 }
 
-th.mat-header-cell {
-  font-weight: 600;
-  color: #444;
-  background-color: #f7f9fb;
+.page-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
 }
 
-td.mat-cell, th.mat-header-cell {
-  padding: 0.75rem 1rem;
+.page-controls button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s;
 }
 
-.center {
-  text-align: center;
+.page-controls button:hover:not(:disabled) {
+  background-color: #1d4ed8;
 }
 
-.no-data {
-  text-align: center;
-  padding: 2rem;
-  color: #999;
-
-  mat-icon {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    color: #ccc;
-  }
-
-  p {
-    margin: 0;
-    font-size: 1rem;
-  }
+.page-controls button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .toolbar {
+.page-controls span {
+  font-weight: 500;
+  color: #334155;
+}
+
+/* Responsive tweaks */
+@media screen and (max-width: 600px) {
+  .pagination-container {
     flex-direction: column;
-    align-items: stretch;
-    padding: 0.5rem 1rem;
-
-    .search-field {
-      width: 100%;
-      margin-top: 0.5rem;
-    }
+    align-items: center;
   }
 
-  table {
-    display: none;
-  }
-
-  .table-container {
-    overflow: hidden;
-  }
-
-  /* Mobile Card View */
-  .user-card-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 1rem;
-
-    .user-item {
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .user-info {
-        display: flex;
-        flex-direction: column;
-
-        span {
-          font-size: 0.95rem;
-        }
-
-        small {
-          color: #666;
-        }
-      }
-
-      button {
-        margin-left: 1rem;
-      }
-    }
+  .page-controls {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

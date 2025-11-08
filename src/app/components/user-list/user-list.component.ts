@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-list',
-  templateUrl: './user-list.component.html'
+  templateUrl: './user-list.component.html',
+  styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit {
   users: any[] = [];
@@ -13,38 +13,69 @@ export class UserListComponent implements OnInit {
   loading = false;
   error?: string;
 
-  displayedColumns = ['email', 'name', 'roles', 'actions'];
+   pagedUsers: any[] = [];
+    // Pagination variables
+  currentPage = 1;
+  pageSize = 5;
+  pageSizes = [5, 10, 20];
+  totalPages = 1;
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(private userService: UserService) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.loadUsers();
+  }
 
-
-  load(){
-      this.loading = true;
-      this.userService.getAll().subscribe({
-      next: users => {
-        this.users = users;
-        this.filteredUsers = users;
+  loadUsers() {
+    this.loading = true;
+    this.userService.getAll().subscribe({
+      next: (data) => {
+        this.users = data;
+        this.filteredUsers = data;
+        this.updatePagination();
         this.loading = false;
       },
-      error: err => {
+      error: (err) => {
         this.error = err.message || 'Failed to load users';
         this.loading = false;
       }
     });
   }
 
-  applyFilter(): void {
+  applyFilter() {
     const term = this.searchTerm.trim().toLowerCase();
-    this.filteredUsers = this.users.filter(u =>
-      u.email.toLowerCase().includes(term) ||
-      (u.name && u.name.toLowerCase().includes(term))
+    this.filteredUsers = this.users.filter(
+      u =>
+        u.name?.toLowerCase().includes(term) ||
+        u.email?.toLowerCase().includes(term)
     );
+     this.currentPage = 1;
+    this.updatePagination();
   }
 
-  deleteUser(u: any): void {
-    if (!u.id || !confirm(`Delete ${u.email}?`)) return;
-    this.userService.delete(u.id).subscribe(() => this.load());
+  updatePagination() {
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.pagedUsers = this.filteredUsers.slice(start, end);
+  }
+
+   nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  deleteUser(user: any) {
+    if (!confirm(`Delete ${user.email}?`)) return;
+    this.userService.delete(user.id).subscribe(() => this.loadUsers());
   }
 }
