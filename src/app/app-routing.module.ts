@@ -84,6 +84,8 @@ const routes: Routes = [
 
   { path: 'side', component: SideNavBarComponent },
 
+  { path: 'dash', component: DashboardComponent },
+
   /*{
     path: 'user',
     component: UserComponent,
