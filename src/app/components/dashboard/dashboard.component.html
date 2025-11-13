@@ -1,0 +1,75 @@
+<div class="dashboard-container">
+  <!-- KPI Cards -->
+  <div class="cards-grid">
+    <div class="card" *ngFor="let s of stats" [ngClass]="s.color">
+      <h3>{{ s.value }}</h3>
+      <p>{{ s.label }}</p>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h4>Sales Overview</h4>
+      <canvas id="salesChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>Weekly Revenue</h4>
+      <canvas id="revenueChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>User Roles</h4>
+      <canvas id="userTypeChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-section">
+    <h4>Active Users</h4>
+
+    <mat-form-field appearance="outline" class="filter-input">
+      <mat-label>Search User</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Search name or city" />
+    </mat-form-field>
+
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 full-width-table">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef> Role </th>
+        <td mat-cell *matCellDef="let row">{{ row.role }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="city">
+        <th mat-header-cell *matHeaderCellDef> City </th>
+        <td mat-cell *matCellDef="let row">{{ row.city }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let row">
+          <span class="badge" [ngClass]="{
+            'badge-success': row.status === 'Active',
+            'badge-warning': row.status === 'Pending',
+            'badge-danger': row.status === 'Inactive'
+          }">
+            {{ row.status }}
+          </span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  </div>
+</div>
