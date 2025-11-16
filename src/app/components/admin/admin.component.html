@@ -1,14 +1,15 @@
-<div [dir]="'dir' | translate">
-  <mat-drawer-container>
-    <mat-drawer mode="side" [opened]="sideBarOpen">
-      <!-- <mat-drawer mode="side" opened="true"> -->
-      <app-side-nav-bar></app-side-nav-bar>
-    </mat-drawer>
-    <mat-drawer-content>
-      <app-home-header
-        (toggleSidebarForMe)="sideBarToggler()"
-      ></app-home-header>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="!sideBarOpen">
+    <app-side-nav-bar></app-side-nav-bar>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+    <app-home-header (toggleSidebarForMe)="sideBarToggler()"></app-home-header>
+
+    <div class="content">
       <router-outlet></router-outlet>
-    </mat-drawer-content>
-  </mat-drawer-container>
+    </div>
+  </div>
 </div>

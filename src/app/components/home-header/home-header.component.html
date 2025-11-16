@@ -1,74 +1,70 @@
-<div [dir]="'dir' | translate">
-  <mat-toolbar>
-    <mat-toolbar-row class="justify-content-between">
-      <button mat-icon-button (click)="toggleSidebar()">
-        <mat-icon>menu</mat-icon>
+<header class="app-header">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <!-- Left: Sidebar toggle -->
+  <button class="menu-btn" (click)="toggleSidebar()">
+    <i class="icon bx bx-menu"></i>
+  </button>
+
+  <!-- Center: Empty spacer -->
+  <div class="header-spacer"></div>
+
+  <!-- Right: Notification + Profile Dropdown -->
+  <div class="header-actions">
+
+    <!-- Notifications -->
+    <div class="notif-wrapper">
+      <button class="icon-btn" (click)="toggleNotifications()">
+        <i class="icon bx bx-bell"></i>
+        <span class="badge">{{ simpleUsersNumber }}</span>
       </button>
-      <div class="row mr-2 ml-auto" style="position: relative; left: 25%">
-        <ul class="row m-0 align-items-center">
-          <li>
-            <button
-              mat-button
-              [matMenuTriggerFor]="menu"
-              class="user mt-2 d-flex align-items-center"
-            >
-              <img
-                *ngIf="imageTest"
-                src="{{ imageSource }}"
-                alt=""
-                class="user-image mr-1 p-2"
-              />
 
-              <img
-                *ngIf="!imageTest"
-                src="./assets/img/user.jpg"
-                alt=""
-                class="user-image mr-1 p-2"
-              />
+      <!-- Dropdown -->
+      <div class="notif-box" [class.open]="notificationsOpen">
+        <h3>Notifications</h3>
 
-              {{ userName }}
-              <mat-icon class="user-image-icon ml-1"
-                >keyboard_arrow_down</mat-icon
-              >
-            </button>
-
-            <mat-menu #menu="matMenu">
-              <button mat-menu-item routerLink="/admin/adminProfile">
-                <mat-icon>settings</mat-icon>
-                {{
-                  "adminHomeHeaderChangeAccountInformationsLabel" | translate
-                }}
-              </button>
-              <button mat-menu-item (click)="logOut()">
-                <mat-icon>exit_to_app</mat-icon>
-                {{ "adminHomeHeaderLogoutLabel" | translate }}
-              </button>
-            </mat-menu>
-          </li>
-        </ul>
-      </div>
-      <mat-icon
-        style="transform: scale(1)"
-        matBadge="{{ simpleUsersNumber }}"
-        onclick="toggleNotifi()"
-        >notifications</mat-icon
-      >
-      <div class="notifi-box" id="box">
-        <h2>{{ "adminHomeHeaderNotificationsLabel" | translate }}</h2>
-        <cdk-virtual-scroll-viewport
-          appendOnly
-          itemSize="100"
-          class="example-viewport"
-        >
-          <div *ngFor="let user of users" class="notifi-item">
-            <img src="../../../assets/img/avatar.png" alt="img" />
-            <div class="text">
+        <div class="notif-list">
+          <div class="notif-item" *ngFor="let user of users">
+            <img src="assets/img/avatar.png" alt="user" />
+            <div class="notif-text">
               <h4>{{ user.fullName }}</h4>
               <p>{{ user.email }}</p>
             </div>
           </div>
-        </cdk-virtual-scroll-viewport>
+        </div>
       </div>
-    </mat-toolbar-row>
-  </mat-toolbar>
-</div>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-wrapper">
+
+      <button class="profile-btn" (click)="profileOpen = !profileOpen">
+        <img
+          *ngIf="imageTest"
+          class="avatar"
+          [src]="imageSource"
+          alt="User"
+        />
+        <img
+          *ngIf="!imageTest"
+          class="avatar"
+          src="assets/img/user.jpg"
+          alt="User"
+        />
+        <span>{{ userName }}</span>
+        <i class="icon bx bx-chevron-down"></i>
+      </button>
+
+      <!-- Dropdown -->
+      <ul class="profile-dropdown" [class.open]="profileOpen">
+        <li >
+          <i class="icon bx bx-cog"></i> Account Settings
+        </li>
+        <li >
+          <i class="icon bx bx-log-out"></i> Logout
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</header>

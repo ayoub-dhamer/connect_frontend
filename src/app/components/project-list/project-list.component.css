@@ -1,0 +1,202 @@
+/* Container */
+.projects-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+/* Title */
+.table-title {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Action bar */
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Add button */
+.add-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.add-btn:hover {
+  background-color: #1d4ed8;
+}
+
+/* Search field */
+.search-input {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 260px;
+}
+
+.search-input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 4px rgba(37, 99, 235, 0.3);
+}
+
+/* Table */
+.responsive-table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.responsive-table caption {
+  font-size: 1.3rem;
+  padding: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.responsive-table th,
+.responsive-table td {
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.responsive-table th {
+  background-color: #f1f5f9;
+  border-bottom: 2px solid #e2e8f0;
+  color: #334155;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.responsive-table tr {
+  transition: background 0.2s;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.responsive-table tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  margin: 2px;
+}
+
+/* Buttons */
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.edit-btn:hover {
+  background: #2563eb;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+/* No data */
+.no-data {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table tr {
+    display: block;
+    background: #fff;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    padding: 0.6rem;
+  }
+
+  .responsive-table td {
+    display: flex;
+    justify-content: space-between;
+    text-align: right;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  .responsive-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.page-controls button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.page-controls button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}

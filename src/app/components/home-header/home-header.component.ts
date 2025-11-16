@@ -17,6 +17,26 @@ declare var hideNotif: any;
   styleUrls: ['./home-header.component.scss']
 })
 export class HomeHeaderComponent {
+
+  notificationsOpen: boolean = false;
+profileOpen: boolean = false;
+
+toggleNotifications() {
+  this.notificationsOpen = !this.notificationsOpen;
+
+  // Close profile dropdown when notifications open
+  if (this.notificationsOpen) this.profileOpen = false;
+}
+
+toggleProfile() {
+  this.profileOpen = !this.profileOpen;
+
+  // Close notifications dropdown when profile opens
+  if (this.profileOpen) this.notificationsOpen = false;
+}
+
+
+
   @Output() toggleSidebarForMe: EventEmitter<any> = new EventEmitter();
 
   imageTest: boolean = false;
@@ -80,9 +100,9 @@ export class HomeHeaderComponent {
     this.toggleSidebarForMe.emit();
   }
 
-  logOut() {
+/*  logOut() {
     localStorage.clear();
     this.router.navigate(['']);
     this.toast.success('You Have been Logged out of your account');
-  }
+  }*/
 }

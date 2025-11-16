@@ -3,5 +3,6 @@
 
     "_comment": "Side-Nav-Bar",
     "usersLabel": "Utilisateurs",
-    "dashboardLabel": "Tableau de bord"
+    "dashboardLabel": "Tableau de bord",
+    "projectsLabel": "Projets"
 }

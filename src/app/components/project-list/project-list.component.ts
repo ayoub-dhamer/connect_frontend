@@ -7,7 +7,49 @@ import { Router } from '@angular/router';
   templateUrl: './project-list.component.html'
 })
 export class ProjectListComponent implements OnInit {
-  projects: any[] = [];
+
+ projects: any[] = [];
+filteredProjects: any[] = [];
+
+searchTerm = "";
+pageSize = 5;
+currentPage = 1;
+totalPages = 1;
+
+pageSizes = [5, 10, 20, 50];
+
+
+
+ filterProjects() {
+    const term = this.searchTerm.trim().toLowerCase();
+    this.filteredProjects = this.projects.filter(
+      u =>
+        u.name?.toLowerCase().includes(term) ||
+        u.owner?.email.toLowerCase().includes(term)
+    );
+     this.currentPage = 1;
+    this.updatePagination();
+  }
+
+getParticipantEmailsArray(p: any): string[] {
+  const emails = this.getParticipantEmails(p);
+  return typeof emails === "string" ? emails.split(", ") : [];
+}
+
+updatePagination() {
+  this.totalPages = Math.ceil(this.filteredProjects.length / this.pageSize);
+}
+
+nextPage() {
+  if (this.currentPage < this.totalPages) this.currentPage++;
+}
+
+previousPage() {
+  if (this.currentPage > 1) this.currentPage--;
+}
+
+
+  
   loading = false;
   error?: string;
 
@@ -28,7 +70,5 @@ export class ProjectListComponent implements OnInit {
     })
   }
 
-  add() { this.router.navigate(['/projects/new']); }
-  edit(p: any) { if (p.id) this.router.navigate(['/projects', p.id]); }
-  delete(p: any) { if (!p.id || !confirm(`Delete ${p.name}?`)) return; this.projectService.delete(p.id).subscribe(() => this.load()); }
+
 }

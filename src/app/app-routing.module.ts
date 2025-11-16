@@ -68,14 +68,28 @@ const routes: Routes = [
     path: 'user',
     component: UserComponent,
     canActivate: [RoleGuard],
-     data: { roles: ['ROLE_USER'] }
+    data: { roles: ['ROLE_USER'] },
+    children: [
+      {
+        path: '',
+        component: AdminDashboardComponent,
+        canActivate: [AuthGuard],
+        data: {
+          roles: ['ROLE_USER'],
+        },
+      },
+        { path: 'projects', component: ProjectListComponent, canActivate: [AuthGuard],
+        data: {
+          roles: ['ROLE_USER'],
+        } }
+      ]
   },
   { path: 'payment', component: PaymentComponent },
    { path: 'video', component: VideoCallComponent },
   { path: 'chat', component: ChatComponent },
 
   
-  { path: 'projects', component: ProjectListComponent },
+
   { path: 'projects/new', component: ProjectFormComponent },
   { path: 'projects/:id', component: ProjectFormComponent },
   { path: 'tasks', component: TaskListComponent },

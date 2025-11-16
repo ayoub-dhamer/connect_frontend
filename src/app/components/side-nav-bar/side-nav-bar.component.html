@@ -8,88 +8,20 @@
       />
     </div>
     <mat-divider></mat-divider>
-    <h2 matSubheader class="mt-2">
-      {{ 'usersLabel' | translate }}
-    </h2>
-     <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/manageMembers"
-    >
-     <mat-icon>dashboard</mat-icon
-      >
-      {{ "dashboardLabel" | translate }}
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/users"
-    ><mat-icon>group</mat-icon
-      >
-     {{ 'usersLabel' | translate }}
-    </a>
+
+    <div *ngFor="let item of menu">
+  <a
+   *ngIf="canShow(item)"
+    mat-list-item
+    routerLinkActive="list-item-active"
+    [routerLink]="item.link"
+  >
+  <mat-icon>{{ item.icon }}</mat-icon>
+      {{ item.label | translate }}
+  </a>
+</div>
     
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/manageHr"
-    >
-      <mat-icon>group</mat-icon>{{ "adminSideNavBarManageHrLabel" | translate }}
-    </a>
-
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/gallery"
-    >
-      <mat-icon>photo_camera</mat-icon
-      >{{ "adminSideNavBarGalleryLabel" | translate }}
-    </a>
-
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/createNewCategory"
-    >
-      <mat-icon>group</mat-icon
-      >{{ "adminSideNavBarCreateCategoryLabel" | translate }}
-    </a>
-
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/manageAnnouncement"
-    >
-      <mat-icon>group</mat-icon
-      >{{ "adminSideNavBarAddAnnouncementLabel" | translate }}
-    </a>
-
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/calendar"
-    >
-      <mat-icon>calendar_today</mat-icon
-      >{{ "adminSideNavBarCalendarLabel" | translate }}
-    </a>
-
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/manageValidity"
-    >
-      <mat-icon> local_offer</mat-icon>
-      {{ "adminSideNavBarManageValidityLabel" | translate }}
-    </a>
-
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/admin/manageSuppliers"
-    >
-      <mat-icon> local_offer</mat-icon>
-      {{ "adminSideNavBarManageSuppliersLabel" | translate }}
-    </a>
+   
   </mat-nav-list>
 </div>
 

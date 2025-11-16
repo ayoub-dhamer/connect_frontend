@@ -3,5 +3,6 @@
 
     "_comment": "Side-Nav-Bar",
     "usersLabel": "Users",
-    "dashboardLabel": "Dashboard"
+    "dashboardLabel": "Dashboard",
+    "projectsLabel": "Projects"
 }
