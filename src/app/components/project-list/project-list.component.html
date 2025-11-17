@@ -1,58 +1,72 @@
-<div class="projects-container">
-  <h2 class="table-title">📁 Project Management</h2>
+<div class="project-table-container">
+  <h2 class="table-title">👥 Project Management</h2>
 
-  <!-- Action Bar -->
-  <div class="action-bar">
-    <button class="add-btn" >+ New Project</button>
-
+  <!-- Search input -->
+  <div class="search-box">
     <input
       type="text"
-      placeholder="Search projects..."
+      placeholder="Search by name or email..."
       [(ngModel)]="searchTerm"
-      (input)="filterProjects()"
-      class="search-input"
+      (input)="applyFilter()"
     />
   </div>
 
-  <!-- Loading -->
-  <div *ngIf="loading" class="loading">Loading projects...</div>
-
   <!-- Table -->
-  <table class="responsive-table" *ngIf="!loading">
-    <caption>List of Projects</caption>
+  <table class="responsive-table">
+    <caption>List of projects</caption>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Owner</th>
-        <th>Participants</th>
-        <th>Actions</th>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Owner</th>
+        <th scope="col">Participants</th>
+        <th scope="col">Tasks</th>
+        <th scope="col">Actions</th>
       </tr>
     </thead>
-
     <tbody>
-      <tr *ngFor="let p of filteredProjects">
-        <td data-label="Name">{{ p.name }}</td>
-        <td data-label="Owner">{{ p.owner?.email }}</td>
-
-        <td data-label="Participants">
-          <span *ngFor="let email of getParticipantEmailsArray(p)" class="badge">
-            {{ email }}
-          </span>
+      <tr *ngFor="let project of filteredProjects; let i = index">
+        <td data-label="#"> {{ i + 1 }} </td>
+        <td data-label="Name">{{ project.name }}</td>
+         <td data-label="Status">
+          <span class="status">{{ project.projectStatus }}</span>
         </td>
+        <td data-label="Owner">{{ project.owner.name }}</td>
+       <td data-label="Participants">
+  <button class="view-btn" 
+          (click)="openModal(getParticipantLabels(project), 'Participants')">
+    View <span class="count-badge">{{ project.participants.length }}</span>
+  </button>
+</td>
 
+
+
+<td data-label="Tasks">
+  <button class="view-btn" 
+          (click)="openModal(getTaskLabels(project), 'Tasks')">
+    View <span class="count-badge">{{ project.tasks.length }}</span>
+  </button>
+</td>
+
+
+
+
+       
         <td data-label="Actions">
-          <button class="edit-btn" >Edit</button>
-          <button class="delete-btn" >Delete</button>
+          <button class="delete-btn" (click)="deleteProject(project)">
+            <i class="fas fa-trash"></i> Delete
+          </button>
         </td>
       </tr>
 
       <tr *ngIf="filteredProjects.length === 0">
-        <td colspan="4" class="no-data">No projects found</td>
+        <td colspan="5" class="no-data">No projects found</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- Pagination -->
+   <!-- Pagination Controls -->
   <div class="pagination-container" *ngIf="filteredProjects.length > 0">
     <div class="page-size">
       <label for="pageSize">Rows per page:</label>
@@ -68,3 +82,32 @@
     </div>
   </div>
 </div>
+
+
+
+
+
+<!-- MODAL BACKDROP -->
+<div class="modal-backdrop" *ngIf="modalOpen" (click)="closeModal()"></div>
+
+<!-- PAGINATED MODAL -->
+<div class="modal-box" *ngIf="modalOpen">
+  <h3 class="modal-title">{{ modalTitle }}</h3>
+
+  <!-- Scrollable container -->
+  <div class="modal-content">
+    <ul>
+      <li *ngFor="let item of pagedModalItems">{{ item }}</li>
+    </ul>
+  </div>
+
+  <!-- Pagination inside modal -->
+  <div class="modal-pagination">
+    <button (click)="prevModalPage()" [disabled]="modalPage === 1">Prev</button>
+    <span>Page {{ modalPage }} of {{ modalTotalPages }}</span>
+    <button (click)="nextModalPage()" [disabled]="modalPage === modalTotalPages">Next</button>
+  </div>
+
+  <button class="close-btn" (click)="closeModal()">Close</button>
+</div>
+
