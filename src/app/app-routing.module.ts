@@ -24,6 +24,7 @@ import { ProjectFormComponent } from './components/project-form/project-form.com
 import { TaskFormComponent } from './components/task-form/task-form.component';
 
 import { SideNavBarComponent } from './components/side-nav-bar/side-nav-bar.component';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 /*export const routes: Routes = [
   //{ path: '', component: App },
@@ -81,7 +82,15 @@ const routes: Routes = [
         { path: 'projects', component: ProjectListComponent, canActivate: [AuthGuard],
         data: {
           roles: ['ROLE_USER'],
-        } }
+        } },
+        {
+        path: 'profile',
+        component: UserProfileComponent,
+        canActivate: [AuthGuard],
+        data: {
+          roles: ['ROLE_USER'],
+        },
+      },
       ]
   },
   { path: 'payment', component: PaymentComponent },

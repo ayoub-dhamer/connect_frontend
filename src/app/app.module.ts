@@ -51,6 +51,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpLoaderFactory } from './translate-loader.factory';
 import { UserComponent } from './components/user/user.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
     SideNavBarComponent,
     HomeHeaderComponent,
     UserComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    UserProfileComponent
   ],
   imports: [
     BrowserModule,

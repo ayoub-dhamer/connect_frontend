@@ -1,0 +1,307 @@
+/* Global */
+body {
+  background: #f1f5f9;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Layout */
+.profile-container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 320px auto;
+  gap: 1.5rem;
+}
+
+/* Sidebar */
+.profile-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.profile-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 4px solid #e2e8f0;
+  object-fit: cover;
+}
+
+/* Profile text */
+.profile-name {
+  font-size: 1.4rem;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.profile-role {
+  font-size: 0.95rem;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.profile-location {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* Details card */
+.profile-details-card {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #475569;
+  min-width: 40%;
+}
+
+.detail-value {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+/* Button */
+.edit-btn-container {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+
+.edit-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.25s;
+}
+
+.edit-btn:hover {
+  background: #1e40af;
+}
+
+/* -------------------------------------- */
+/*            RESPONSIVE LAYOUT           */
+/* -------------------------------------- */
+
+/* Tablets */
+@media (max-width: 992px) {
+  .profile-container {
+    grid-template-columns: 260px auto;
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Mobile (stack layout) */
+@media (max-width: 768px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-card,
+  .profile-details-card {
+    padding: 1.2rem;
+  }
+
+  .profile-avatar {
+    width: 110px;
+    height: 110px;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .edit-btn-container {
+    text-align: center;
+  }
+
+  .edit-btn {
+    width: 100%;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .profile-avatar {
+    width: 95px;
+    height: 95px;
+  }
+
+  .profile-name {
+    font-size: 1.2rem;
+  }
+
+  .detail-label {
+    font-size: 0.9rem;
+  }
+
+  .detail-value {
+    font-size: 0.9rem;
+  }
+}
+
+/* Extra small (tiny screens) */
+@media (max-width: 360px) {
+  .profile-container {
+    padding: 0.5rem;
+  }
+
+  .profile-card,
+  .profile-details-card {
+    padding: 1rem;
+  }
+}
+
+
+
+/* Edit input fields */
+/* -------------------------
+   Modern Clean Input Style
+-------------------------- */
+.edit-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db; /* soft grey */
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 0.95rem;
+  color: #1f2937;
+  transition: all 0.2s ease;
+}
+
+.edit-input:hover {
+  border-color: #94a3b8; /* lighter hover border */
+}
+
+.edit-input:focus {
+  border-color: #2563eb; /* blue accent */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  background: #ffffff;
+  outline: none;
+}
+
+/* -------------------------
+   Edit Mode Buttons
+-------------------------- */
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+/* Save Button (Blue Primary) */
+.save-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: 0.2s ease;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.save-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Cancel Button (Neutral) */
+.cancel-btn {
+  background: #e5e7eb;
+  color: #374151;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* Edit (view mode) button */
+.edit-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: 0.2s ease;
+  margin-top: 1rem;
+}
+
+.edit-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Prevent any input overflow */
+.profile-field {
+  width: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+/* Inputs fully responsive inside container */
+.edit-input {
+  width: 100%;
+  max-width: 100%;       /* ensures no overflow */
+  box-sizing: border-box; /* prevents padding from increasing width */
+}
+
+@media (max-width: 768px) {
+  .profile-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-row .col-label {
+    margin-bottom: 6px;
+  }
+
+  .profile-row .col-value,
+  .profile-row .edit-input {
+    width: 100%;
+  }
+}
+
