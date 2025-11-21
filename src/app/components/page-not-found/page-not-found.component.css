@@ -1,0 +1,100 @@
+/* Full page center */
+.not-found-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  padding: 1rem;
+}
+
+/* Card box */
+.not-found-box {
+  text-align: center;
+  background: #ffffff;
+  padding: 3rem 2rem;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Large "404" */
+.not-found-box h1 {
+  font-size: 6rem;
+  margin: 0;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* subtitle */
+.not-found-box h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #334155;
+}
+
+/* text */
+.not-found-box p {
+  color: #64748b;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+/* Buttons */
+.back-btn,
+.home-btn {
+  display: inline-block;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  margin: 0.3rem;
+  transition: 0.2s;
+}
+
+/* Back button style */
+.back-btn {
+  background-color: #334155;
+  color: #fff;
+  border: none;
+}
+
+.back-btn:hover {
+  background-color: #1e293b;
+}
+
+/* Home button style */
+.home-btn {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+.home-btn:hover {
+  background-color: #1d4ed8;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .not-found-box {
+    padding: 2rem 1.3rem;
+  }
+
+  .not-found-box h1 {
+    font-size: 4rem;
+  }
+}

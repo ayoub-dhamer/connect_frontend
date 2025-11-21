@@ -52,6 +52,7 @@ import { HttpLoaderFactory } from './translate-loader.factory';
 import { UserComponent } from './components/user/user.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
     HomeHeaderComponent,
     UserComponent,
     AdminDashboardComponent,
-    UserProfileComponent
+    UserProfileComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,

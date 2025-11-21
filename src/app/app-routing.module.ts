@@ -25,6 +25,8 @@ import { TaskFormComponent } from './components/task-form/task-form.component';
 
 import { SideNavBarComponent } from './components/side-nav-bar/side-nav-bar.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { LoginGuard } from './guards/login.guard';
 
 /*export const routes: Routes = [
   //{ path: '', component: App },
@@ -45,7 +47,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 ];*/
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
   { path: 'login-success', component: LoginSuccessComponent },
   {
     path: 'admin',
@@ -97,7 +99,8 @@ const routes: Routes = [
    { path: 'video', component: VideoCallComponent },
   { path: 'chat', component: ChatComponent },
 
-  
+  { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: '**', component: PageNotFoundComponent },
 
   { path: 'projects/new', component: ProjectFormComponent },
   { path: 'projects/:id', component: ProjectFormComponent },
