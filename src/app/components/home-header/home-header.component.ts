@@ -6,6 +6,7 @@ import { SharedService } from 'src/app/services/shared.service';
 import { Subscription } from 'rxjs';
 import { ToastMessageService } from 'src/app/services/toast-message.service';
 import { TranslateService } from '@ngx-translate/core';
+import { AuthService } from 'src/app/services/auth.service';
 
 declare var toggleNotifi: any;
 declare var showNotif: any;
@@ -35,6 +36,12 @@ toggleProfile() {
   if (this.profileOpen) this.notificationsOpen = false;
 }
 
+disconnect() {
+  this.authService.logout();
+  this.router.navigate(['/login']);
+}
+
+
 
 
   @Output() toggleSidebarForMe: EventEmitter<any> = new EventEmitter();
@@ -53,7 +60,8 @@ toggleProfile() {
     private toast: ToastMessageService,
     private http: HttpClient,
     private sharedService: SharedService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private authService: AuthService
   ) {
     this.clickEventSubscription = this.sharedService
       .getClickEvent()
