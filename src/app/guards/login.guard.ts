@@ -2,16 +2,14 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class LoginGuard implements CanActivate {
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    if (this.authService.isAuthenticated()) {
-      const roles = this.authService.getRoles();  // <-- array
+    if (this.auth.isAuthenticated()) {
+      const roles = this.auth.getRoles();
 
       if (roles.includes('ROLE_ADMIN')) {
         this.router.navigate(['/admin']);
@@ -22,10 +20,8 @@ export class LoginGuard implements CanActivate {
       else {
         this.router.navigate(['/unauthorized']);
       }
-
-      return false; // block /login
+      return false;
     }
-
-    return true; // allow /login if NOT authenticated
+    return true;
   }
 }
