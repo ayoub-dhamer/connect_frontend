@@ -21,13 +21,13 @@ export class AdminComponent implements OnInit {
 
     // User is NOT authenticated → redirect
     if (!this.auth.isAuthenticated()) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login']); 
       return; 
     } 
 
     // User is authenticated but NOT ADMIN → reject
     if (!this.auth.hasRole('ROLE_ADMIN')) {
-      this.router.navigate(['/unauthorized']);
+      this.router.navigate(['/unauthorized']); 
       return;
     }
 
