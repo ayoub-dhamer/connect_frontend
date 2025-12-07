@@ -17,12 +17,12 @@ export class AdminComponent implements OnInit {
     this.sideBarOpen = !this.sideBarOpen;
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void { 
 
     // User is NOT authenticated → redirect
     if (!this.auth.isAuthenticated()) {
       this.router.navigate(['/login']);
-      return;
+      return; 
     } 
 
     // User is authenticated but NOT ADMIN → reject
@@ -31,6 +31,6 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    console.log("Admin loaded.");
+    console.log("Admin loaded."); 
   }
 }
