@@ -27,7 +27,7 @@ export class AdminComponent implements OnInit {
 
     // User is authenticated but NOT ADMIN → reject
     if (!this.auth.hasRole('ROLE_ADMIN')) {
-      this.router.navigate(['/unauthorized']);    
+      this.router.navigate(['/unauthorized']);       
       return;
     }
 
