@@ -31,6 +31,6 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    console.log("Admin loaded.");             
+    console.log("Admin loaded.");                
   }
 }
