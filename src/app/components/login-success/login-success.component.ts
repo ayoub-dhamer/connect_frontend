@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-login-success',
@@ -10,13 +11,13 @@ import { AuthService } from '../../services/auth.service';
 export class LoginSuccessComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
-    private auth: AuthService,
+    private userService: UserService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     // When redirected from Spring OAuth success → cookie is already set!
-    this.auth.loadUserProfile().subscribe({
+    this.userService.loadUserProfile().subscribe({
       next: user => {
         if (user.roles.includes("ROLE_ADMIN")) {
           this.router.navigate(['/admin']);

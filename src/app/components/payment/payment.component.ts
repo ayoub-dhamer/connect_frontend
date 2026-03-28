@@ -18,7 +18,7 @@ export class PaymentComponent {
   async pay() {
     const stripe = await this.stripePromise;
 
-    this.paymentService.createCheckoutSession(this.amount).subscribe(async session => {
+    this.paymentService.checkout(this.amount).subscribe(async session => {
       await stripe?.redirectToCheckout({ sessionId: session.id });
     }, error => {
       console.error('Payment session creation failed', error);

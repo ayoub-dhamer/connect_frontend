@@ -11,3 +11,17 @@
     <button (click)="sendMessage()">Send</button>
   </div>
 </div>-->
+
+<div class="chat-container">
+  <div class="messages">
+    <div *ngFor="let msg of messages">
+      <strong>{{msg.senderEmail}}:</strong> {{msg.content}}
+    </div>
+  </div>
+
+  <div class="input-group">
+    <input [(ngModel)]="receiverEmail" placeholder="Receiver email" />
+    <input [(ngModel)]="newMessage" placeholder="Type a message" />
+    <button (click)="send()">Send</button>
+  </div>
+</div>

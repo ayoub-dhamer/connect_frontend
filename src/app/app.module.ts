@@ -12,7 +12,7 @@ import { PaymentComponent } from './components/payment/payment.component';
 import { SuccessComponent } from './components/success/success.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoginSuccessComponent } from './components/login-success/login-success.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { VideoCallComponent } from './components/video-call/video-call.component';
@@ -53,6 +53,9 @@ import { UserComponent } from './components/user/user.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { CsrfInterceptor } from './interceptors/csrf.interceptor';
+import { CheckoutComponent } from './components/checkout/checkout.component';
+import { VideoRoomComponent } from './components/video-room/video-room.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +80,9 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
     UserComponent,
     AdminDashboardComponent,
     UserProfileComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    CheckoutComponent,
+    VideoRoomComponent
   ],
   imports: [
     BrowserModule,
@@ -118,7 +123,7 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
       defaultLanguage: 'en'
     })
   ],
-  providers: [],
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

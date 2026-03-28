@@ -27,6 +27,7 @@ import { SideNavBarComponent } from './components/side-nav-bar/side-nav-bar.comp
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { LoginGuard } from './guards/login.guard';
+import { VideoRoomComponent } from './components/video-room/video-room.component';
 
 /*export const routes: Routes = [
   //{ path: '', component: App },
@@ -95,9 +96,10 @@ const routes: Routes = [
       },
       ]
   },
-  { path: 'payment', component: PaymentComponent },
-   { path: 'video', component: VideoCallComponent },
-  { path: 'chat', component: ChatComponent },
+    { path: 'payment', component: PaymentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_USER'] } },
+   //{ path: 'video', component: VideoCallComponent },
+  { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
+  { path: 'video/:roomId', component: VideoRoomComponent, canActivate: [AuthGuard] },
 
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: '**', component: PageNotFoundComponent },
@@ -118,7 +120,7 @@ const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] }
   },*/
-  { path: '**', redirectTo: 'login' }
+ // { path: '**', redirectTo: 'login' }
 ];
 
 @NgModule({

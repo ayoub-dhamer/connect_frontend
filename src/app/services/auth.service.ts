@@ -10,31 +10,53 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  /** Load logged user from backend */
-  loadUserProfile() {
-    return this.http.get('http://localhost:8080/api/auth/me', { withCredentials: true })
-      .pipe(
-        tap((user: any) => this.user = user)
-      );
-  }
-
-  isAuthenticated(): boolean {
-    return this.user !== null;
-  }
-
-  getRoles(): string[] {
-    return this.user?.roles ?? [];
-  }
-
-  hasRole(role: string): boolean {
-    return this.getRoles().includes(role);
+  loginWithGoogle(): void {
+    // Redirect to backend OAuth2 endpoint
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
   }
 
   logout() {
+    // backend cookie expires automatically, just reload
+    window.location.href = 'http://localhost:4200';
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('jwt');
+  }
+
+  isAuthenticated(): boolean {
+    const token = this.getToken();
+    return !!token;
+  }
+
+  hasRole(role: string): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.roles?.includes(role);
+  }
+
+  getRoles(): string[] {
+  const token = this.getToken();
+  if (!token) return [];
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return Array.isArray(payload.roles) ? payload.roles : [];
+  } catch (error) {
+    console.error('Failed to parse JWT roles:', error);
+    return [];
+  }
+}
+
+  
+
+  /*logout() {
     return this.http.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true })
       .subscribe(() => {
         this.user = null;
         this.router.navigate(['/login']);
       });
-  }
+  }*/
 }
