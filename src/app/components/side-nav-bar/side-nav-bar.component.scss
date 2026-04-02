@@ -6,10 +6,22 @@
 }
 .logo {
   text-align: center;
-  padding: 2.6rem 1rem;
+  padding: 2rem 1rem;
+  transition: all 0.3s ease;
+
   img {
-    width: 200px;
+    transition: all 0.3s ease;
   }
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.logo-full {
+  width: 160px;
 }
 .mat-divider {
   border-top-width: 2px;
@@ -55,4 +67,107 @@
   font-size: 0.6rem;
   font-weight: 100;
   letter-spacing: 1px;
+}
+
+
+
+
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  transition: width 0.3s ease;
+  background: #1f2937;
+}
+
+.sidebar.collapsed {
+  width: 72px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.logo-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.logo-full {
+  width: 160px;
+}
+
+/* Language Switcher Container */
+.lang-switcher {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* When sidebar collapsed */
+.lang-switcher.collapsed {
+  mat-form-field {
+    width: 50px;
+  }
+}
+
+/* Material Field Customization */
+::ng-deep .lang-switcher mat-form-field {
+  width: 100%;
+}
+
+::ng-deep .lang-switcher .mat-form-field-outline {
+  color: #475569;
+}
+
+::ng-deep .lang-switcher .mat-form-field-outline-start,
+::ng-deep .lang-switcher .mat-form-field-outline-end,
+::ng-deep .lang-switcher .mat-form-field-outline-gap {
+  border-color: #475569;
+}
+
+/* Select text */
+::ng-deep .lang-switcher .mat-select-value {
+  color: #e5e7eb;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Arrow */
+::ng-deep .lang-switcher .mat-select-arrow {
+  color: #94a3b8;
+}
+
+/* Hover */
+::ng-deep .lang-switcher .mat-form-field:hover .mat-form-field-outline {
+  border-color: #818cf8;
+}
+
+/* Dropdown Panel */
+::ng-deep .lang-panel {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+::ng-deep .lang-panel .mat-option {
+  font-size: 13px;
+}
+
+::ng-deep .lang-panel .mat-option:hover {
+  background: #2c3344;
 }

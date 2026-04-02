@@ -1,12 +1,23 @@
 <div [dir]="'dir' | translate">
   <mat-nav-list>
-    <div class="logo py-4">
-      <img
-        src="assets/img/app-logo.png"
-        style="border-radius: 80px; width: 100%"
-        alt="Company Logo"
-      />
-    </div>
+  <div class="logo py-4">
+  <!-- Collapsed -->
+  <img
+    *ngIf="!isExpanded"
+    src="assets/img/app-logo.png"
+    class="logo-icon"
+    alt="Logo"
+  />
+
+  <!-- Expanded -->
+  <img
+    *ngIf="isExpanded"
+    src="assets/img/app-name.png"
+    class="logo-full"
+    alt="App Name"
+  />
+</div>
+
     <mat-divider></mat-divider>
 
     <div *ngFor="let item of menu">
@@ -25,9 +36,22 @@
   </mat-nav-list>
 </div>
 
-<mat-select (selectionChange)="switchLang($event.value)">
-  <mat-option value="en">English</mat-option>
-  <mat-option value="fr">Français</mat-option>
-</mat-select>
+<!-- Language Switcher -->
+<div class="lang-switcher" [class.collapsed]="!isExpanded">
+  <mat-form-field appearance="outline">
+    <mat-select
+    [value]="currentLang"
+      (selectionChange)="switchLang($event.value)"
+      panelClass="lang-panel"
+    >
+      <mat-option value="en">
+        <span *ngIf="isExpanded">English</span>
+      </mat-option>
+      <mat-option value="fr">
+        <span *ngIf="isExpanded">Français</span>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
 
 

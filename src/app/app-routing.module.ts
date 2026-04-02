@@ -27,100 +27,112 @@ import { SideNavBarComponent } from './components/side-nav-bar/side-nav-bar.comp
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { LoginGuard } from './guards/login.guard';
-import { VideoRoomComponent } from './components/video-room/video-room.component';
-
-/*export const routes: Routes = [
-  //{ path: '', component: App },
-  { path: 'home', component: PaymentComponent },
-  { path: 'success', component: SuccessComponent },
-  { path: 'cancel', component: CancelComponent },
-
-  { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  {
-    path: 'admin',
-    component: AdminComponent,
-    canActivate: [AuthGuard, RoleGuard],
-    data: { role: 'ADMIN' }
-  },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'unauthorized', component: UnauthorizedComponent }
-];*/
+import { HomeComponent } from './components/home/home.component';
+import { PricingComponent } from './components/pricing/pricing.component';
+//import { VideoRoomComponent } from './components/video-room/video-room.component';
 
 const routes: Routes = [
+
+  // --------------------
+  // AUTH
+  // --------------------
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
   { path: 'login-success', component: LoginSuccessComponent },
+
+  // --------------------
+  // ADMIN AREA
+  // --------------------
   {
     path: 'admin',
     component: AdminComponent,
     canActivate: [RoleGuard],
-     data: { roles: ['ROLE_ADMIN'] },
-     children: [
-      {
-        path: '',
-        component: AdminDashboardComponent,
-        canActivate: [AuthGuard],
-        data: {
-          roles: ['ROLE_ADMIN'],
-        },
-      },
-      { path: 'users', component: UserListComponent, canActivate: [RoleGuard],
-     data: { roles: ['ROLE_ADMIN'] } },
-    ]
+    data: { roles: ['ROLE_ADMIN'] },
+    children: [
+      { path: '', component: AdminDashboardComponent },
+      { path: 'users', component: UserListComponent },
+    ],
   },
+
+  // --------------------
+  // USER AREA
+  // --------------------
   {
     path: 'user',
     component: UserComponent,
     canActivate: [RoleGuard],
     data: { roles: ['ROLE_USER'] },
     children: [
-      {
-        path: '',
-        component: AdminDashboardComponent,
-        canActivate: [AuthGuard],
-        data: {
-          roles: ['ROLE_USER'],
-        },
-      },
-        { path: 'projects', component: ProjectListComponent, canActivate: [AuthGuard],
-        data: {
-          roles: ['ROLE_USER'],
-        } },
-        {
-        path: 'profile',
-        component: UserProfileComponent,
-        canActivate: [AuthGuard],
-        data: {
-          roles: ['ROLE_USER'],
-        },
-      },
-      ]
+      { path: '', component: DashboardComponent },
+      { path: 'projects', component: ProjectListComponent },
+      { path: 'profile', component: UserProfileComponent },
+    ],
   },
-    { path: 'payment', component: PaymentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_USER'] } },
-   //{ path: 'video', component: VideoCallComponent },
-  { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
-  { path: 'video/:roomId', component: VideoRoomComponent, canActivate: [AuthGuard] },
 
-  { path: 'unauthorized', component: UnauthorizedComponent },
-  { path: '**', component: PageNotFoundComponent },
-
-  { path: 'projects/new', component: ProjectFormComponent },
-  { path: 'projects/:id', component: ProjectFormComponent },
-  { path: 'tasks', component: TaskListComponent },
-  { path: 'tasks/new', component: TaskFormComponent },
-  { path: 'tasks/:id', component: TaskFormComponent },
-
-  { path: 'side', component: SideNavBarComponent },
-
-  { path: 'dash', component: DashboardComponent },
-
-  /*{
-    path: 'user',
-    component: UserComponent,
+  // --------------------
+  // PROJECTS & TASKS
+  // --------------------
+  {
+    path: 'projects/new',
+    component: ProjectFormComponent,
     canActivate: [RoleGuard],
-    data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] }
-  },*/
- // { path: '**', redirectTo: 'login' }
+    data: { roles: ['ROLE_USER'] },
+  },
+  {
+    path: 'projects/:id',
+    component: ProjectFormComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ROLE_USER'] },
+  },
+
+  {
+    path: 'tasks',
+    component: TaskListComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ROLE_USER'] },
+  },
+  {
+    path: 'tasks/new',
+    component: TaskFormComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ROLE_USER'] },
+  },
+  {
+    path: 'tasks/:id',
+    component: TaskFormComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ROLE_USER'] },
+  },
+
+  // --------------------
+  // REALTIME FEATURES
+  // --------------------
+  { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
+  //{ path: 'video/:roomId', component: VideoRoomComponent, canActivate: [AuthGuard] },
+
+  // --------------------
+  // PAYMENTS
+  // --------------------
+  {
+    path: 'payment',
+    component: PaymentComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ROLE_USER'] },
+  },
+  { path: 'payment-success', component: SuccessComponent },
+  { path: 'payment-cancel', component: CancelComponent },
+
+  // --------------------
+  // MISC
+  // --------------------
+  { path: 'unauthorized', component: UnauthorizedComponent },
+
+  // --------------------
+  // FALLBACK (MUST BE LAST)
+  // --------------------
+  { path: '', component: HomeComponent },
+  { path: 'pricing', component: PricingComponent },
+  { path: '**', component: PageNotFoundComponent },
+  
 ];
 
 @NgModule({

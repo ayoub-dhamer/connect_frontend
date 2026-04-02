@@ -1,20 +1,15 @@
-<div [dir]="'dir' | translate">
-  <div class="layout">
-  <!-- Sidebar -->
+<div class="layout">
   <aside class="sidebar" [class.collapsed]="!sideBarOpen">
-    <app-side-nav-bar></app-side-nav-bar>
+    <app-side-nav-bar [isExpanded]="sideBarOpen"></app-side-nav-bar>
   </aside>
 
-  <!-- Main Content -->
   <div class="main">
-    <app-home-header (toggleSidebarForMe)="sideBarToggler()"></app-home-header>
+    <app-home-header
+      (toggleSidebarForMe)="sideBarToggler()">
+    </app-home-header>
 
     <div class="content">
       <router-outlet></router-outlet>
     </div>
   </div>
 </div>
-</div> 
-
-
-

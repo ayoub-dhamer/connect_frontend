@@ -1,7 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+
+export interface UserDTO {
+  id: number;
+  email: string;
+  name: string;
+  roles: string[];
+  subscriptionStatus: 'NONE' | 'ACTIVE' | 'CANCELLED';
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -15,40 +25,33 @@ export class AuthService {
     window.location.href = 'http://localhost:8080/oauth2/authorization/google';
   }
 
-  logout() {
-    // backend cookie expires automatically, just reload
-    window.location.href = 'http://localhost:4200';
+  logout(): void {
+    // Backend clears HTTP-only cookie
+    window.location.href = 'http://localhost:8080/logout';
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('jwt');
+ // Backend verifies cookie
+  getCurrentUser(): Observable<UserDTO | null> {
+    return this.http.get<UserDTO>('/api/me', { withCredentials: true }).pipe(
+      catchError(() => of(null))
+    );
   }
 
-  isAuthenticated(): boolean {
-    const token = this.getToken();
-    return !!token;
+  isAuthenticated(): Observable<boolean> {
+    return this.getCurrentUser().pipe(map(user => !!user));
   }
 
-  hasRole(role: string): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.roles?.includes(role);
+  hasActiveSubscription(): Observable<boolean> {
+    return this.getCurrentUser().pipe(map(user => user?.subscriptionStatus === 'ACTIVE'));
   }
 
-  getRoles(): string[] {
-  const token = this.getToken();
-  if (!token) return [];
-
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return Array.isArray(payload.roles) ? payload.roles : [];
-  } catch (error) {
-    console.error('Failed to parse JWT roles:', error);
-    return [];
+  getRoles(): Observable<string[]> {
+    return this.getCurrentUser().pipe(map(user => user?.roles ?? []));
   }
-}
+
+
+
+
 
   
 

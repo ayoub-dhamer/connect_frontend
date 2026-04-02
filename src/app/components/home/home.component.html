@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProManage – Project Management</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+
+    body { background: #f5f7fb; color: #1f2937; }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* Navbar */
+    header { background: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+    .nav-container {
+      max-width: 1200px; margin: auto; padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-size: 24px; font-weight: bold; color: #4f46e5; }
+    nav a { margin-left: 24px; font-size: 14px; }
+    nav a:hover { color: #4f46e5; }
+    .nav-buttons button {
+      margin-left: 12px; padding: 8px 16px; border-radius: 8px;
+      border: 1px solid #e5e7eb; background: white; cursor: pointer;
+    }
+    .nav-buttons .primary { background: #4f46e5; color: white; border: none; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      color: white; padding: 100px 24px;
+    }
+    .hero-container {
+      max-width: 1200px; margin: auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+    }
+    .hero h1 { font-size: 48px; line-height: 1.2; }
+    .hero p { margin-top: 24px; font-size: 18px; color: #e0e7ff; }
+    .hero-buttons { margin-top: 32px; }
+    .hero-buttons button {
+      padding: 14px 28px; border-radius: 12px; border: none; cursor: pointer;
+      margin-right: 12px; font-size: 16px;
+    }
+    .hero-buttons .white { background: white; color: #4f46e5; }
+    .hero-buttons .outline { background: transparent; color: white; border: 2px solid white; }
+    .hero-preview {
+      background: rgba(255,255,255,0.15); height: 320px; border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Features */
+    .features { max-width: 1200px; margin: auto; padding: 100px 24px; }
+    .features h2 { text-align: center; font-size: 36px; margin-bottom: 60px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .feature {
+      background: white; padding: 32px; border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    .feature h3 { font-size: 20px; margin-bottom: 12px; }
+    .feature p { color: #6b7280; line-height: 1.6; }
+
+    /* CTA */
+    .cta { background: #4f46e5; color: white; padding: 80px 24px; text-align: center; }
+    .cta h2 { font-size: 36px; }
+    .cta p { margin-top: 16px; color: #e0e7ff; }
+    .cta button {
+      margin-top: 32px; padding: 16px 36px; border-radius: 14px;
+      border: none; background: white; color: #4f46e5; font-size: 16px; cursor: pointer;
+    }
+
+    /* Footer */
+    footer { background: #111827; color: #9ca3af; }
+    .footer-container {
+      max-width: 1200px; margin: auto; padding: 40px 24px;
+      display: flex; justify-content: space-between; flex-wrap: wrap;
+    }
+    .footer-links a { margin-left: 20px; font-size: 14px; }
+    .footer-links a:hover { color: white; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-container { grid-template-columns: 1fr; text-align: center; }
+      .feature-grid { grid-template-columns: 1fr; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav-container">
+    <div class="logo">ProManage</div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Features</a>
+      <a href="#">Pricing</a>
+      <a href="#">Contact</a>
+    </nav>
+    <div class="nav-buttons">
+      <a routerLink="/login">
+  <button>Login</button>
+</a>
+      <button class="primary">Get Started</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-container">
+    <div>
+      <h1>Manage Projects. Chat. Meet.<br/>All in One Place.</h1>
+      <p>Plan projects, message your team, and start video calls — all from one powerful platform.</p>
+      <div class="hero-buttons">
+        <button class="white">Start Free Trial</button>
+        <button class="outline">View Demo</button>
+      </div>
+    </div>
+    <div class="hero-preview">Dashboard Preview</div>
+  </div>
+</section>
+
+<section class="features">
+  <h2>Everything Your Team Needs</h2>
+  <div class="feature-grid">
+    <div class="feature">
+      <h3>Project Management</h3>
+      <p>Create projects, assign tasks, set deadlines, and track progress easily.</p>
+    </div>
+    <div class="feature">
+      <h3>Real-Time Messaging</h3>
+      <p>Chat privately or in teams, share files, and keep conversations organized.</p>
+    </div>
+    <div class="feature">
+      <h3>Video Calls</h3>
+      <p>Start instant video meetings directly from your projects or chats.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Ready to Boost Productivity?</h2>
+  <p>Join teams managing projects smarter with ProManage.</p>
+  <button>Get Started Free</button>
+</section>
+
+<footer>
+  <div class="footer-container">
+    <p>© 2026 ProManage. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Support</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

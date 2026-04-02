@@ -55,7 +55,10 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { CsrfInterceptor } from './interceptors/csrf.interceptor';
 import { CheckoutComponent } from './components/checkout/checkout.component';
-import { VideoRoomComponent } from './components/video-room/video-room.component';
+import { HomeComponent } from './components/home/home.component';
+//import { VideoRoomComponent } from './components/video-room/video-room.component';
+import { LucideAngularModule, Layout, MessageSquare, Video } from 'lucide-angular';
+import { PricingComponent } from './components/pricing/pricing.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +85,9 @@ import { VideoRoomComponent } from './components/video-room/video-room.component
     UserProfileComponent,
     PageNotFoundComponent,
     CheckoutComponent,
-    VideoRoomComponent
+    HomeComponent,
+    PricingComponent,
+    //VideoRoomComponent
   ],
   imports: [
     BrowserModule,

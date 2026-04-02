@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service'; // adjust path
@@ -10,17 +10,24 @@ import { AuthService } from '../../services/auth.service'; // adjust path
 })
 export class SideNavBarComponent implements OnInit {
 
-  isExpanded = true;
+   @Input() isExpanded = true;
 
-  toggleSidebar() {
-    this.isExpanded = !this.isExpanded;
-  }
+   currentLang!: string;
+
+
+
+ 
 
 constructor(private translate: TranslateService, private auth: AuthService) {
   this.translate.setDefaultLang('en');
+  this.currentLang =
+    this.translate.currentLang ||
+    this.translate.defaultLang ||
+    'en';
 }
 
 switchLang(lang: string) {
+  this.currentLang = lang;
   this.translate.use(lang);
 }
 

@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Client, StompSubscription, IMessage } from '@stomp/stompjs';
+/*import { Injectable } from '@angular/core';
+import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
+// Add these specific type imports if the above still fail:
+import type { IStompSocket } from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
 
 export interface ChatMessage {
@@ -21,9 +23,9 @@ export interface SignalMessage {
   providedIn: 'root',
 })
 export class WebSocketService {
-  private client!: Client; 
-  private chatSubscription?: StompSubscription;
-  private signalingSubscriptions: Map<string, StompSubscription> = new Map();
+  private client!: any; 
+  private chatSubscription?: any;
+  private signalingSubscriptions: Map<string, any> = new Map();
 
   private readonly WS_URL = 'http://localhost:8080/ws'; // Backend endpoint
 
@@ -106,4 +108,4 @@ export class WebSocketService {
       body: JSON.stringify(message),
     });
   }
-}
+}*/
