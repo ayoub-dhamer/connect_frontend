@@ -13,7 +13,7 @@ declare var Stripe: any;
 })
 export class PaymentComponent {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }   
 
 
 
