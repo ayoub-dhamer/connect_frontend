@@ -15,7 +15,7 @@ export class PaymentComponent {
 
   constructor(private http: HttpClient) { }   
 
-
+   
 
   subscribe(): void {
     this.http.post<{ sessionId: string }>('/api/create-checkout-session', {}, { withCredentials: true })
