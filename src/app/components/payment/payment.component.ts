@@ -17,7 +17,7 @@ export class PaymentComponent {
 
 
 
-  subscribe(): void {      
+  subscribe(): void {
     this.http.post<{ sessionId: string }>('/api/create-checkout-session', {}, { withCredentials: true })
       .subscribe(res => {
         const stripe = Stripe('pk_test_51S5kHMGZ5UiJLAbdx1rULqKMoOILodlY4BnFZgpGHVHGeGOfLJHViNFTSiB9OKuC6zQWThMQmGjrd0zh0tekMQQT00AACFluRf'); // your Stripe publishable key
