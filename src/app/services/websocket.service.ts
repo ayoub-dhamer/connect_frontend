@@ -1,14 +1,14 @@
-/*import { Injectable } from '@angular/core';
+// websocket.service.ts
+import { Injectable } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-// Add these specific type imports if the above still fail:
-import type { IStompSocket } from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
+import { BehaviorSubject, Subject } from 'rxjs';
 
+// ✅ Single source of truth for these interfaces
 export interface ChatMessage {
-  id?: number;
+  sender: { email: string };
+  receiver: { email: string };
   content: string;
-  senderEmail: string;
-  receiverEmail: string;
   timestamp?: string;
 }
 
@@ -16,25 +16,32 @@ export interface SignalMessage {
   type: 'offer' | 'answer' | 'candidate' | 'join' | 'leave';
   roomId: string;
   sender: string;
-  payload: any; 
+  payload?: any;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class WebSocketService {
-  private client!: any; 
-  private chatSubscription?: any;
-  private signalingSubscriptions: Map<string, any> = new Map();
+  private client!: Client;
 
-  private readonly WS_URL = 'http://localhost:8080/ws'; // Backend endpoint
+  // Chat stream
+  private messagesSubject = new BehaviorSubject<ChatMessage | null>(null);
+  public messages$ = this.messagesSubject.asObservable();
 
-  constructor() {}
+  // Signaling stream
+  private signalingSubject = new Subject<SignalMessage>();
+  public signals$ = this.signalingSubject.asObservable();
+
+  private chatSubscription?: StompSubscription;
+  private signalingSubscriptions = new Map<string, StompSubscription>();
+
+  private readonly WS_URL = 'http://localhost:8080/ws';
 
   // -------------------------
-  // Connect to STOMP WebSocket
+  // Connection
   // -------------------------
-  connect(onMessage: (msg: ChatMessage) => void): void {
+  connect(): void {
+    if (this.client?.active) return; // ✅ prevent double connection
+
     this.client = new Client({
       webSocketFactory: () => new SockJS(this.WS_URL),
       reconnectDelay: 5000,
@@ -42,13 +49,12 @@ export class WebSocketService {
     });
 
     this.client.onConnect = () => {
-      console.log('STOMP connected');
+      console.log('✅ STOMP connected');
+      this.subscribeToChat();
+    };
 
-      // Subscribe to user messages
-      this.chatSubscription = this.client.subscribe('/user/queue/messages', (message: any) => {
-        const chatMsg: ChatMessage = JSON.parse(message.body);
-        onMessage(chatMsg);
-      });
+    this.client.onStompError = (frame) => {
+      console.error('❌ STOMP error:', frame.headers['message']);
     };
 
     this.client.activate();
@@ -56,21 +62,36 @@ export class WebSocketService {
 
   disconnect(): void {
     this.chatSubscription?.unsubscribe();
-    this.signalingSubscriptions.forEach((sub) => sub.unsubscribe());
+    this.signalingSubscriptions.forEach(sub => sub.unsubscribe());
     this.signalingSubscriptions.clear();
 
-    if (this.client && this.client.active) {
+    if (this.client?.active) {
       this.client.deactivate();
-      console.log('STOMP disconnected');
+      console.log('🔌 STOMP disconnected');
     }
   }
 
   // -------------------------
   // Chat
   // -------------------------
-  sendChatMessage(message: ChatMessage): void {
-    if (!this.client || !this.client.active) return;
+  private subscribeToChat(): void {
+    // ✅ Correct destination — user-specific queue, not broadcast topic
+    this.chatSubscription = this.client.subscribe(
+      '/user/queue/messages',
+      (message: IMessage) => {
+        if (message.body) {
+          const chatMsg: ChatMessage = JSON.parse(message.body);
+          this.messagesSubject.next(chatMsg);
+        }
+      }
+    );
+  }
 
+  sendChatMessage(message: ChatMessage): void {
+    if (!this.client?.active) {
+      console.warn('Cannot send — STOMP not connected');
+      return;
+    }
     this.client.publish({
       destination: '/app/chat',
       body: JSON.stringify(message),
@@ -80,32 +101,40 @@ export class WebSocketService {
   // -------------------------
   // WebRTC Signaling
   // -------------------------
-  subscribeToRoom(roomId: string, onSignal: (msg: SignalMessage) => void): void {
-    if (!this.client || !this.client.active) return;
+  subscribeToRoom(roomId: string): void {
+    if (!this.client?.active) {
+      console.warn('Cannot subscribe — STOMP not connected');
+      return;
+    }
 
-    const destination = `/topic/room.${roomId}`;
-    if (this.signalingSubscriptions.has(roomId)) return;
+    if (this.signalingSubscriptions.has(roomId)) return; // ✅ no duplicate subs
 
-    const sub = this.client.subscribe(destination, (message: any) => {
-      const signalMsg: SignalMessage = JSON.parse(message.body);
-      onSignal(signalMsg);
-    });
+    const sub = this.client.subscribe(
+      `/topic/room.${roomId}`,
+      (message: IMessage) => {
+        if (message.body) {
+          const signal: SignalMessage = JSON.parse(message.body);
+          this.signalingSubject.next(signal);
+        }
+      }
+    );
 
     this.signalingSubscriptions.set(roomId, sub);
   }
 
   unsubscribeFromRoom(roomId: string): void {
-    const sub = this.signalingSubscriptions.get(roomId);
-    sub?.unsubscribe();
+    this.signalingSubscriptions.get(roomId)?.unsubscribe();
     this.signalingSubscriptions.delete(roomId);
   }
 
   sendSignalMessage(roomId: string, message: SignalMessage): void {
-    if (!this.client || !this.client.active) return;
-
+    if (!this.client?.active) {
+      console.warn('Cannot send signal — STOMP not connected');
+      return;
+    }
     this.client.publish({
       destination: `/app/room/${roomId}`,
       body: JSON.stringify(message),
     });
   }
-}*/
+}

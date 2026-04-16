@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, map, tap } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 export interface UserDTO {
   id: number;
@@ -20,6 +20,24 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  private currentUser$ = new BehaviorSubject<UserDTO | null>(null);
+
+loadUser(): Observable<UserDTO | null> {
+  if (this.currentUser$.value) return this.currentUser$.asObservable();
+  return this.http.get<UserDTO>('http://localhost:8080/api/user/me', { withCredentials: true }).pipe(
+    tap(user => this.currentUser$.next(user)),
+    catchError(() => of(null))
+  );
+}
+
+getUser(): Observable<UserDTO | null> {
+  return this.currentUser$.asObservable();
+}
+
+clearUser(): void {
+  this.currentUser$.next(null);
+}
+
   loginWithGoogle(): void {
     // Redirect to backend OAuth2 endpoint
     window.location.href = 'http://localhost:8080/oauth2/authorization/google';
@@ -32,9 +50,7 @@ export class AuthService {
 
  // Backend verifies cookie
   getCurrentUser(): Observable<UserDTO | null> {
-    return this.http.get<UserDTO>('/api/me', { withCredentials: true }).pipe(
-      catchError(() => of(null))
-    );
+    return this.http.get<UserDTO>('http://localhost:8080/api/user/me', { withCredentials: true })
   }
 
   isAuthenticated(): Observable<boolean> {

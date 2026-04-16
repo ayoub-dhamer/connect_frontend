@@ -9,9 +9,6 @@ export class PaymentService {
   constructor(private http: HttpClient) {}
 
   checkout(amount: number) {
-    return this.http.post<any>(
-      `${this.api}/create-checkout-session`,
-      { amount }
-    );
+    return this.http.post<any>(`${this.api}/create-checkout-session`, { amount }, { withCredentials: true });
   }
 }

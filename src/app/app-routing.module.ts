@@ -37,7 +37,7 @@ const routes: Routes = [
   // AUTH
   // --------------------
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
-  { path: 'login-success', component: LoginSuccessComponent },
+  { path: 'login-success', component: LoginSuccessComponent, canActivate: [AuthGuard] },
 
   // --------------------
   // ADMIN AREA
@@ -118,8 +118,8 @@ const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: ['ROLE_USER'] },
   },
-  { path: 'payment-success', component: SuccessComponent },
-  { path: 'payment-cancel', component: CancelComponent },
+  { path: 'payment-success', component: SuccessComponent, canActivate: [AuthGuard] },
+{ path: 'payment-cancel', component: CancelComponent, canActivate: [AuthGuard] },
 
   // --------------------
   // MISC

@@ -1,31 +1,11 @@
-export interface CsrfInterceptor {
-}
-// csrf.interceptor.ts
-import { Injectable } from '@angular/core';
-import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler
-} from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 
-@Injectable()
-export class CsrfInterceptor implements HttpInterceptor {
+export const csrfInterceptorFn: HttpInterceptorFn = (req, next) => {
+  const xsrfToken = document.cookie.match('(^| )XSRF-TOKEN=([^;]+)')?.[2];
+  return next(req.clone({
+    withCredentials: true,
+    setHeaders: xsrfToken ? { 'X-XSRF-TOKEN': xsrfToken } : {}
+  }));
+};
 
-  intercept(req: HttpRequest<any>, next: HttpHandler) {
-    const xsrfToken = this.getCookie('XSRF-TOKEN');
-
-    let cloned = req.clone({
-      withCredentials: true, // 🔑 sends JWT cookie
-      setHeaders: xsrfToken
-        ? { 'X-XSRF-TOKEN': xsrfToken }
-        : {}
-    });
-
-    return next.handle(cloned);
-  }
-
-  private getCookie(name: string): string | null {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  }
-}
+export { HttpInterceptorFn };

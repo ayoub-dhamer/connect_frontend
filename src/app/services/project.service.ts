@@ -3,6 +3,15 @@ import { ApiService } from './api.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProjectService extends ApiService {
 
@@ -11,9 +20,12 @@ export class ProjectService extends ApiService {
   }
 
   /** Get all projects */
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.url('projects'), this.options());
-  }
+ getAll(page = 0, size = 10): Observable<PageResponse<any>> {
+  return this.http.get<PageResponse<any>>(
+    this.url('projects'),
+    this.options({ page, size })
+  );
+}
 
   /** Get project by ID */
   getById(id: number): Observable<any> {

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { ApplicationConfig, BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -12,7 +12,7 @@ import { PaymentComponent } from './components/payment/payment.component';
 import { SuccessComponent } from './components/success/success.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withXsrfConfiguration, withInterceptors } from '@angular/common/http';
 import { LoginSuccessComponent } from './components/login-success/login-success.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { VideoCallComponent } from './components/video-call/video-call.component';
@@ -53,12 +53,24 @@ import { UserComponent } from './components/user/user.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
-import { CsrfInterceptor } from './interceptors/csrf.interceptor';
+import { HttpInterceptorFn } from './interceptors/csrf.interceptor';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { HomeComponent } from './components/home/home.component';
 //import { VideoRoomComponent } from './components/video-room/video-room.component';
 import { LucideAngularModule, Layout, MessageSquare, Video } from 'lucide-angular';
 import { PricingComponent } from './components/pricing/pricing.component';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN',
+        headerName: 'X-XSRF-TOKEN'
+      }),
+      withInterceptors([HttpInterceptorFn])
+    )
+  ]
+};
 
 @NgModule({
   declarations: [
