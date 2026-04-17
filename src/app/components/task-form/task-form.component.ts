@@ -36,8 +36,8 @@ export class TaskFormComponent implements OnInit {
       projectId: [null]
     });
 
-    this.userService.getAll().subscribe(u => this.users = u);
-    this.projectService.getAll().subscribe(p => this.projects = p);
+//    this.userService.getAll().subscribe(u => this.users = u);
+ //   this.projectService.getAll().subscribe(p => this.projects = p);
 
     this.route.paramMap.subscribe(params => {
       const idStr = params.get('id');

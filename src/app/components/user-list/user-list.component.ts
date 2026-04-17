@@ -30,8 +30,8 @@ export class UserListComponent implements OnInit {
     this.loading = true;
     this.userService.getAll().subscribe({
       next: (data) => {
-        this.users = data;
-        this.filteredUsers = data;
+       // this.users = data;
+       // this.filteredUsers = data;
         this.updatePagination();
         this.loading = false;
       },

@@ -32,8 +32,8 @@ export class ProjectListComponent implements OnInit {
       this.loading = true;
       this.projectService.getAll().subscribe({
         next: (data) => {
-          this.projects = data;
-          this.filteredProjects = data;
+       //   this.projects = data;
+         // this.filteredProjects = data;
           this.updatePagination();
           this.loading = false;
         },

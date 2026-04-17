@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SignalingService } from '../../services/signaling.service';
 import { Subscription } from 'rxjs';
 //import { SignalMessage } from '../../services/signaling.service';
 

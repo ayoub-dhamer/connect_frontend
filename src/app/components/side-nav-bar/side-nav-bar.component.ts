@@ -61,7 +61,7 @@ switchLang(lang: string) {
   ];
 
    ngOnInit() {
-    this.userRoles = this.auth.getRoles(); 
+   // this.userRoles = this.auth.getRoles(); 
   }
 
   canShow(item: any): boolean {

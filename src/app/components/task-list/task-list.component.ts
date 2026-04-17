@@ -18,7 +18,8 @@ export class TaskListComponent implements OnInit {
   load() {
     this.loading = true;
     this.taskService.getAll().subscribe({
-      next: data => { this.tasks = data; this.loading = false; },
+      next: data => { //this.tasks = data; this.loading = false; 
+      },
       error: err => { this.error = err.message || 'Failed'; this.loading = false; }
     });
   }

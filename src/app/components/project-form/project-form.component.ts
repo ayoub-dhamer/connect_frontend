@@ -31,7 +31,7 @@ export class ProjectFormComponent implements OnInit {
       participantIds: [[]] // array of user ids
     });
 
-    this.userService.getAll().subscribe(u => this.users = u);
+   // this.userService.getAll().subscribe(u => this.users = u);
 
     console.log(this.users);
 

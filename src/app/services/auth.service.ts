@@ -49,9 +49,12 @@ clearUser(): void {
   }
 
  // Backend verifies cookie
+
   getCurrentUser(): Observable<UserDTO | null> {
-    return this.http.get<UserDTO>('http://localhost:8080/api/user/me', { withCredentials: true })
-  }
+  return this.http.get<UserDTO>('http://localhost:8080/api/user/me', { withCredentials: true }).pipe(
+    catchError(() => of(null)) // ✅ 401 now returns null cleanly, no more CORS redirect
+  );
+}
 
   isAuthenticated(): Observable<boolean> {
     return this.getCurrentUser().pipe(map(user => !!user));
