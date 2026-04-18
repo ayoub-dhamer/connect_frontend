@@ -1,81 +1,15 @@
-.dashboard-container {
-  padding: 2rem;
-  background-color: #f8f9fa;
-}
-
-/* KPI Cards */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.card {
-  color: white;
-  text-align: center;
-  padding: 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-}
-
-.bg-primary { background: #007bff; }
-.bg-success { background: #28a745; }
-.bg-warning { background: #ffc107; color: #333; }
-.bg-info { background: #17a2b8; }
-
-/* Charts */
-.charts-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.chart-card {
-  flex: 1;
-  min-width: 300px;
-  background: white;
-  padding: 1rem;
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-}
-
-.chart-card h4 {
-  margin-bottom: 1rem;
-}
-
-/* Table */
-.table-section {
-  background: white;
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-}
-
-.full-width-table {
-  width: 100%;
-}
-
-.filter-input {
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-.badge {
-  padding: 0.4em 0.8em;
-  border-radius: 6px;
-  font-size: 0.85em;
-  color: white;
-}
-
-.badge-success { background: #28a745; }
-.badge-warning { background: #ffc107; color: #333; }
-.badge-danger { background: #dc3545; }
-
-@media (max-width: 768px) {
-  .charts-row {
-    flex-direction: column;
-  }
-}
+.dashboard { padding: 32px; }
+    .page-title { font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 32px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+    .stat-card { background: white; border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); }
+    .stat-icon { font-size: 36px; }
+    .stat-label { color: #6b7280; font-size: 13px; }
+    .stat-value { font-size: 28px; font-weight: 700; color: #1f2937; }
+    .sections-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .section-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); }
+    .section-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937; }
+    .empty { color: #9ca3af; font-size: 14px; padding: 12px 0; }
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .sections-grid { grid-template-columns: 1fr; }
+    }

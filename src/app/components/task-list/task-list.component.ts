@@ -1,36 +1,72 @@
 import { Component, OnInit } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 import { TaskService } from '../../services/task.service';
-import { Router } from '@angular/router';
+import { ToastMessageService } from '../../services/toast-message.service';
 
 @Component({
   selector: 'app-task-list',
-  templateUrl: './task-list.component.html'
+  templateUrl: './task-list.component.html',
+  styleUrls: ['./task-list.component.css']
 })
 export class TaskListComponent implements OnInit {
+
   tasks: any[] = [];
+  columns = ['name', 'priority', 'status', 'project', 'actions'];
   loading = false;
-  error?: string;
 
-  constructor(private taskService: TaskService, private router: Router) {}
+  totalElements = 0;
+  pageSize = 10;
+  currentPage = 0;
 
-  ngOnInit(): void { this.load(); }
+  constructor(
+    private taskService: TaskService,
+    private toast: ToastMessageService
+  ) {}
 
-  load() {
+  ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
     this.loading = true;
-    this.taskService.getAll().subscribe({
-      next: data => { //this.tasks = data; this.loading = false; 
+    this.taskService.getAll(this.currentPage, this.pageSize).subscribe({
+      next: (res: any) => {
+        this.tasks = res.content ?? res;
+        this.totalElements = res.totalElements ?? this.tasks.length;
+        this.loading = false;
       },
-      error: err => { this.error = err.message || 'Failed'; this.loading = false; }
+      error: () => {
+        this.toast.error('Failed to load tasks');
+        this.loading = false;
+      }
     });
   }
 
-  getAssignedEmails(t: any): string {
-  if (!t.assignedTeamMembers) return '';
-  return t.assignedTeamMembers.map((u: any) => u.email).join(', ');
-}
+  onPage(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.load();
+  }
 
+  delete(id: number): void {
+    if (!confirm('Delete this task?')) return;
 
-  add() { this.router.navigate(['/tasks/new']); }
-  edit(t: any) { if (t.id) this.router.navigate(['/tasks', t.id]); }
-  delete(t: any) { if (!t.id || !confirm(`Delete ${t.name}?`)) return; this.taskService.delete(t.id).subscribe(() => this.load()); }
+    this.taskService.delete(id).subscribe({
+      next: () => {
+        this.toast.success('Task deleted');
+        this.load();
+      },
+      error: () => {
+        this.toast.error('Cannot delete task');
+      }
+    });
+  }
+
+  priorityColor(priority: string): string {
+    return priority === 'HIGH'
+      ? 'warn'
+      : priority === 'MEDIUM'
+        ? 'accent'
+        : 'primary';
+  }
 }

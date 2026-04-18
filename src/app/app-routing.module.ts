@@ -29,7 +29,7 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { LoginGuard } from './guards/login.guard';
 import { HomeComponent } from './components/home/home.component';
 import { PricingComponent } from './components/pricing/pricing.component';
-//import { VideoRoomComponent } from './components/video-room/video-room.component';
+import { CheckoutComponent } from './components/checkout/checkout.component';
 
 const routes: Routes = [
 
@@ -107,7 +107,7 @@ const routes: Routes = [
   // REALTIME FEATURES
   // --------------------
   { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
-  //{ path: 'video/:roomId', component: VideoRoomComponent, canActivate: [AuthGuard] },
+  { path: 'video/:roomId', component: VideoCallComponent, canActivate: [AuthGuard] },
 
   // --------------------
   // PAYMENTS
@@ -131,6 +131,7 @@ const routes: Routes = [
   // --------------------
   { path: '', component: HomeComponent },
   { path: 'pricing', component: PricingComponent },
+  { path: 'checkout', component: CheckoutComponent },
   { path: '**', component: PageNotFoundComponent },
   
 ];

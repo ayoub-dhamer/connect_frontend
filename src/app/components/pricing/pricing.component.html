@@ -1,54 +1,51 @@
 <div class="pricing-page">
-  <h1 class="pricing-title">Choose Your Plan</h1>
-  <p class="pricing-subtitle">Simple pricing, no hidden fees.</p>
+  <h1>Simple, Transparent Pricing</h1>
+  <p class="subtitle">Start free. Upgrade when you're ready.</p>
 
-  <div class="pricing-cards">
+  <div class="plans">
 
     <!-- Free Plan -->
-    <div class="pricing-card">
-      <div class="card-header">
-        <h2>Free</h2>
-        <p class="price">$0<span>/mo</span></p>
-      </div>
-      <ul class="features">
-        <li>3 Projects</li>
-        <li>5 Team Members</li>
-        <li>Basic Messaging</li>
-        <li>Limited Video Calls</li>
+    <div class="plan">
+      <h2>Free</h2>
+      <p class="price">$0 <span>/month</span></p>
+
+      <ul>
+        <li>✅ Up to 3 projects</li>
+        <li>✅ Up to 10 tasks</li>
+        <li>✅ Basic chat</li>
+        <li>❌ Video calls</li>
+        <li>❌ Priority support</li>
       </ul>
-      <button class="btn-select">Get Started</button>
+
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="router.navigate(['/login'])">
+        Get Started Free
+      </button>
     </div>
 
     <!-- Pro Plan -->
-    <div class="pricing-card popular">
-      <div class="card-header">
-        <h2>Pro</h2>
-        <p class="price">$19<span>/mo</span></p>
-      </div>
-      <ul class="features">
-        <li>Unlimited Projects</li>
-        <li>Up to 20 Team Members</li>
-        <li>Advanced Messaging</li>
-        <li>Unlimited Video Calls</li>
-        <li>Priority Support</li>
-      </ul>
-      <button class="btn-select">Get Started</button>
-    </div>
+    <div class="plan featured">
+      <div class="badge">Most Popular</div>
 
-    <!-- Enterprise Plan -->
-    <div class="pricing-card">
-      <div class="card-header">
-        <h2>Enterprise</h2>
-        <p class="price">$49<span>/mo</span></p>
-      </div>
-      <ul class="features">
-        <li>Unlimited Projects</li>
-        <li>Unlimited Team Members</li>
-        <li>Advanced Messaging + Integrations</li>
-        <li>Unlimited Video Calls</li>
-        <li>Dedicated Support</li>
+      <h2>Pro</h2>
+      <p class="price">$20 <span>/month</span></p>
+
+      <ul>
+        <li>✅ Unlimited projects</li>
+        <li>✅ Unlimited tasks</li>
+        <li>✅ Real-time chat</li>
+        <li>✅ Video calls</li>
+        <li>✅ Priority support</li>
       </ul>
-      <button class="btn-select">Contact Sales</button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="router.navigate(['/checkout'])">
+        Get Pro
+      </button>
     </div>
 
   </div>

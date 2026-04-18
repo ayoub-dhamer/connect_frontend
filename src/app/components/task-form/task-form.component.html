@@ -1,48 +1,77 @@
-<div>
-  <h2>{{ id ? 'Edit Task' : 'New Task' }}</h2>
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <div>
-      <label>Name</label>
-      <input formControlName="name" />
-    </div>
+<div class="form-page">
+  <h1>{{ isEdit ? 'Edit Task' : 'New Task' }}</h1>
 
-    <div>
-      <label>Description</label>
-      <textarea formControlName="description"></textarea>
-    </div>
+  <mat-card class="form-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
 
-    <div>
-      <label>Priority</label>
-      <select formControlName="priority">
-        <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
-      </select>
-    </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Task Name</mat-label>
+        <input matInput formControlName="name" />
+        <mat-error *ngIf="form.get('name')?.hasError('required')">
+          Required
+        </mat-error>
+      </mat-form-field>
 
-    <div>
-      <label>Status</label>
-      <select formControlName="status">
-        <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-      </select>
-    </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="3"></textarea>
+      </mat-form-field>
 
-    <div>
-      <label>Project</label>
-      <select formControlName="projectId">
-        <option [ngValue]="null">-- none --</option>
-        <option *ngFor="let p of projects" [ngValue]="p.id">{{ p.name }}</option>
-      </select>
-    </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option value="HIGH">High</mat-option>
+          <mat-option value="MEDIUM">Medium</mat-option>
+          <mat-option value="LOW">Low</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <div>
-      <label>Assignees</label>
-      <select formControlName="assignedIds" multiple>
-        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.email }}</option>
-      </select>
-    </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="ONGOING">Ongoing</mat-option>
+          <mat-option value="DONE">Done</mat-option>
+          <mat-option value="FAILED">Failed</mat-option>
+          <mat-option value="EXPIRED">Expired</mat-option>
+          <mat-option value="CANCELLED">Cancelled</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <div>
-      <button type="submit" [disabled]="form.invalid">Save</button>
-      <button type="button" (click)="cancel()">Cancel</button>
-    </div>
-  </form>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Project</mat-label>
+        <mat-select formControlName="projectId">
+          <mat-option *ngFor="let p of projects" [value]="p.id">
+            {{ p.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Assigned Members</mat-label>
+        <mat-select formControlName="assignedUserIds" multiple>
+          <mat-option *ngFor="let u of users" [value]="u.id">
+            {{ u.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="router.navigate(['/tasks'])">
+          Cancel
+        </button>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || loading">
+          {{ isEdit ? 'Update' : 'Create' }}
+        </button>
+      </div>
+
+    </form>
+  </mat-card>
 </div>

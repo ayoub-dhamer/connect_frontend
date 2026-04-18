@@ -1,84 +1,99 @@
 import { Component, OnInit } from '@angular/core';
-import { TaskService } from '../../services/task.service';
-import { UserService } from '../../services/user.service';
-import { ProjectService } from '../../services/project.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TaskService } from '../../services/task.service';
+import { ProjectService } from '../../services/project.service';
+import { UserService } from '../../services/user.service';
+import { ToastMessageService } from '../../services/toast-message.service';
 
 @Component({
   selector: 'app-task-form',
-  templateUrl: './task-form.component.html'
+  templateUrl: './task-form.component.html',
+  styleUrls: ['./task-form.component.css']
 })
 export class TaskFormComponent implements OnInit {
+
   form!: FormGroup;
-  id?: number;
-  users: any[] = [];
+  isEdit = false;
+  loading = false;
+
   projects: any[] = [];
-  priorities = ['HIGH', 'MEDIUM', 'LOW'];
-  statuses = ['DONE', 'ONGOING', 'FAILED', 'EXPIRED', 'CANCELLED'];
+  users: any[] = [];
+  taskId!: number;
 
   constructor(
     private fb: FormBuilder,
     private taskService: TaskService,
-    private userService: UserService,
     private projectService: ProjectService,
-    private route: ActivatedRoute,
-    private router: Router
+    private userService: UserService,
+    private toast: ToastMessageService,
+    public router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      priority: ['MEDIUM'],
-      status: ['ONGOING'],
-      assignedIds: [[]],
-      projectId: [null]
+      priority: ['MEDIUM', Validators.required],
+      status: ['ONGOING', Validators.required],
+      projectId: [null, Validators.required],
+      assignedUserIds: [[]]
     });
 
-//    this.userService.getAll().subscribe(u => this.users = u);
- //   this.projectService.getAll().subscribe(p => this.projects = p);
-
-    this.route.paramMap.subscribe(params => {
-      const idStr = params.get('id');
-      if (idStr && idStr !== 'new') {
-        this.id = +idStr;
-        this.load(this.id);
-      }
+    this.projectService.getAll().subscribe((res: any) => {
+      this.projects = res.content ?? res;
     });
-  }
 
-  load(id: number) {
-    this.taskService.getById(id).subscribe(t => {
-      this.form.patchValue({
-        name: t.name,
-        description: t.description,
-        priority: t.priority,
-        status: t.status,
-        assignedIds: (t.assignedTeamMembers || []).map((x: any) => x.id),
-        projectId: t.project?.id || null
+    this.userService.getAll().subscribe((res: any) => {
+      this.users = res.content ?? res;
+    });
+
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEdit = true;
+      this.taskId = +id;
+      this.taskService.getById(this.taskId).subscribe((t: any) => {
+        this.form.patchValue({
+          name: t.name,
+          description: t.description,
+          priority: t.priority,
+          status: t.status,
+          projectId: t.project?.id,
+          assignedUserIds: t.assignedTeamMembers?.map((u: any) => u.id) ?? []
+        });
       });
-    });
-  }
-
-  save() {
-    if (this.form.invalid) return;
-    const raw = this.form.value;
-    const payload: any = {
-      name: raw.name,
-      description: raw.description,
-      priority: raw.priority,
-      status: raw.status,
-      assignedTeamMembers: (raw.assignedIds || []).map((id: number) => this.users.find(u => u.id === id)!).filter(Boolean),
-      project: this.projects.find(p => p.id === raw.projectId)
-    };
-
-    if (this.id) {
-      this.taskService.update(this.id, payload).subscribe(() => this.router.navigate(['/tasks']));
-    } else {
-      this.taskService.create(payload).subscribe(() => this.router.navigate(['/tasks']));
     }
   }
 
-  cancel() { this.router.navigate(['/tasks']); }
+  submit(): void {
+    if (this.form.invalid) return;
+
+    this.loading = true;
+    const v = this.form.value;
+
+    const payload = {
+      name: v.name,
+      description: v.description,
+      priority: v.priority,
+      status: v.status,
+      project: { id: v.projectId },
+      assignedTeamMembers: v.assignedUserIds.map((id: number) => ({ id }))
+    };
+
+    const request$ = this.isEdit
+      ? this.taskService.update(this.taskId, payload)
+      : this.taskService.create(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.toast.success(this.isEdit ? 'Task updated!' : 'Task created!');
+        this.router.navigate(['/tasks']);
+      },
+      error: () => {
+        this.toast.error('Something went wrong');
+        this.loading = false;
+      }
+    });
+  }
 }

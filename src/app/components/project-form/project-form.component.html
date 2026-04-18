@@ -1,29 +1,58 @@
-<div>
-  <h2>{{ id ? 'Edit Project' : 'New Project' }}</h2>
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <div>
-      <label>Name</label>
-      <input formControlName="name" />
-    </div>
+<div class="form-page">
+  <h1>{{ isEdit ? 'Edit Project' : 'New Project' }}</h1>
 
-    <div>
-      <label>Owner</label>
-      <select formControlName="ownerId">
-        <option [ngValue]="null">-- choose --</option>
-        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.email }}</option>
-      </select>
-    </div>
+  <mat-card class="form-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
 
-    <div>
-      <label>Participants</label>
-      <select formControlName="participantIds" multiple>
-        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.email }}</option>
-      </select>
-    </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Project Name</mat-label>
+        <input
+          matInput
+          formControlName="name"
+          placeholder="e.g. Website Redesign" />
 
-    <div>
-      <button type="submit" [disabled]="form.invalid">Save</button>
-      <button type="button" (click)="cancel()">Cancel</button>
-    </div>
-  </form>
+        <mat-error *ngIf="form.get('name')?.hasError('required')">
+          Name is required
+        </mat-error>
+        <mat-error *ngIf="form.get('name')?.hasError('minlength')">
+          Min 3 characters
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="ONGOING">Ongoing</mat-option>
+          <mat-option value="COMPLETED">Completed</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Owner</mat-label>
+        <mat-select formControlName="ownerId">
+          <mat-option *ngFor="let u of users" [value]="u.id">
+            {{ u.name }} ({{ u.email }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="router.navigate(['/user/projects'])">
+          Cancel
+        </button>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || loading">
+          {{ isEdit ? 'Update' : 'Create' }}
+        </button>
+      </div>
+
+    </form>
+  </mat-card>
 </div>

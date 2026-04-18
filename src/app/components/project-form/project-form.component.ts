@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ProjectService } from '../../services/project.service';
-import { UserService } from '../../services/user.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ProjectService } from '../../services/project.service';
+import { UserService } from '../../services/user.service';
+import { ToastMessageService } from '../../services/toast-message.service';
 
 @Component({
   selector: 'app-project-form',
@@ -10,70 +11,71 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./project-form.component.css']
 })
 export class ProjectFormComponent implements OnInit {
+
   form!: FormGroup;
-  id?: number;
-  users: any[] = [];
+  isEdit = false;
   loading = false;
-  error?: string;
+  users: any[] = [];
+  projectId!: number;
 
   constructor(
     private fb: FormBuilder,
     private projectService: ProjectService,
     private userService: UserService,
-    private route: ActivatedRoute,
-    private router: Router
+    private toast: ToastMessageService,
+    public router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      name: ['', Validators.required],
-      ownerId: [null, Validators.required],
-      participantIds: [[]] // array of user ids
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      status: ['ONGOING', Validators.required],
+      ownerId: [null, Validators.required]
     });
 
-   // this.userService.getAll().subscribe(u => this.users = u);
-
-    console.log(this.users);
-
-    this.route.paramMap.subscribe(params => {
-      const idStr = params.get('id');
-      if (idStr && idStr !== 'new') {
-        this.id = +idStr;
-        this.load(this.id);
-      }
+    this.userService.getAll().subscribe((res: any) => {
+      this.users = res.content ?? res;
     });
-  }
 
-  load(id: number) {
-    this.loading = true;
-    this.projectService.getById(id).subscribe({
-      next: p => {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEdit = true;
+      this.projectId = +id;
+      this.projectService.getById(this.projectId).subscribe((p: any) => {
         this.form.patchValue({
           name: p.name,
-          ownerId: p.owner?.id || null,
-          participantIds: (p.participants || []).map((x:any) => x.id)
+          status: p.status,
+          ownerId: p.ownerId
         });
-        this.loading = false;
-      },
-      error: err => { this.error = err.message || 'Failed'; this.loading = false; }
-    });
-  }
-
-  save() {
-    if (this.form.invalid) return;
-    const raw = this.form.value;
-    const payload: any = {
-      name: raw.name,
-      owner: this.users.find(u => u.id === raw.ownerId) || undefined,
-      participants: (raw.participantIds || []).map((id: number) => this.users.find(u => u.id === id)!).filter(Boolean)
-    };
-
-    if (this.id) {
-      this.projectService.update(this.id, payload).subscribe(() => this.router.navigate(['/projects']));
-    } else {
-      this.projectService.create(payload).subscribe(() => this.router.navigate(['/projects']));
+      });
     }
   }
 
-  cancel() { this.router.navigate(['/projects']); }
+  submit(): void {
+    if (this.form.invalid) return;
+
+    this.loading = true;
+
+    const payload = {
+      name: this.form.value.name,
+      status: this.form.value.status,
+      owner: { id: this.form.value.ownerId }
+    };
+
+    const request$ = this.isEdit
+      ? this.projectService.update(this.projectId, payload)
+      : this.projectService.create(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.toast.success(this.isEdit ? 'Project updated!' : 'Project created!');
+        this.router.navigate(['/user/projects']);
+      },
+      error: () => {
+        this.toast.error('Something went wrong');
+        this.loading = false;
+      }
+    });
+  }
 }

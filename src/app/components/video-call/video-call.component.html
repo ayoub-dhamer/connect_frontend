@@ -1,15 +1,39 @@
-<!--<div class="video-container">
-  <div class="local">
-    <video id="localVideo" autoplay playsinline muted></video>
+<div class="video-page">
+
+  <!-- Header -->
+  <div class="room-header">
+    <h2>Room: {{ roomId }}</h2>
+
+    <div class="controls">
+      <button mat-icon-button (click)="toggleMic()" [color]="micOn ? 'primary' : 'warn'">
+        <mat-icon>{{ micOn ? 'mic' : 'mic_off' }}</mat-icon>
+      </button>
+
+      <button mat-icon-button (click)="toggleCam()" [color]="camOn ? 'primary' : 'warn'">
+        <mat-icon>{{ camOn ? 'videocam' : 'videocam_off' }}</mat-icon>
+      </button>
+
+      <button mat-raised-button color="warn" (click)="hangUp()">
+        <mat-icon>call_end</mat-icon>
+        Leave
+      </button>
+    </div>
   </div>
 
-  <div class="remote">
-    <video id="remoteVideo" autoplay playsinline></video>
-  </div>
+  <!-- Video grid -->
+  <div class="video-grid">
 
-  <div class="controls">
-    <button (click)="startCall()">Start Call</button>
-    <button (click)="hangUp()">Hang Up</button>
+    <!-- Local video -->
+    <div class="video-tile">
+      <video #localVideo autoplay muted playsinline></video>
+      <span class="label">You</span>
+    </div>
+
+    <!-- Remote peers -->
+    <div class="video-tile" *ngFor="let peer of remotePeers">
+      <video [srcObject]="peer.stream" autoplay playsinline></video>
+      <span class="label">{{ peer.id }}</span>
+    </div>
+
   </div>
 </div>
--->

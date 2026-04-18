@@ -1,1 +1,26 @@
-<p>checkout works!</p>
+<div class="checkout-page">
+  <mat-card class="checkout-card">
+
+    <h1>Complete Your Purchase</h1>
+    <p>You’re one step away from unlocking all premium features.</p>
+
+    <mat-divider style="margin: 24px 0"></mat-divider>
+
+    <div class="plan-info">
+      <span class="plan-name">Pro Plan</span>
+      <span class="plan-price">$20 / month</span>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      class="pay-btn"
+      (click)="pay()"
+      [disabled]="loading">
+
+      <mat-icon>lock</mat-icon>
+      {{ loading ? 'Redirecting...' : 'Pay with Stripe' }}
+    </button>
+
+  </mat-card>
+</div>

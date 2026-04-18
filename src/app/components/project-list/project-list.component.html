@@ -1,113 +1,66 @@
-<div class="project-table-container">
-  <h2 class="table-title">👥 Project Management</h2>
+<div class="list-page">
 
-  <!-- Search input -->
-  <div class="search-box">
-    <input
-      type="text"
-      placeholder="Search by name or email..."
-      [(ngModel)]="searchTerm"
-      (input)="applyFilter()"
-    />
+  <div class="list-header">
+    <h1>Projects</h1>
+    <button mat-raised-button color="primary" routerLink="/projects/new">
+      <mat-icon>add</mat-icon>
+      New Project
+    </button>
   </div>
 
-  <!-- Table -->
-  <table class="responsive-table">
-    <caption>List of projects</caption>
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Name</th>
-        <th scope="col">Status</th>
-        <th scope="col">Owner</th>
-        <th scope="col">Participants</th>
-        <th scope="col">Tasks</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let project of filteredProjects; let i = index">
-        <td data-label="#"> {{ i + 1 }} </td>
-        <td data-label="Name">{{ project.name }}</td>
-         <td data-label="Status">
-          <span class="status">{{ project.projectStatus }}</span>
-        </td>
-        <td data-label="Owner">{{ project.owner.name }}</td>
-       <td data-label="Participants">
-  <button class="view-btn" 
-          (click)="openModal(getParticipantLabels(project), 'Participants')">
-    View <span class="count-badge">{{ project.participants.length }}</span>
-  </button>
-</td>
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 
+  <mat-table [dataSource]="projects" class="mat-elevation-z2">
 
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+      <mat-cell *matCellDef="let p">{{ p.name }}</mat-cell>
+    </ng-container>
 
-<td data-label="Tasks">
-  <button class="view-btn" 
-          (click)="openModal(getTaskLabels(project), 'Tasks')">
-    View <span class="count-badge">{{ project.tasks.length }}</span>
-  </button>
-</td>
+    <ng-container matColumnDef="owner">
+      <mat-header-cell *matHeaderCellDef>Owner</mat-header-cell>
+      <mat-cell *matCellDef="let p">{{ p.ownerEmail }}</mat-cell>
+    </ng-container>
 
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+      <mat-cell *matCellDef="let p">
+        <mat-chip
+          [color]="p.status === 'ONGOING' ? 'primary' : 'accent'"
+          selected>
+          {{ p.status }}
+        </mat-chip>
+      </mat-cell>
+    </ng-container>
 
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+      <mat-cell *matCellDef="let p">
+        <button
+          mat-icon-button
+          color="primary"
+          [routerLink]="['/projects', p.id]">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="delete(p.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
 
+    <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: columns"></mat-row>
 
-       
-        <td data-label="Actions">
-          <button class="delete-btn" (click)="deleteProject(project)">
-            <i class="fas fa-trash"></i> Delete
-          </button>
-        </td>
-      </tr>
+  </mat-table>
 
-      <tr *ngIf="filteredProjects.length === 0">
-        <td colspan="5" class="no-data">No projects found</td>
-      </tr>
-    </tbody>
-  </table>
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="onPage($event)">
+  </mat-paginator>
 
-   <!-- Pagination Controls -->
-  <div class="pagination-container" *ngIf="filteredProjects.length > 0">
-    <div class="page-size">
-      <label for="pageSize">Rows per page:</label>
-      <select id="pageSize" [(ngModel)]="pageSize" (change)="updatePagination()">
-        <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
-      </select>
-    </div>
-
-    <div class="page-controls">
-      <button (click)="previousPage()" [disabled]="currentPage === 1">Prev</button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
-      <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
-    </div>
-  </div>
 </div>
-
-
-
-
-
-<!-- MODAL BACKDROP -->
-<div class="modal-backdrop" *ngIf="modalOpen" (click)="closeModal()"></div>
-
-<!-- PAGINATED MODAL -->
-<div class="modal-box" *ngIf="modalOpen">
-  <h3 class="modal-title">{{ modalTitle }}</h3>
-
-  <!-- Scrollable container -->
-  <div class="modal-content">
-    <ul>
-      <li *ngFor="let item of pagedModalItems">{{ item }}</li>
-    </ul>
-  </div>
-
-  <!-- Pagination inside modal -->
-  <div class="modal-pagination">
-    <button (click)="prevModalPage()" [disabled]="modalPage === 1">Prev</button>
-    <span>Page {{ modalPage }} of {{ modalTotalPages }}</span>
-    <button (click)="nextModalPage()" [disabled]="modalPage === modalTotalPages">Next</button>
-  </div>
-
-  <button class="close-btn" (click)="closeModal()">Close</button>
-</div>
-

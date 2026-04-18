@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+   <script>
+    // Fix for libraries that expect Node.js globals
+    var global = global || window;
+    var process = process || { env: {} };
+  </script>
   <title>ConnectFrontend</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 import { UserService } from '../../services/user.service';
+import { ToastMessageService } from '../../services/toast-message.service';
 
 @Component({
   selector: 'app-user-list',
@@ -7,75 +9,56 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit {
+
   users: any[] = [];
-  filteredUsers: any[] = [];
-  searchTerm = '';
+  columns = ['name', 'email', 'roles', 'subscription', 'actions'];
   loading = false;
-  error?: string;
 
-   pagedUsers: any[] = [];
-    // Pagination variables
-  currentPage = 1;
-  pageSize = 5;
-  pageSizes = [5, 10, 20];
-  totalPages = 1;
+  totalElements = 0;
+  pageSize = 10;
+  currentPage = 0;
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private toast: ToastMessageService
+  ) {}
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.load();
   }
 
-  loadUsers() {
+  load(): void {
     this.loading = true;
-    this.userService.getAll().subscribe({
-      next: (data) => {
-       // this.users = data;
-       // this.filteredUsers = data;
-        this.updatePagination();
+    this.userService.getAll(this.currentPage, this.pageSize).subscribe({
+      next: (res: any) => {
+        this.users = res.content ?? res;
+        this.totalElements = res.totalElements ?? this.users.length;
         this.loading = false;
       },
-      error: (err) => {
-        this.error = err.message || 'Failed to load users';
+      error: () => {
+        this.toast.error('Failed to load users');
         this.loading = false;
       }
     });
   }
 
-  applyFilter() {
-    const term = this.searchTerm.trim().toLowerCase();
-    this.filteredUsers = this.users.filter(
-      u =>
-        u.name?.toLowerCase().includes(term) ||
-        u.email?.toLowerCase().includes(term)
-    );
-     this.currentPage = 1;
-    this.updatePagination();
+  onPage(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.load();
   }
 
-  updatePagination() {
-    this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    this.pagedUsers = this.filteredUsers.slice(start, end);
-  }
+  delete(id: number): void {
+    if (!confirm('Delete this user?')) return;
 
-   nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-    }
-  }
-
-  previousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-    }
-  }
-
-  deleteUser(user: any) {
-    if (!confirm(`Delete ${user.email}?`)) return;
-    this.userService.delete(user.id).subscribe(() => this.loadUsers());
+    this.userService.delete(id).subscribe({
+      next: () => {
+        this.toast.success('User deleted');
+        this.load();
+      },
+      error: () => {
+        this.toast.error('Cannot delete user');
+      }
+    });
   }
 }

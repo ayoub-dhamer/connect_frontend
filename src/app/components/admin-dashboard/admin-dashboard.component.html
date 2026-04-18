@@ -1,0 +1,69 @@
+<div class="dashboard">
+  <h1 class="page-title">Admin Dashboard</h1>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-icon">👥</span>
+      <div>
+        <p class="stat-label">Total Users</p>
+        <p class="stat-value">{{ totalUsers }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-icon">📁</span>
+      <div>
+        <p class="stat-label">Total Projects</p>
+        <p class="stat-value">{{ totalProjects }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-icon">✅</span>
+      <div>
+        <p class="stat-label">Total Tasks</p>
+        <p class="stat-value">{{ totalTasks }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-icon">💳</span>
+      <div>
+        <p class="stat-label">Active Subscriptions</p>
+        <p class="stat-value">{{ activeSubscriptions }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2>Recent Users</h2>
+
+    <mat-table [dataSource]="recentUsers">
+
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+        <mat-cell *matCellDef="let u">{{ u.name }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+        <mat-cell *matCellDef="let u">{{ u.email }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="subscription">
+        <mat-header-cell *matHeaderCellDef>Subscription</mat-header-cell>
+        <mat-cell *matCellDef="let u">
+          <mat-chip
+            [color]="u.subscriptionStatus === 'ACTIVE' ? 'primary' : 'warn'"
+            selected>
+            {{ u.subscriptionStatus }}
+          </mat-chip>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="['name', 'email', 'subscription']"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: ['name', 'email', 'subscription']"></mat-row>
+
+    </mat-table>
+  </div>
+</div>

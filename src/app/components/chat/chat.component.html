@@ -1,15 +1,62 @@
+<div class="chat-layout">
 
+  <!-- User list sidebar -->
+  <div class="user-list">
+    <h2>Contacts</h2>
 
-<!--<div class="chat-container">
-  <div class="messages">
-    <div *ngFor="let msg of messages">
-      <strong>{{msg.senderEmail}}:</strong> {{msg.content}}
+    <div
+      *ngFor="let u of users"
+      class="user-item"
+      [class.active]="selectedUser?.id === u.id"
+      (click)="selectUser(u)">
+      <img [src]="u.pictureUrl || 'assets/img/user.jpg'" class="avatar" />
+      <span>{{ u.name }}</span>
     </div>
   </div>
 
-  <div class="input-group">
-    <input [(ngModel)]="receiverEmail" placeholder="Receiver email" />
-    <input [(ngModel)]="newMessage" placeholder="Type a message" />
-    <button (click)="send()">Send</button>
+  <!-- Chat area -->
+  <div class="chat-area">
+
+    <div class="chat-header" *ngIf="selectedUser">
+      <img
+        [src]="selectedUser.pictureUrl || 'assets/img/user.jpg'"
+        class="avatar"
+      />
+      <span>{{ selectedUser.name }}</span>
+    </div>
+
+    <div class="chat-header empty" *ngIf="!selectedUser">
+      Select a contact to start chatting
+    </div>
+
+    <div class="messages" #messageContainer>
+      <div
+        *ngFor="let m of messages"
+        class="message"
+        [class.mine]="m.sender.email === currentUserEmail">
+
+        <div class="bubble">{{ m.content }}</div>
+        <span class="time">
+          {{ m.timestamp | date:'shortTime' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="input-row" *ngIf="selectedUser">
+      <input
+        [(ngModel)]="newMessage"
+        placeholder="Type a message..."
+        (keyup.enter)="send()"
+        class="msg-input"
+      />
+      <button
+        mat-icon-button
+        color="primary"
+        (click)="send()"
+        [disabled]="!newMessage.trim()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+
   </div>
-</div>-->
+</div>

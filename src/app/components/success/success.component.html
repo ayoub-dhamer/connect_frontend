@@ -1,4 +1,20 @@
-<div class="message success">
-  <h1>✅ Payment Successful!</h1>
-  <p>Thank you for your purchase.</p>
+<div class="result-page">
+
+  <div class="result-box success-box">
+
+    <div class="icon">✅</div>
+
+    <h1>Payment Successful!</h1>
+
+    <p>Thank you! Your subscription is now active.</p>
+
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="router.navigate(['/user'])">
+      Go to Dashboard
+    </button>
+
+  </div>
+
 </div>

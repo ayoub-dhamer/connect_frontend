@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cancel',
@@ -6,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./cancel.component.css']
 })
 export class CancelComponent {
-
+  constructor(public router: Router) {}
 }

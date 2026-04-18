@@ -1,41 +1,92 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-//import { WebSocketService, ChatMessage } from '../../services/websocket.service';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import { Subscription } from 'rxjs';
-
-import { UserService } from 'src/app/services/user.service';
+import { WebSocketService, ChatMessage } from '../../services/websocket.service';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
-export class ChatComponent /*implements OnInit, OnDestroy*/ /*implements OnInit, OnDestroy*/ {
- 
-
-
- /*  messages: ChatMessage[] = [];
+export class ChatComponent implements OnInit, OnDestroy {
+  users: any[] = [];
+  selectedUser: any = null;
+  messages: ChatMessage[] = [];
   newMessage = '';
-  receiverEmail = '';
+  currentUserEmail = '';
+  private sub!: Subscription;
 
-  constructor(private ws: WebSocketService) {}
+  @ViewChild('messageContainer') messageContainer!: ElementRef;
+
+  constructor(
+    private ws: WebSocketService,
+    private auth: AuthService,
+    private userService: UserService
+  ) {}
 
   ngOnInit(): void {
-    this.ws.connect((msg) => this.messages.push(msg));
+    this.auth.loadUser().subscribe(user => {
+      if (user) {
+        this.currentUserEmail = user.email;
+      }
+    });
+
+    this.userService.getAll().subscribe((res: any) => {
+      const all = res.content ?? res;
+      this.auth.loadUser().subscribe(me => {
+        this.users = all.filter((u: any) => u.email !== me?.email);
+      });
+    });
+
+    this.ws.connect();
+
+    this.sub = this.ws.messages$.subscribe(msg => {
+      if (msg) {
+        this.messages.push(msg);
+        this.scrollToBottom();
+      }
+    });
   }
 
-  ngOnDestroy(): void {
-    this.ws.disconnect();
+  selectUser(user: any): void {
+    this.selectedUser = user;
+    this.messages = [];
   }
 
   send(): void {
-    if (!this.newMessage || !this.receiverEmail) return;
+    if (!this.newMessage.trim() || !this.selectedUser) return;
 
-    this.ws.sendChatMessage({
-      content: this.newMessage,
-      senderEmail: 'me@example.com', // replace with actual logged-in email
-      receiverEmail: this.receiverEmail
-    });
+    const msg: ChatMessage = {
+      sender: { email: this.currentUserEmail },
+      receiver: { email: this.selectedUser.email },
+      content: this.newMessage.trim(),
+      timestamp: new Date().toISOString()
+    };
 
+    this.ws.sendChatMessage(msg);
+    this.messages.push(msg);
     this.newMessage = '';
-  }*/
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.messageContainer) {
+        const el = this.messageContainer.nativeElement;
+        el.scrollTop = el.scrollHeight;
+      }
+    }, 50);
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+    this.ws.disconnect();
+  }
 }

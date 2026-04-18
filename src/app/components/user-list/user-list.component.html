@@ -1,62 +1,70 @@
-<div class="user-table-container">
-  <h2 class="table-title">👥 User Management</h2>
+<div class="list-page">
 
-  <!-- Search input -->
-  <div class="search-box">
-    <input
-      type="text"
-      placeholder="Search by name or email..."
-      [(ngModel)]="searchTerm"
-      (input)="applyFilter()"
-    />
+  <div class="list-header">
+    <h1>Users</h1>
   </div>
 
-  <!-- Table -->
-  <table class="responsive-table">
-    <caption>List of Users</caption>
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Email</th>
-        <th scope="col">Name</th>
-        <th scope="col">Roles</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of filteredUsers; let i = index">
-        <td data-label="#"> {{ i + 1 }} </td>
-        <td data-label="Email">{{ user.email }}</td>
-        <td data-label="Name">{{ user.name }}</td>
-        <td data-label="Roles">
-          <span class="role" *ngFor="let role of user.roles">{{ role }}</span>
-        </td>
-        <td data-label="Actions">
-          <button class="delete-btn" (click)="deleteUser(user)">
-            <i class="fas fa-trash"></i> Delete
-          </button>
-        </td>
-      </tr>
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 
-      <tr *ngIf="filteredUsers.length === 0">
-        <td colspan="5" class="no-data">No users found</td>
-      </tr>
-    </tbody>
-  </table>
+  <mat-table [dataSource]="users" class="mat-elevation-z2">
 
-   <!-- Pagination Controls -->
-  <div class="pagination-container" *ngIf="filteredUsers.length > 0">
-    <div class="page-size">
-      <label for="pageSize">Rows per page:</label>
-      <select id="pageSize" [(ngModel)]="pageSize" (change)="updatePagination()">
-        <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
-      </select>
-    </div>
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+      <mat-cell *matCellDef="let u">
+        <img
+          [src]="u.pictureUrl || 'assets/img/user.jpg'"
+          class="avatar" />
+        {{ u.name }}
+      </mat-cell>
+    </ng-container>
 
-    <div class="page-controls">
-      <button (click)="previousPage()" [disabled]="currentPage === 1">Prev</button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
-      <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
-    </div>
-  </div>
+    <ng-container matColumnDef="email">
+      <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+      <mat-cell *matCellDef="let u">{{ u.email }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="roles">
+      <mat-header-cell *matHeaderCellDef>Roles</mat-header-cell>
+      <mat-cell *matCellDef="let u">
+        <mat-chip *ngFor="let r of u.roles" selected>
+          {{ r }}
+        </mat-chip>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="subscription">
+      <mat-header-cell *matHeaderCellDef>Subscription</mat-header-cell>
+      <mat-cell *matCellDef="let u">
+        <mat-chip
+          [color]="u.subscriptionStatus === 'ACTIVE' ? 'primary' : 'warn'"
+          selected>
+          {{ u.subscriptionStatus }}
+        </mat-chip>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+      <mat-cell *matCellDef="let u">
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="delete(u.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: columns"></mat-row>
+
+  </mat-table>
+
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="onPage($event)">
+  </mat-paginator>
+
 </div>

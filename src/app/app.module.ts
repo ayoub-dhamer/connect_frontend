@@ -60,6 +60,8 @@ import { LucideAngularModule, Layout, MessageSquare, Video } from 'lucide-angula
 // ✅ Import the class-based interceptor, not the functional one
 import { CsrfInterceptor } from './interceptors/csrf.interceptor';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -114,6 +116,7 @@ import { CsrfInterceptor } from './interceptors/csrf.interceptor';
     MatSortModule,
     MatPaginatorModule,
     BrowserAnimationsModule,
+    MatProgressSpinnerModule,
     MatListModule,
     LucideAngularModule.pick({ Layout, MessageSquare, Video }),
     TranslateModule.forRoot({

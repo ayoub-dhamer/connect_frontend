@@ -9,27 +9,19 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./login-success.component.css']
 })
 export class LoginSuccessComponent implements OnInit {
-  constructor(
-    private route: ActivatedRoute,
-    private userService: UserService,
-    private router: Router
-  ) {}
-
+  constructor(private auth: AuthService, private router: Router) {}
+ 
   ngOnInit(): void {
-    // When redirected from Spring OAuth success → cookie is already set!
-    this.userService.loadUserProfile().subscribe({
-      next: user => {
-        if (user.roles.includes("ROLE_ADMIN")) {
-          this.router.navigate(['/admin']);
-        } 
-        else if (user.roles.includes("ROLE_USER")) {
-          this.router.navigate(['/user']);
-        } 
-        else {
-          this.router.navigate(['/unauthorized']);
-        }
-      },
-      error: () => this.router.navigate(['/login'])
+    this.auth.loadUser().subscribe(user => {
+      if (!user) {
+        this.router.navigate(['/login']);
+        return;
+      }
+      if (user.roles.includes('ROLE_ADMIN')) {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/user']);
+      }
     });
   }
 }
