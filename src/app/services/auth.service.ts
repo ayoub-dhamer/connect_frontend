@@ -48,7 +48,7 @@ clearUser(): void {
     window.location.href = 'http://localhost:8080/logout';
   }
 
- // Backend verifies cookie
+ // Backend verifies cookie   
 
   getCurrentUser(): Observable<UserDTO | null> {
   return this.http.get<UserDTO>('http://localhost:8080/api/user/me', { withCredentials: true }).pipe(
