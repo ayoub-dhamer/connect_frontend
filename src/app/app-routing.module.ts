@@ -119,7 +119,7 @@ const routes: Routes = [
     data: { roles: ['ROLE_USER'] },
   },
   { path: 'payment-success', component: SuccessComponent, canActivate: [AuthGuard] },
-{ path: 'payment-cancel', component: CancelComponent, canActivate: [AuthGuard] },
+  { path: 'payment-cancel', component: CancelComponent, canActivate: [AuthGuard] },
 
   // --------------------
   // MISC
@@ -131,9 +131,9 @@ const routes: Routes = [
   // --------------------
   { path: '', component: HomeComponent },
   { path: 'pricing', component: PricingComponent },
-  { path: 'checkout', component: CheckoutComponent },   
+  { path: 'checkout', component: CheckoutComponent },
   { path: '**', component: PageNotFoundComponent },
-  
+
 ];
 
 @NgModule({
