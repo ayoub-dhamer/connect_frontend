@@ -131,7 +131,7 @@ const routes: Routes = [
   // --------------------
   { path: '', component: HomeComponent },
   { path: 'pricing', component: PricingComponent },
-  { path: 'checkout', component: CheckoutComponent },
+  { path: 'checkout', component: CheckoutComponent },   
   { path: '**', component: PageNotFoundComponent },
   
 ];
