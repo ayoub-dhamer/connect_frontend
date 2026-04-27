@@ -112,7 +112,7 @@ const routes: Routes = [
   // --------------------
   // PAYMENTS
   // --------------------
-  {
+  {   
     path: 'payment',
     component: PaymentComponent,
     canActivate: [RoleGuard],
