@@ -112,7 +112,7 @@ const routes: Routes = [
   // --------------------
   // PAYMENTS
   // --------------------
-  {   
+  {
     path: 'payment',
     component: PaymentComponent,
     canActivate: [RoleGuard],
@@ -129,10 +129,10 @@ const routes: Routes = [
   // --------------------
   // FALLBACK (MUST BE LAST)   
   // --------------------
-  { path: '', component: HomeComponent },   
+  { path: '', component: HomeComponent },
   { path: 'pricing', component: PricingComponent },
   { path: 'checkout', component: CheckoutComponent },
-  { path: '**', component: PageNotFoundComponent },      
+  { path: '**', component: PageNotFoundComponent },
 
 ];
 
