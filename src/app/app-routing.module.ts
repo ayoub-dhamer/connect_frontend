@@ -126,10 +126,10 @@ const routes: Routes = [
   // --------------------
   { path: 'unauthorized', component: UnauthorizedComponent },
 
-  // --------------------
+  // --------------------   
   // FALLBACK (MUST BE LAST)   
   // --------------------
-  { path: '', component: HomeComponent },
+  { path: '', component: HomeComponent }, 
   { path: 'pricing', component: PricingComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: '**', component: PageNotFoundComponent },
