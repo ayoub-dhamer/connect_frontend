@@ -126,7 +126,7 @@ const routes: Routes = [
   // --------------------
   { path: 'unauthorized', component: UnauthorizedComponent },
 
-  // --------------------------------
+  // -----------------------------------
   // FALLBACK (MUST BE LAST)   
   // --------------------
   { path: '', component: HomeComponent }, 
