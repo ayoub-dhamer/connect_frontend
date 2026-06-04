@@ -6,7 +6,7 @@ import { SuccessComponent } from './components/success/success.component';
 import { CancelComponent } from './components/cancel/cancel.component';
 import { LoginComponent } from './components/login/login.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { UserDashboardComponent } from './components/user-dashboard/user-dashboard.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { UserComponent } from './components/user/user.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
@@ -32,16 +32,13 @@ import { PricingComponent } from './components/pricing/pricing.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 
 const routes: Routes = [
-
-  // --------------------
-  // AUTH
-  // --------------------
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
-  { path: 'login-success', component: LoginSuccessComponent, canActivate: [AuthGuard] },
+  {
+    path: 'login-success',
+    component: LoginSuccessComponent,
+    canActivate: [AuthGuard],
+  },
 
-  // --------------------
-  // ADMIN AREA
-  // --------------------
   {
     path: 'admin',
     component: AdminComponent,
@@ -53,61 +50,45 @@ const routes: Routes = [
     ],
   },
 
-  // --------------------
-  // USER AREA
-  // --------------------
   {
     path: 'user',
     component: UserComponent,
     canActivate: [RoleGuard],
     data: { roles: ['ROLE_USER'] },
     children: [
-      { path: '', component: DashboardComponent },
+      { path: '', component: UserDashboardComponent },
       { path: 'projects', component: ProjectListComponent },
+      { path: 'projects/new', component: ProjectFormComponent },
+      {
+        path: 'projects/:id',
+        component: ProjectFormComponent,
+      },
+
+      {
+        path: 'tasks',
+        component: TaskListComponent,
+      },
+      {
+        path: 'tasks/new',
+        component: TaskFormComponent,
+      },
+      {
+        path: 'tasks/:id',
+        component: TaskFormComponent,
+      },
       { path: 'profile', component: UserProfileComponent },
     ],
-  },
-
-  // --------------------
-  // PROJECTS & TASKS
-  // --------------------
-  {
-    path: 'projects/new',
-    component: ProjectFormComponent,
-    canActivate: [RoleGuard],
-    data: { roles: ['ROLE_USER'] },
-  },
-  {
-    path: 'projects/:id',
-    component: ProjectFormComponent,
-    canActivate: [RoleGuard],
-    data: { roles: ['ROLE_USER'] },
-  },
-
-  {
-    path: 'tasks',
-    component: TaskListComponent,
-    canActivate: [RoleGuard],
-    data: { roles: ['ROLE_USER'] },
-  },
-  {
-    path: 'tasks/new',
-    component: TaskFormComponent,
-    canActivate: [RoleGuard],
-    data: { roles: ['ROLE_USER'] },
-  },
-  {
-    path: 'tasks/:id',
-    component: TaskFormComponent,
-    canActivate: [RoleGuard],
-    data: { roles: ['ROLE_USER'] },
   },
 
   // --------------------
   // REALTIME FEATURES
   // --------------------
   { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
-  { path: 'video/:roomId', component: VideoCallComponent, canActivate: [AuthGuard] },
+  {
+    path: 'video/:roomId',
+    component: VideoCallComponent,
+    canActivate: [AuthGuard],
+  },
 
   // --------------------
   // PAYMENTS
@@ -118,26 +99,26 @@ const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: ['ROLE_USER'] },
   },
-  { path: 'payment-success', component: SuccessComponent, canActivate: [AuthGuard] },
-  { path: 'payment-cancel', component: CancelComponent, canActivate: [AuthGuard] },
+  {
+    path: 'payment-success',
+    component: SuccessComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'payment-cancel',
+    component: CancelComponent,
+    canActivate: [AuthGuard],
+  },
 
-  // --------------------
-  // MISC
-  // --------------------
   { path: 'unauthorized', component: UnauthorizedComponent },
-
-  // --------------------------------------------------------------
-  // FALLBACK (MUST BE LAST)   
-  // --------------------
   { path: '', component: HomeComponent },
   { path: 'pricing', component: PricingComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: '**', component: PageNotFoundComponent },
-
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

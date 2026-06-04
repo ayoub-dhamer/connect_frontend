@@ -2,13 +2,17 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
+import {
+  HttpClientModule,
+  HttpClient,
+  HTTP_INTERCEPTORS,
+} from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { CancelComponent } from './components/cancel/cancel.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { UserDashboardComponent } from './components/user-dashboard/user-dashboard.component';
 import { LoginComponent } from './components/login/login.component';
 import { PaymentComponent } from './components/payment/payment.component';
 import { SuccessComponent } from './components/success/success.component';
@@ -55,7 +59,12 @@ import { MatSortModule } from '@angular/material/sort';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpLoaderFactory } from './translate-loader.factory';
-import { LucideAngularModule, Layout, MessageSquare, Video } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Layout,
+  MessageSquare,
+  Video,
+} from 'lucide-angular';
 
 // ✅ Import the class-based interceptor, not the functional one
 import { CsrfInterceptor } from './interceptors/csrf.interceptor';
@@ -67,7 +76,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     AppComponent,
     AdminComponent,
     CancelComponent,
-    DashboardComponent,
+    UserDashboardComponent,
     LoginComponent,
     PaymentComponent,
     SuccessComponent,
@@ -123,15 +132,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
+        deps: [HttpClient],
       },
-      defaultLanguage: 'en'
-    })
+      defaultLanguage: 'en',
+    }),
   ],
   providers: [
     // ✅ Class-based interceptor — compatible with NgModule + HttpClientModule
-    { provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

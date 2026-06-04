@@ -1,6 +1,7 @@
 <div class="dashboard">
   <h1 class="page-title">Admin Dashboard</h1>
 
+  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat-card">
       <span class="stat-icon">👥</span>
@@ -9,7 +10,6 @@
         <p class="stat-value">{{ totalUsers }}</p>
       </div>
     </div>
-
     <div class="stat-card">
       <span class="stat-icon">📁</span>
       <div>
@@ -17,7 +17,6 @@
         <p class="stat-value">{{ totalProjects }}</p>
       </div>
     </div>
-
     <div class="stat-card">
       <span class="stat-icon">✅</span>
       <div>
@@ -25,7 +24,6 @@
         <p class="stat-value">{{ totalTasks }}</p>
       </div>
     </div>
-
     <div class="stat-card">
       <span class="stat-icon">💳</span>
       <div>
@@ -35,35 +33,86 @@
     </div>
   </div>
 
+  <!-- Users Table -->
   <div class="section-card">
-    <h2>Recent Users</h2>
+    <div class="card-header">
+      <h2>👥 User Management</h2>
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search by name or email..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilter()"
+        />
+      </div>
+    </div>
 
-    <mat-table [dataSource]="recentUsers">
+    <div class="state-message" *ngIf="loading">Loading users...</div>
+    <div class="state-message error" *ngIf="error">{{ error }}</div>
 
-      <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
-        <mat-cell *matCellDef="let u">{{ u.name }}</mat-cell>
-      </ng-container>
+    <div class="table-wrapper" *ngIf="!loading && !error">
+      <table class="responsive-table">
+        <caption class="sr-only">
+          List of Users
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Email</th>
+            <th scope="col">Name</th>
+            <th scope="col">Roles</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of pagedUsers; let i = index">
+            <td data-label="#">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+            <td data-label="Email">{{ user.email }}</td>
+            <td data-label="Name">{{ user.name }}</td>
+            <td data-label="Roles">
+              <span class="role" *ngFor="let role of user.roles">{{
+                role
+              }}</span>
+            </td>
+            <td data-label="Actions">
+              <button class="delete-btn" (click)="deleteUser(user)">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredUsers.length === 0">
+            <td colspan="5" class="no-data">No users found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <ng-container matColumnDef="email">
-        <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
-        <mat-cell *matCellDef="let u">{{ u.email }}</mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="subscription">
-        <mat-header-cell *matHeaderCellDef>Subscription</mat-header-cell>
-        <mat-cell *matCellDef="let u">
-          <mat-chip
-            [color]="u.subscriptionStatus === 'ACTIVE' ? 'primary' : 'warn'"
-            selected>
-            {{ u.subscriptionStatus }}
-          </mat-chip>
-        </mat-cell>
-      </ng-container>
-
-      <mat-header-row *matHeaderRowDef="['name', 'email', 'subscription']"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: ['name', 'email', 'subscription']"></mat-row>
-
-    </mat-table>
+    <!-- Pagination -->
+    <div
+      class="pagination-container"
+      *ngIf="filteredUsers.length > 0 && !loading"
+    >
+      <div class="page-size">
+        <label for="pageSize">Rows per page:</label>
+        <select
+          id="pageSize"
+          [(ngModel)]="pageSize"
+          (change)="updatePagination()"
+        >
+          <option *ngFor="let size of pageSizes" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+      <div class="page-controls">
+        <button (click)="previousPage()" [disabled]="currentPage === 1">
+          Prev
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Next
+        </button>
+      </div>
+    </div>
   </div>
 </div>

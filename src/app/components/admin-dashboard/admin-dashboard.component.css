@@ -1,61 +1,339 @@
+/* ── Dashboard layout ── */
 .dashboard {
-  padding: 32px;
+  padding: 1.5rem;
 }
 
 .page-title {
   font-size: 28px;
   font-weight: 700;
   color: #1f2937;
-  margin-bottom: 32px;
+  margin: 0 0 1.5rem;
 }
 
+/* ── Stats grid ── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 1.5rem;
 }
 
 .stat-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1rem;
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  gap: 12px;
 }
 
 .stat-icon {
-  font-size: 36px;
+  font-size: 28px;
+  flex-shrink: 0;
 }
 
 .stat-label {
   color: #6b7280;
-  font-size: 13px;
+  font-size: 12px;
+  margin: 0 0 2px;
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: #1f2937;
+  margin: 0;
+  line-height: 1;
 }
 
+/* ── Section card ── */
 .section-card {
-  background: white;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  padding: 1.25rem;
 }
 
-.section-card h2 {
+/* ── Card header ── */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.card-header h2 {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 16px;
+  color: #1f2937;
+  margin: 0;
 }
 
-@media (max-width: 900px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+/* ── Search box ── */
+.search-box {
+  flex: 1;
+  max-width: 300px;
+  min-width: 180px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 4px rgba(37, 99, 235, 0.3);
+}
+
+/* ── State messages ── */
+.state-message {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.state-message.error {
+  color: #991b1b;
+}
+
+/* ── Table wrapper ── */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.responsive-table {
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 520px;
+}
+
+.responsive-table th,
+.responsive-table td {
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.responsive-table th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.responsive-table tr {
+  border: 1px solid #e2e8f0;
+  transition: background 0.2s ease;
+}
+
+.responsive-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* ── Role badges ── */
+.role {
+  display: inline-block;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  margin: 2px;
+  font-weight: 500;
+}
+
+/* ── Delete button ── */
+.delete-btn {
+  background-color: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+/* ── No data ── */
+.no-data {
+  text-align: center;
+  padding: 1rem;
+  color: #94a3b8;
+}
+
+/* ── Pagination ── */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-size label {
+  font-weight: 500;
+  color: #475569;
+  font-size: 13px;
+}
+
+.page-size select {
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.page-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.page-controls button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s;
+}
+
+.page-controls button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.page-controls button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.page-controls span {
+  font-weight: 500;
+  color: #334155;
+  font-size: 13px;
+}
+
+/* ── Responsive: stacked table on small screens ── */
+@media screen and (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
   }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .responsive-table {
+    border: 0;
+  }
+
+  .responsive-table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  .responsive-table tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: 0.8rem;
+    background: #fff;
+    border-radius: 10px;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .responsive-table td {
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85em;
+    text-align: right;
+    padding: 0.5rem 0;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+  }
+
+  .responsive-table td:last-child {
+    border-bottom: 0;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .pagination-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .page-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .delete-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ── Screen reader only ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }

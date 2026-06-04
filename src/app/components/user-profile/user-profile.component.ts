@@ -1,38 +1,41 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { ToastMessageService } from '../../services/toast-message.service';
-import { TranslateService } from '@ngx-translate/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfileComponent {
 
-  user: any;
-  currentLang = 'en';
+  editMode = false;
 
-  constructor(
-    private auth: AuthService,
-    private toast: ToastMessageService,
-    private translate: TranslateService
-  ) {}
+  // --- Real user data ---
+  user = {
+    fullName: "John Doe",
+    email: "john@example.com",
+    phone: "(239) 816-9029",
+    address: "San Francisco, CA",
+    role: "Full Stack Developer",
+    location: "USA"
+  };
 
-  ngOnInit(): void {
-    this.auth.loadUser().subscribe(u => {
-      this.user = u;
-    });
+  // --- Temporary editable copy ---
+  editableUser: any = {};
 
-    this.currentLang = this.translate.currentLang || 'en';
+  enableEdit() {
+    this.editMode = true;
+    this.editableUser = { ...this.user }; // clone object
   }
 
-  switchLang(lang: string): void {
-    this.currentLang = lang;
-    this.translate.use(lang);
+  cancelEdit() {
+    this.editMode = false;
   }
 
-  logout(): void {
-    this.auth.logout();
+  saveChanges() {
+    // Here you call your API service to save user data
+    // this.userService.updateUser(this.editableUser).subscribe(...)
+
+    this.user = { ...this.editableUser }; // apply changes
+    this.editMode = false;
   }
 }

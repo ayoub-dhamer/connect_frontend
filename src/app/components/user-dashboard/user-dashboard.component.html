@@ -1,0 +1,68 @@
+<div class="dashboard">
+  <h1 class="page-title">Welcome back, {{ userName }} 👋</h1>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-icon">📁</span>
+      <div>
+        <p class="stat-label">Total projects</p>
+        <p class="stat-value">{{ totalProjects }}</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">✅</span>
+      <div>
+        <p class="stat-label">Total tasks</p>
+        <p class="stat-value">{{ totalTasks }}</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🔥</span>
+      <div>
+        <p class="stat-label">High priority</p>
+        <p class="stat-value">{{ highPriorityTasks }}</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🕐</span>
+      <div>
+        <p class="stat-label">Ongoing tasks</p>
+        <p class="stat-value">{{ ongoingTasks }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sections-grid">
+    <div class="section-card">
+      <h2>Recent projects</h2>
+      <div class="list-item" *ngFor="let p of recentProjects">
+        <span class="list-icon">📁</span>
+        <div class="list-info">
+          <p class="list-title">{{ p.name }}</p>
+          <p class="list-sub">{{ p.status }}</p>
+        </div>
+      </div>
+      <p class="empty" *ngIf="recentProjects.length === 0">No projects yet.</p>
+    </div>
+
+    <div class="section-card">
+      <h2>Recent tasks</h2>
+      <div class="list-item" *ngFor="let t of recentTasks">
+        <span class="list-icon">✅</span>
+        <div class="list-info">
+          <p class="list-title">{{ t.name }}</p>
+        </div>
+        <span
+          class="chip"
+          [ngClass]="{
+            'chip-high': t.priority === 'High',
+            'chip-medium': t.priority === 'Medium',
+            'chip-low': t.priority === 'Low',
+          }"
+          >{{ t.priority }}</span
+        >
+      </div>
+      <p class="empty" *ngIf="recentTasks.length === 0">No tasks yet.</p>
+    </div>
+  </div>
+</div>
