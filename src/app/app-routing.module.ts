@@ -64,10 +64,7 @@ const routes: Routes = [
         component: ProjectFormComponent,
       },
 
-      {
-        path: 'tasks',
-        component: TaskListComponent,
-      },
+      { path: 'tasks', component: TaskListComponent },
       {
         path: 'tasks/new',
         component: TaskFormComponent,
