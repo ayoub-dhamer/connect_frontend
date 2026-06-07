@@ -27,7 +27,6 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { LoginGuard } from './guards/login.guard';
 import { HomeComponent } from './components/home/home.component';
-import { PricingComponent } from './components/pricing/pricing.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 
 const routes: Routes = [
@@ -108,7 +107,6 @@ const routes: Routes = [
 
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: '', component: HomeComponent },
-  { path: 'pricing', component: PricingComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: '**', component: PageNotFoundComponent },
 ];

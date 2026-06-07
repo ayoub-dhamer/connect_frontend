@@ -33,7 +33,6 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { HomeComponent } from './components/home/home.component';
-import { PricingComponent } from './components/pricing/pricing.component';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -97,7 +96,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     PageNotFoundComponent,
     CheckoutComponent,
     HomeComponent,
-    PricingComponent,
   ],
   imports: [
     BrowserModule,
