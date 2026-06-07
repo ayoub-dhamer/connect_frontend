@@ -1,70 +1,116 @@
-<header class="app-header">
-  <link
-    href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-    rel="stylesheet"
-  />
+<link
+  href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+  rel="stylesheet"
+/>
 
-  <!-- Left: Sidebar toggle -->
-  <button class="menu-btn" (click)="toggleSidebar()">
-    <i class="icon bx bx-menu"></i>
+<header class="app-header">
+  <button
+    class="icon-btn"
+    (click)="toggleSidebar()"
+    aria-label="Toggle sidebar"
+  >
+    <i class="ti ti-menu-2" aria-hidden="true"></i>
   </button>
 
-  <!-- Center: Empty spacer -->
   <div class="header-spacer"></div>
 
-  <!-- Right: Notification + Profile Dropdown -->
   <div class="header-actions">
     <!-- Notifications -->
-    <div class="notif-wrapper">
-      <button class="icon-btn" (click)="toggleNotifications()">
-        <i class="icon bx bx-bell"></i>
-        <span class="badge">{{ simpleUsersNumber }}</span>
+    <div class="dropdown-wrapper">
+      <button
+        class="icon-btn"
+        (click)="toggleNotifications()"
+        aria-label="Notifications"
+      >
+        <i class="ti ti-bell" aria-hidden="true"></i>
+        <span class="badge" *ngIf="simpleUsersNumber > 0">{{
+          simpleUsersNumber
+        }}</span>
       </button>
 
-      <!-- Dropdown -->
-      <div class="notif-box" [class.open]="notificationsOpen">
-        <h3>Notifications</h3>
-
+      <div class="dropdown notif-dropdown" [class.open]="notificationsOpen">
+        <div class="dropdown-header">
+          <span>Notifications</span>
+          <button class="mark-read" (click)="markAllRead()">
+            Mark all read
+          </button>
+        </div>
         <div class="notif-list">
           <div class="notif-item" *ngFor="let user of users">
-            <img src="assets/img/avatar.png" alt="user" />
+            <div class="notif-avatar">{{ getInitials(user.fullName) }}</div>
             <div class="notif-text">
-              <h4>{{ user.fullName }}</h4>
-              <p>{{ user.email }}</p>
+              <div class="name">{{ user.fullName }}</div>
+              <div class="email">{{ user.email }}</div>
             </div>
           </div>
+        </div>
+        <div class="dropdown-footer">
+          <button (click)="viewAllNotifications()">
+            View all notifications
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Profile Dropdown -->
-    <div class="profile-wrapper">
-      <button class="profile-btn" (click)="profileOpen = !profileOpen">
-        <img *ngIf="imageTest" class="avatar" [src]="imageSource" alt="User" />
-        <img
-          *ngIf="!imageTest"
-          class="avatar"
-          src="assets/img/user_image_holder.png"
-          alt="User"
-        />
-        <span>{{ userName }}</span>
-        <i class="icon bx bx-chevron-down"></i>
+    <div class="divider"></div>
+
+    <!-- Profile -->
+    <div class="dropdown-wrapper" (clickOutside)="profileOpen = false">
+      <button
+        class="profile-btn"
+        [class.open]="profileOpen"
+        (click)="profileOpen = !profileOpen"
+        aria-label="Profile menu"
+      >
+        <div class="avatar">
+          <img *ngIf="imageTest" [src]="imageSource" alt="User avatar" />
+          <span *ngIf="!imageTest">{{ getInitials(userName) }}</span>
+        </div>
+        <span class="profile-name">{{ userName }}</span>
+        <i class="ti ti-chevron-down" aria-hidden="true"></i>
       </button>
 
-      <!-- Dropdown -->
-      <ul class="profile-dropdown" [class.open]="profileOpen">
-        <li>
-          <i class="icon bx bx-cog" [routerLink]="['/user/profile']"></i>
-          Account Settings
-        </li>
-        <li>
-          <i class="icon bx bx-cog" [routerLink]="['/user/profile']"></i>
-          Settings
-        </li>
-        <li>
-          <i class="icon bx bx-log-out" (click)="disconnect()"></i> Logout
-        </li>
-      </ul>
+      <div class="dropdown profile-dropdown" [class.open]="profileOpen">
+        <div class="dropdown-user-info">
+          <div class="user-name">{{ userName }}</div>
+          <div class="user-email">{{ userEmail }}</div>
+        </div>
+        <div class="menu-section">
+          <button
+            class="menu-item"
+            [routerLink]="['/user/profile']"
+            (click)="profileOpen = false"
+          >
+            <i class="ti ti-user" aria-hidden="true"></i>
+            Account settings
+            <span class="plan-badge">{{ userPlan }}</span>
+          </button>
+          <button
+            class="menu-item"
+            [routerLink]="['/user/settings']"
+            (click)="profileOpen = false"
+          >
+            <i class="ti ti-settings" aria-hidden="true"></i>
+            Preferences
+          </button>
+          <button
+            class="menu-item upgrade"
+            *ngIf="userPlan === 'Free'"
+            [routerLink]="['/upgrade']"
+            (click)="profileOpen = false"
+          >
+            <i class="ti ti-rocket" aria-hidden="true"></i>
+            Upgrade to Pro
+          </button>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-section">
+          <button class="menu-item danger" (click)="disconnect()">
+            <i class="ti ti-logout" aria-hidden="true"></i>
+            Log out
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </header>

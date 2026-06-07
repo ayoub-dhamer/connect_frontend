@@ -23,7 +23,6 @@ import { TaskListComponent } from './components/task-list/task-list.component';
 import { ProjectFormComponent } from './components/project-form/project-form.component';
 import { TaskFormComponent } from './components/task-form/task-form.component';
 
-import { SideNavBarComponent } from './components/side-nav-bar/side-nav-bar.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { LoginGuard } from './guards/login.guard';
