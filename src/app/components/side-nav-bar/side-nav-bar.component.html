@@ -1,57 +1,97 @@
-<div [dir]="'dir' | translate">
-  <mat-nav-list>
-  <div class="logo py-4">
-  <!-- Collapsed -->
-  <img
-    *ngIf="!isExpanded"
-    src="assets/img/app-logo.png"
-    class="logo-icon"
-    alt="Logo"
-  />
+<div class="sidebar" [class.collapsed]="!isExpanded" [dir]="'dir' | translate">
+  <!-- Logo -->
+  <div class="logo-area">
+    <div class="logo-icon">
+      <img src="assets/img/app-logo.png" alt="Logo" class="logo-img-icon" />
+    </div>
+    <span class="logo-text" *ngIf="isExpanded">
+      <img src="assets/img/app-name.png" alt="App Name" class="logo-img-full" />
+    </span>
+  </div>
 
-  <!-- Expanded -->
-  <img
-    *ngIf="isExpanded"
-    src="assets/img/app-name.png"
-    class="logo-full"
-    alt="App Name"
-  />
+  <div class="divider"></div>
+
+  <!-- Nav section -->
+  <nav class="nav-section">
+    <span class="section-label" *ngIf="isExpanded">{{
+      "adminSection" | translate
+    }}</span>
+
+    <ng-container *ngFor="let item of menu">
+      <a
+        *ngIf="canShow(item)"
+        class="nav-item"
+        routerLinkActive="nav-item--active"
+        [routerLink]="item.link"
+        [matTooltip]="!isExpanded ? (item.label | translate) : ''"
+        matTooltipPosition="right"
+      >
+        <span class="nav-icon-wrap">
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </span>
+        <span class="nav-label" *ngIf="isExpanded">{{
+          item.label | translate
+        }}</span>
+        <span class="nav-badge" *ngIf="isExpanded && item.badge">{{
+          item.badge
+        }}</span>
+      </a>
+    </ng-container>
+  </nav>
+
+  <!-- Bottom area -->
+  <div class="bottom-area">
+    <div class="divider"></div>
+
+    <!-- Language switcher -->
+    <div class="lang-wrapper">
+      <div
+        class="lang-row"
+        [class.lang-row--collapsed]="!isExpanded"
+        (click)="langOpen = !langOpen"
+      >
+        <div class="lang-flag">
+          {{ currentLang === "en" ? "🇬🇧" : "🇫🇷" }}
+        </div>
+        <div class="lang-info" *ngIf="isExpanded">
+          <span class="lang-name">{{
+            currentLang === "en" ? "English" : "Français"
+          }}</span>
+          <span class="lang-sub">{{ currentLang | uppercase }} · Language</span>
+        </div>
+        <mat-icon
+          class="lang-chevron"
+          *ngIf="isExpanded"
+          [class.open]="langOpen"
+          >expand_more</mat-icon
+        >
+      </div>
+
+      <!-- Always in DOM — shown/hidden purely via CSS to avoid flicker -->
+      <div class="lang-dropdown" [class.lang-dropdown--open]="langOpen">
+        <div
+          class="lang-option"
+          [class.lang-option--active]="currentLang === 'en'"
+          (click)="switchLang('en')"
+        >
+          <span class="lang-option-flag">🇬🇧</span>
+          <span class="lang-option-name">English</span>
+          <mat-icon class="lang-option-check" *ngIf="currentLang === 'en'"
+            >check</mat-icon
+          >
+        </div>
+        <div
+          class="lang-option"
+          [class.lang-option--active]="currentLang === 'fr'"
+          (click)="switchLang('fr')"
+        >
+          <span class="lang-option-flag">🇫🇷</span>
+          <span class="lang-option-name">Français</span>
+          <mat-icon class="lang-option-check" *ngIf="currentLang === 'fr'"
+            >check</mat-icon
+          >
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-    <mat-divider></mat-divider>
-
-    <div *ngFor="let item of menu">
-  <a
-   *ngIf="canShow(item)"
-    mat-list-item
-    routerLinkActive="list-item-active"
-    [routerLink]="item.link"
-  >
-  <mat-icon>{{ item.icon }}</mat-icon>
-      {{ item.label | translate }}
-  </a>
-</div>
-    
-   
-  </mat-nav-list>
-</div>
-
-<!-- Language Switcher -->
-<div class="lang-switcher" [class.collapsed]="!isExpanded">
-  <mat-form-field appearance="outline">
-    <mat-select
-    [value]="currentLang"
-      (selectionChange)="switchLang($event.value)"
-      panelClass="lang-panel"
-    >
-      <mat-option value="en">
-        <span *ngIf="isExpanded">English</span>
-      </mat-option>
-      <mat-option value="fr">
-        <span *ngIf="isExpanded">Français</span>
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-</div>
-
-

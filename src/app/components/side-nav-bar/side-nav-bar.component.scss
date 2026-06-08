@@ -1,173 +1,433 @@
+// ─── Design tokens ───────────────────────────────────────────────────────────
+$sidebar-expanded: 240px;
+$sidebar-collapsed: 68px;
+$transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Light palette
+$bg-sidebar: #ffffff;
+$bg-page: #f5f6fa;
+$accent: #4f46e5; // indigo-600
+$accent-light: #eef2ff; // indigo-50
+$accent-muted: #c7d2fe; // indigo-200
+$text-primary: #111827; // gray-900
+$text-secondary: #6b7280; // gray-500
+$text-accent: $accent;
+$border: #e5e7eb; // gray-200
+$hover-bg: #f9fafb; // gray-50
+$active-bg: #eef2ff; // indigo-50
+$badge-bg: #4f46e5;
+$badge-text: #ffffff;
+
+// ─── Host & layout ────────────────────────────────────────────────────────────
 :host {
-  .mat-icon {
-    vertical-align: middle;
-    margin-right: 1rem;
-  }
-}
-.logo {
-  text-align: center;
-  padding: 2rem 1rem;
-  transition: all 0.3s ease;
-
-  img {
-    transition: all 0.3s ease;
-  }
-}
-
-.logo-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-}
-
-.logo-full {
-  width: 160px;
-}
-.mat-divider {
-  border-top-width: 2px;
-  border-color: white;
-}
-.mat-list-item {
-  color: #94a3b8 !important;
-  font-size: 0.8rem;
-  height: 44px !important;
-  margin-bottom: 4px;
-  &:hover {
-    color: #f2f5f7 !important;
-  }
-  ::ng-deep {
-    .mat-list-item-content {
-      border-radius: 5px;
-      margin: 0 8px;
-      &:hover {
-        background: #2c3344 !important;
-      }
-    }
-  }
-}
-.list-item-active {
-  // background: blue !important;
-  // border-radius: 0 2rem 2rem 0;
-  // &:hover {
-  //   background: blue;
-  // }
-
-  color: #f2f5f7 !important;
-  ::ng-deep {
-    .mat-list-item-content {
-      background: #2c3344 !important;
-      &:hover {
-        background: #2c3344 !important;
-      }
-    }
-  }
-}
-.mat-subheader {
-  color: #818cf8;
-  font-size: 0.6rem;
-  font-weight: 100;
-  letter-spacing: 1px;
-}
-
-
-
-
-
-.layout {
-  display: flex;
+  display: block;
   height: 100vh;
 }
 
 .sidebar {
-  width: 240px;
-  transition: width 0.3s ease;
-  background: #1f2937;
-}
-
-.sidebar.collapsed {
-  width: 72px;
-}
-
-.main {
-  flex: 1;
+  width: $sidebar-expanded;
+  height: 100%;
+  background: $bg-sidebar;
+  border-right: 1px solid $border;
   display: flex;
   flex-direction: column;
-}
+  transition: width $transition;
+  overflow: hidden;
+  position: relative;
 
-.logo {
-  text-align: center;
-  padding: 2rem 1rem;
-}
+  // Subtle left-edge accent stripe
+  &::before {
+    content: "";
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 3px;
+    height: calc(100% - 120px);
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      $accent-muted,
+      transparent
+    );
+    border-radius: 0 3px 3px 0;
+    opacity: 0.6;
+  }
 
-.logo-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-}
-
-.logo-full {
-  width: 160px;
-}
-
-/* Language Switcher Container */
-.lang-switcher {
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-/* When sidebar collapsed */
-.lang-switcher.collapsed {
-  mat-form-field {
-    width: 50px;
+  &.collapsed {
+    width: $sidebar-collapsed;
   }
 }
 
-/* Material Field Customization */
-::ng-deep .lang-switcher mat-form-field {
-  width: 100%;
-}
-
-::ng-deep .lang-switcher .mat-form-field-outline {
-  color: #475569;
-}
-
-::ng-deep .lang-switcher .mat-form-field-outline-start,
-::ng-deep .lang-switcher .mat-form-field-outline-end,
-::ng-deep .lang-switcher .mat-form-field-outline-gap {
-  border-color: #475569;
-}
-
-/* Select text */
-::ng-deep .lang-switcher .mat-select-value {
-  color: #e5e7eb;
-  font-size: 13px;
+// ─── Logo ─────────────────────────────────────────────────────────────────────
+.logo-area {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  padding: 18px 16px 14px;
+  min-height: 68px;
+  flex-shrink: 0;
 }
 
-/* Arrow */
-::ng-deep .lang-switcher .mat-select-arrow {
-  color: #94a3b8;
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, $accent 0%, #818cf8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  .logo-img-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
 }
 
-/* Hover */
-::ng-deep .lang-switcher .mat-form-field:hover .mat-form-field-outline {
-  border-color: #818cf8;
+.logo-text {
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    opacity $transition,
+    width $transition;
+  width: 150px;
+
+  .logo-img-full {
+    height: 22px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .sidebar.collapsed & {
+    opacity: 0;
+    width: 0;
+  }
 }
 
-/* Dropdown Panel */
-::ng-deep .lang-panel {
-  background: #1f2937;
-  color: #e5e7eb;
+// ─── Divider ──────────────────────────────────────────────────────────────────
+.divider {
+  height: 1px;
+  background: $border;
+  margin: 4px 12px 6px;
+  flex-shrink: 0;
 }
 
-::ng-deep .lang-panel .mat-option {
+// ─── Nav section ──────────────────────────────────────────────────────────────
+.nav-section {
+  flex: 1;
+  padding: 4px 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $border;
+    border-radius: 3px;
+  }
+}
+
+.section-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: $text-secondary;
+  padding: 10px 10px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+// ─── Nav item ─────────────────────────────────────────────────────────────────
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: $text-secondary;
+  text-decoration: none;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  white-space: nowrap;
+  margin-bottom: 2px;
+  position: relative;
+
+  &:hover {
+    background: $hover-bg;
+    color: $text-primary;
+
+    .nav-icon-wrap {
+      background: $accent-light;
+      color: $accent;
+    }
+  }
+
+  &--active,
+  &.nav-item--active {
+    background: $active-bg;
+    color: $accent;
+    font-weight: 500;
+
+    // Left accent bar
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 55%;
+      background: $accent;
+      border-radius: 0 3px 3px 0;
+    }
+
+    .nav-icon-wrap {
+      background: $accent-light;
+      color: $accent;
+    }
+  }
+}
+
+.nav-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  color: $text-secondary;
+
+  mat-icon {
+    font-size: 19px;
+    width: 19px;
+    height: 19px;
+    line-height: 1;
+  }
+}
+
+.nav-label {
+  font-size: 13.5px;
+  font-weight: 450;
+  color: inherit;
+  overflow: hidden;
+  transition: opacity $transition;
+
+  .sidebar.collapsed & {
+    opacity: 0;
+    width: 0;
+  }
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: $badge-bg;
+  color: $badge-text;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  transition: opacity $transition;
+
+  .sidebar.collapsed & {
+    opacity: 0;
+  }
+}
+
+// ─── Bottom area ──────────────────────────────────────────────────────────────
+.bottom-area {
+  padding-bottom: 12px;
+  flex-shrink: 0;
+}
+
+// ─── Language row ─────────────────────────────────────────────────────────────
+.lang-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin: 4px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.18s;
+  position: relative;
+
+  &:hover {
+    background: $hover-bg;
+  }
+
+  &--collapsed {
+    justify-content: center;
+  }
+}
+
+.lang-flag {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $bg-page;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.lang-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity $transition;
+
+  .sidebar.collapsed & {
+    opacity: 0;
+    width: 0;
+  }
+}
+
+.lang-name {
   font-size: 13px;
+  font-weight: 500;
+  color: $text-primary;
+  line-height: 1.3;
 }
 
-::ng-deep .lang-panel .mat-option:hover {
-  background: #2c3344;
+.lang-sub {
+  font-size: 11px;
+  color: $text-secondary;
+  line-height: 1.3;
+}
+
+// Chevron icon inside lang row
+.lang-chevron {
+  margin-left: auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: $text-secondary;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+// ─── Language dropdown ────────────────────────────────────────────────────────
+.lang-wrapper {
+  position: relative;
+  margin: 4px 8px 0;
+}
+
+.lang-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 160px;
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 9999;
+
+  // Hidden by default — no layout impact, no flicker
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    visibility 0s linear 0.15s;
+  pointer-events: none;
+
+  &--open {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease,
+      visibility 0s linear 0s;
+    pointer-events: auto;
+  }
+
+  // When sidebar is collapsed: shrink to icon-only, centered under the flag
+  .sidebar.collapsed & {
+    min-width: unset;
+    width: 52px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(6px);
+  }
+
+  .sidebar.collapsed &.lang-dropdown--open {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 13px;
+  color: $text-primary;
+
+  &:hover {
+    background: $hover-bg;
+  }
+  &--active {
+    background: $active-bg;
+    color: $accent;
+  }
+
+  // Collapsed: center the flag, remove padding gap
+  .sidebar.collapsed & {
+    justify-content: center;
+    padding: 10px 0;
+    gap: 0;
+  }
+}
+
+.lang-option-flag {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.lang-option-name {
+  flex: 1;
+  font-weight: 500;
+
+  .sidebar.collapsed & {
+    display: none;
+  }
+}
+
+.lang-option-check {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: $accent;
+  flex-shrink: 0;
+
+  .sidebar.collapsed & {
+    display: none;
+  }
 }
