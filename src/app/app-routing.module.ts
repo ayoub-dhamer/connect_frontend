@@ -85,9 +85,9 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
 
-  // --------------
+  // -----------
   // PAYMENTS
-  // --------------
+  // -----------
   {
     path: 'payment',
     component: PaymentComponent,
