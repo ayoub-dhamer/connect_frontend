@@ -75,9 +75,9 @@ const routes: Routes = [
     ],
   },
 
-  // --------------
+  // -----------
   // REALTIME FEATURES
-  // --------------
+  // -----------
   { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
   {
     path: 'video/:roomId',
