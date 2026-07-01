@@ -33,6 +33,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { HomeComponent } from './components/home/home.component';
+import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -54,7 +55,10 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSortModule } from '@angular/material/sort';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpLoaderFactory } from './translate-loader.factory';
@@ -125,6 +129,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     BrowserAnimationsModule,
     MatProgressSpinnerModule,
     MatListModule,
+    CommonModule,
     LucideAngularModule.pick({ Layout, MessageSquare, Video }),
     TranslateModule.forRoot({
       loader: {

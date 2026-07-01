@@ -1,99 +1,131 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TaskService } from '../../services/task.service';
-import { ProjectService } from '../../services/project.service';
-import { UserService } from '../../services/user.service';
-import { ToastMessageService } from '../../services/toast-message.service';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type TaskStatus = 'TO_DO' | 'IN_PROGRESS' | 'DONE';
+
+export interface Participant {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface TaskFormValue {
+  name: string;
+  priority: TaskPriority;
+  status: TaskStatus;
+  assignedMemberIds: number[];
+}
 
 @Component({
   selector: 'app-task-form',
   templateUrl: './task-form.component.html',
-  styleUrls: ['./task-form.component.css']
+  styleUrls: ['./task-form.component.scss'],
 })
-export class TaskFormComponent implements OnInit {
+export class TaskFormComponent implements OnChanges {
+  /** Controls visibility of the modal overlay */
+  @Input() isOpen = false;
 
-  form!: FormGroup;
-  isEdit = false;
-  loading = false;
+  /** Participants available for assignment (from the parent wizard's state) */
+  @Input() participants: Participant[] = [];
 
-  projects: any[] = [];
-  users: any[] = [];
-  taskId!: number;
+  /** Pass an existing task here to edit it; omit/null for create mode */
+  @Input() task: TaskFormValue | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private taskService: TaskService,
-    private projectService: ProjectService,
-    private userService: UserService,
-    private toast: ToastMessageService,
-    public router: Router,
-    private route: ActivatedRoute
-  ) {}
+  /** Emits the finished task on submit, or null on cancel */
+  @Output() closed = new EventEmitter<TaskFormValue | null>();
 
-  ngOnInit(): void {
-    this.form = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      priority: ['MEDIUM', Validators.required],
-      status: ['ONGOING', Validators.required],
-      projectId: [null, Validators.required],
-      assignedUserIds: [[]]
-    });
+  name = '';
+  nameTouched = false;
+  priority: TaskPriority = 'MEDIUM';
+  status: TaskStatus = 'TO_DO';
+  selectedMemberIds: number[] = [];
 
-    this.projectService.getAll().subscribe((res: any) => {
-      this.projects = res.content ?? res;
-    });
+  readonly priorities: { value: TaskPriority; label: string }[] = [
+    { value: 'LOW', label: 'Low' },
+    { value: 'MEDIUM', label: 'Medium' },
+    { value: 'HIGH', label: 'High' },
+    { value: 'CRITICAL', label: 'Critical' },
+  ];
 
-    this.userService.getAll().subscribe((res: any) => {
-      this.users = res.content ?? res;
-    });
+  readonly statuses: { value: TaskStatus; label: string }[] = [
+    { value: 'TO_DO', label: 'To do' },
+    { value: 'IN_PROGRESS', label: 'In progress' },
+    { value: 'DONE', label: 'Done' },
+  ];
 
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEdit = true;
-      this.taskId = +id;
-      this.taskService.getById(this.taskId).subscribe((t: any) => {
-        this.form.patchValue({
-          name: t.name,
-          description: t.description,
-          priority: t.priority,
-          status: t.status,
-          projectId: t.project?.id,
-          assignedUserIds: t.assignedTeamMembers?.map((u: any) => u.id) ?? []
-        });
-      });
+  get isEditMode(): boolean {
+    return !!this.task;
+  }
+
+  get nameInvalid(): boolean {
+    return this.nameTouched && this.name.trim().length < 3;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Reset the form whenever the modal is opened, using whatever
+    // task (or lack of one) was passed in at that moment.
+    if (changes['isOpen'] && this.isOpen) {
+      this.resetForm();
     }
   }
 
+  private resetForm(): void {
+    this.name = this.task?.name ?? '';
+    this.priority = this.task?.priority ?? 'MEDIUM';
+    this.status = this.task?.status ?? 'TO_DO';
+    this.selectedMemberIds = this.task ? [...this.task.assignedMemberIds] : [];
+    this.nameTouched = false;
+  }
+
+  selectPriority(p: TaskPriority): void {
+    this.priority = p;
+  }
+
+  selectStatus(s: TaskStatus): void {
+    this.status = s;
+  }
+
+  toggleMember(id: number): void {
+    this.selectedMemberIds = this.selectedMemberIds.includes(id)
+      ? this.selectedMemberIds.filter((x) => x !== id)
+      : [...this.selectedMemberIds, id];
+  }
+
+  isMemberSelected(id: number): boolean {
+    return this.selectedMemberIds.includes(id);
+  }
+
   submit(): void {
-    if (this.form.invalid) return;
+    this.nameTouched = true;
+    if (this.name.trim().length < 3) {
+      return;
+    }
 
-    this.loading = true;
-    const v = this.form.value;
-
-    const payload = {
-      name: v.name,
-      description: v.description,
-      priority: v.priority,
-      status: v.status,
-      project: { id: v.projectId },
-      assignedTeamMembers: v.assignedUserIds.map((id: number) => ({ id }))
+    const result: TaskFormValue = {
+      name: this.name.trim(),
+      priority: this.priority,
+      status: this.status,
+      assignedMemberIds: [...this.selectedMemberIds],
     };
 
-    const request$ = this.isEdit
-      ? this.taskService.update(this.taskId, payload)
-      : this.taskService.create(payload);
+    this.closed.emit(result);
+  }
 
-    request$.subscribe({
-      next: () => {
-        this.toast.success(this.isEdit ? 'Task updated!' : 'Task created!');
-        this.router.navigate(['/tasks']);
-      },
-      error: () => {
-        this.toast.error('Something went wrong');
-        this.loading = false;
-      }
-    });
+  cancel(): void {
+    this.closed.emit(null);
+  }
+
+  /** Clicking the dimmed backdrop behaves like Cancel */
+  onOverlayClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.cancel();
+    }
   }
 }

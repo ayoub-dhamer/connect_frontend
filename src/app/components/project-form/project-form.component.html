@@ -1,58 +1,445 @@
-<div class="form-page">
-  <h1>{{ isEdit ? 'Edit Project' : 'New Project' }}</h1>
+<div class="app">
+  <div class="app-header">
+    <h1>Create a new project</h1>
+    <p>Set the basics, bring in your team, and line up the first tasks.</p>
+  </div>
 
-  <mat-card class="form-card">
-    <form [formGroup]="form" (ngSubmit)="submit()">
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Project Name</mat-label>
-        <input
-          matInput
-          formControlName="name"
-          placeholder="e.g. Website Redesign" />
-
-        <mat-error *ngIf="form.get('name')?.hasError('required')">
-          Name is required
-        </mat-error>
-        <mat-error *ngIf="form.get('name')?.hasError('minlength')">
-          Min 3 characters
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option value="ONGOING">Ongoing</mat-option>
-          <mat-option value="COMPLETED">Completed</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Owner</mat-label>
-        <mat-select formControlName="ownerId">
-          <mat-option *ngFor="let u of users" [value]="u.id">
-            {{ u.name }} ({{ u.email }})
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <div class="form-actions">
-        <button
-          mat-stroked-button
-          type="button"
-          (click)="router.navigate(['/user/projects'])">
-          Cancel
-        </button>
-
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          [disabled]="form.invalid || loading">
-          {{ isEdit ? 'Update' : 'Create' }}
-        </button>
+  <div class="wizard">
+    <!-- Desktop step rail -->
+    <nav class="rail" aria-label="Project creation steps">
+      <div
+        class="rail-step"
+        [class.is-active]="railStatus(1) === 'active'"
+        [class.is-done]="railStatus(1) === 'done'"
+      >
+        <div class="rail-step-marker">
+          <div class="rail-step-num">1</div>
+          <div class="rail-step-line" [class.filled]="1 < currentStep"></div>
+        </div>
+        <div class="rail-step-body">
+          <div class="rail-step-label">Project info</div>
+          <div class="rail-step-sub">Name, status, deadline</div>
+        </div>
       </div>
 
-    </form>
-  </mat-card>
+      <div
+        class="rail-step"
+        [class.is-active]="railStatus(2) === 'active'"
+        [class.is-done]="railStatus(2) === 'done'"
+        [class.is-skipped]="railStatus(2) === 'skipped'"
+      >
+        <div class="rail-step-marker">
+          <div class="rail-step-num">2</div>
+          <div class="rail-step-line" [class.filled]="2 < currentStep"></div>
+        </div>
+        <div class="rail-step-body">
+          <div class="rail-step-label">Participants</div>
+          <div class="rail-step-sub">
+            <ng-container *ngIf="skipped[2]">Skipped</ng-container>
+            <ng-container
+              *ngIf="
+                !skipped[2] && (participants.length || pendingInvites.length)
+              "
+            >
+              {{ participants.length + pendingInvites.length }} added
+            </ng-container>
+            <ng-container
+              *ngIf="
+                !skipped[2] && !participants.length && !pendingInvites.length
+              "
+              >Optional</ng-container
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="rail-step"
+        [class.is-active]="railStatus(3) === 'active'"
+        [class.is-done]="railStatus(3) === 'done'"
+        [class.is-skipped]="railStatus(3) === 'skipped'"
+      >
+        <div class="rail-step-marker">
+          <div class="rail-step-num">3</div>
+          <div class="rail-step-line" [class.filled]="3 < currentStep"></div>
+        </div>
+        <div class="rail-step-body">
+          <div class="rail-step-label">Tasks</div>
+          <div class="rail-step-sub">
+            <ng-container *ngIf="skipped[3]">Skipped</ng-container>
+            <ng-container *ngIf="!skipped[3] && tasks.length"
+              >{{ tasks.length }} added</ng-container
+            >
+            <ng-container *ngIf="!skipped[3] && !tasks.length"
+              >Optional</ng-container
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="rail-step" [class.is-active]="railStatus(4) === 'active'">
+        <div class="rail-step-marker">
+          <div class="rail-step-num">4</div>
+        </div>
+        <div class="rail-step-body">
+          <div class="rail-step-label">Confirm</div>
+          <div class="rail-step-sub">Review and create</div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile progress bar -->
+    <div class="mobile-progress">
+      <div class="mobile-progress-label">
+        <span
+          >Step <strong>{{ currentStep }}</strong> of 4</span
+        >
+        <strong>{{ stepLabels[currentStep] }}</strong>
+      </div>
+      <div class="mobile-progress-track">
+        <div
+          class="mobile-progress-fill"
+          [style.width.%]="progressPercent"
+        ></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <form [formGroup]="form" autocomplete="off">
+        <!-- STEP 1: Project info -->
+        <section class="step-pane" *ngIf="currentStep === 1">
+          <div class="step-head">
+            <h2>Project info</h2>
+            <p>Tell us what this project is and when it's due.</p>
+          </div>
+
+          <div
+            class="field"
+            [class.has-error]="
+              err('name', 'required') || err('name', 'minlength')
+            "
+          >
+            <label class="field-label" for="proj-name">Project name</label>
+            <input
+              type="text"
+              id="proj-name"
+              formControlName="name"
+              placeholder="Website redesign"
+            />
+            <div class="error-text" *ngIf="err('name', 'required')">
+              Project name is required.
+            </div>
+            <div class="error-text" *ngIf="err('name', 'minlength')">
+              At least 3 characters.
+            </div>
+            <div class="error-text" *ngIf="err('name', 'maxlength')">
+              150 characters max.
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Status</label>
+              <div class="pill-group">
+                <div
+                  *ngFor="let s of projectStatus"
+                  class="pill"
+                  [class.is-selected]="form.get('status')?.value === s.value"
+                  (click)="form.get('status')?.setValue(s.value)"
+                >
+                  {{ s.label }}
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="proj-deadline"
+                >Deadline <span class="field-hint">optional</span></label
+              >
+              <input
+                type="date"
+                id="proj-deadline"
+                formControlName="deadline"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="proj-desc"
+              >Description <span class="field-hint">optional</span></label
+            >
+            <textarea
+              id="proj-desc"
+              formControlName="description"
+              maxlength="1000"
+              placeholder="What is this project about?"
+            ></textarea>
+            <div class="char-count">
+              {{ form.get("description")?.value?.length ?? 0 }}/1000
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2: Participants -->
+        <section class="step-pane" *ngIf="currentStep === 2">
+          <div class="step-head step-head-row">
+            <div>
+              <h2>Participants</h2>
+              <p>Add the people working on this project.</p>
+            </div>
+            <button type="button" class="skip-link" (click)="skipStep(2)">
+              Skip for now
+            </button>
+          </div>
+
+          <label class="field-label">Add by name or email</label>
+          <div class="search-box">
+            <div class="tag-field">
+              <span class="chip" *ngFor="let p of participants">
+                <span class="chip-avatar">{{
+                  p.name | slice: 0 : 2 | uppercase
+                }}</span>
+                {{ p.name }}
+                <button
+                  type="button"
+                  class="chip-remove"
+                  (click)="removeParticipant(p.id)"
+                >
+                  ✕
+                </button>
+              </span>
+
+              <span
+                class="chip chip-pending"
+                *ngFor="let email of pendingInvites"
+              >
+                <span class="chip-mail-icon">✉</span>
+                {{ email }}
+                <button
+                  type="button"
+                  class="chip-remove"
+                  (click)="removePendingInvite(email)"
+                >
+                  ✕
+                </button>
+              </span>
+
+              <input
+                type="text"
+                class="tag-input"
+                placeholder="Search people or type an email…"
+                [value]="participantSearch"
+                (input)="onParticipantSearch($any($event.target).value)"
+                (keydown.enter)="$event.preventDefault(); inviteByEmail()"
+                (focus)="showDropdown = searchResults.length > 0"
+                (blur)="showDropdown = false"
+              />
+            </div>
+
+            <div class="dropdown" *ngIf="showDropdown">
+              <div
+                class="dropdown-item"
+                *ngFor="let u of searchResults"
+                (mousedown)="$event.preventDefault(); addParticipant(u)"
+              >
+                <span class="dropdown-avatar">{{
+                  u.name | slice: 0 : 2 | uppercase
+                }}</span>
+                <div>
+                  <div class="dropdown-name">{{ u.name }}</div>
+                  <div class="dropdown-email">{{ u.email }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="invite-row" *ngIf="showInviteRow">
+            <span>✉</span>
+            <span>No account found for "{{ participantSearch }}".</span>
+            <button type="button" (click)="inviteByEmail()">
+              Invite by email
+            </button>
+          </div>
+
+          <div class="note">
+            <span>ⓘ</span>
+            <span
+              >Only participants can be assigned to tasks in the next step.
+              Invited people join automatically once they accept.</span
+            >
+          </div>
+        </section>
+
+        <!-- STEP 3: Tasks -->
+        <section class="step-pane" *ngIf="currentStep === 3">
+          <div class="step-head step-head-row">
+            <div>
+              <h2>Tasks</h2>
+              <p>Break the project into work items, or add these later.</p>
+            </div>
+            <button type="button" class="skip-link" (click)="skipStep(3)">
+              Skip for now
+            </button>
+          </div>
+
+          <div style="margin-bottom: 18px">
+            <button
+              type="button"
+              class="add-task-btn"
+              (click)="openAddTaskModal()"
+            >
+              + Add task
+            </button>
+          </div>
+
+          <div class="empty-state" *ngIf="tasks.length === 0">
+            <div class="empty-state-icon">▢</div>
+            <p>
+              No tasks yet. Add one now, or do it later from the project page.
+            </p>
+          </div>
+
+          <div class="task-list" *ngIf="tasks.length > 0">
+            <div
+              class="task-row"
+              *ngFor="let t of tasks; let i = index"
+              (click)="openEditTaskModal(i)"
+            >
+              <span
+                class="prio-dot"
+                [ngClass]="'prio-' + t.priority.toLowerCase()"
+              ></span>
+              <span class="task-row-name">{{ t.name }}</span>
+              <span class="task-row-status">{{
+                t.status.replace("_", " ")
+              }}</span>
+              <div class="task-row-assignees">
+                <span
+                  class="mini-avatar"
+                  *ngFor="let n of t.assignedMemberNames"
+                  >{{ n | slice: 0 : 2 | uppercase }}</span
+                >
+              </div>
+              <button
+                type="button"
+                class="task-row-remove"
+                (click)="$event.stopPropagation(); removeTask(i)"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 4: Confirm -->
+        <section class="step-pane" *ngIf="currentStep === 4">
+          <div class="step-head">
+            <h2>Review and create</h2>
+            <p>Check everything looks right before creating the project.</p>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-head">
+              <span class="summary-card-title">Project info</span>
+              <button type="button" class="edit-link" (click)="goToStep(1)">
+                Edit
+              </button>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row-label">Name</span>
+              <span class="summary-row-value">{{
+                form.get("name")?.value || "—"
+              }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row-label">Status</span>
+              <span class="summary-row-value">{{ selectedStatusLabel }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row-label">Deadline</span>
+              <span class="summary-row-value">{{
+                form.get("deadline")?.value || "Not set"
+              }}</span>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-head">
+              <span class="summary-card-title">Participants</span>
+              <button type="button" class="edit-link" (click)="goToStep(2)">
+                Edit
+              </button>
+            </div>
+            <div
+              *ngIf="participants.length === 0 && pendingInvites.length === 0"
+            >
+              <span class="summary-empty">{{
+                skipped[2]
+                  ? "Skipped — no participants added."
+                  : "No participants added."
+              }}</span>
+            </div>
+            <div
+              class="summary-chips"
+              *ngIf="participants.length > 0 || pendingInvites.length > 0"
+            >
+              <span class="summary-chip" *ngFor="let p of participants">{{
+                p.name
+              }}</span>
+              <span class="summary-chip" *ngFor="let e of pendingInvites"
+                >{{ e }} (invited)</span
+              >
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-head">
+              <span class="summary-card-title">Tasks</span>
+              <button type="button" class="edit-link" (click)="goToStep(3)">
+                Edit
+              </button>
+            </div>
+            <div *ngIf="tasks.length === 0">
+              <span class="summary-empty">{{
+                skipped[3] ? "Skipped — no tasks added." : "No tasks added."
+              }}</span>
+            </div>
+            <div *ngFor="let t of tasks" class="summary-row">
+              <span class="summary-row-label">{{ t.name }}</span>
+              <span class="summary-row-value"
+                >{{ t.priority }} ·
+                {{ t.assignedMemberIds.length }} assigned</span
+              >
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer navigation -->
+        <div class="panel-footer">
+          <div class="footer-left">
+            <button
+              type="button"
+              class="btn btn-ghost"
+              (click)="prevStep()"
+              [style.visibility]="currentStep === 1 ? 'hidden' : 'visible'"
+            >
+              Back
+            </button>
+          </div>
+          <div class="footer-right">
+            <button type="button" class="btn btn-primary" (click)="nextStep()">
+              {{ currentStep === 4 ? "Create project" : "Continue" }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
+<app-task-form
+  [isOpen]="taskModalOpen"
+  [participants]="participants"
+  [task]="taskModalData"
+  (closed)="onTaskModalClosed($event)"
+></app-task-form>

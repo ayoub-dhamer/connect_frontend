@@ -1,77 +1,89 @@
-<div class="form-page">
-  <h1>{{ isEdit ? 'Edit Task' : 'New Task' }}</h1>
+<div class="modal-overlay" *ngIf="isOpen" (mousedown)="onOverlayClick($event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>{{ isEditMode ? "Edit task" : "New task" }}</h3>
+      <button
+        type="button"
+        class="modal-close"
+        (click)="cancel()"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+    </div>
 
-  <mat-card class="form-card">
-    <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field" [class.has-error]="nameInvalid">
+      <label class="field-label" for="task-name">Task name</label>
+      <input
+        type="text"
+        id="task-name"
+        [(ngModel)]="name"
+        (blur)="nameTouched = true"
+        placeholder="Design login screen"
+      />
+      <div class="error-text">Enter a name with at least 3 characters.</div>
+    </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Task Name</mat-label>
-        <input matInput formControlName="name" />
-        <mat-error *ngIf="form.get('name')?.hasError('required')">
-          Required
-        </mat-error>
-      </mat-form-field>
+    <div class="field">
+      <label class="field-label">Priority</label>
+      <div class="pill-group">
+        <div
+          *ngFor="let p of priorities"
+          class="pill"
+          [class.is-selected]="priority === p.value"
+          (click)="selectPriority(p.value)"
+        >
+          {{ p.label }}
+        </div>
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description" rows="3"></textarea>
-      </mat-form-field>
+    <div class="field">
+      <label class="field-label">Status</label>
+      <div class="pill-group">
+        <div
+          *ngFor="let s of statuses"
+          class="pill"
+          [class.is-selected]="status === s.value"
+          (click)="selectStatus(s.value)"
+        >
+          {{ s.label }}
+        </div>
+      </div>
+    </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Priority</mat-label>
-        <mat-select formControlName="priority">
-          <mat-option value="HIGH">High</mat-option>
-          <mat-option value="MEDIUM">Medium</mat-option>
-          <mat-option value="LOW">Low</mat-option>
-        </mat-select>
-      </mat-form-field>
+    <div class="field">
+      <label class="field-label">Assign participants</label>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option value="ONGOING">Ongoing</mat-option>
-          <mat-option value="DONE">Done</mat-option>
-          <mat-option value="FAILED">Failed</mat-option>
-          <mat-option value="EXPIRED">Expired</mat-option>
-          <mat-option value="CANCELLED">Cancelled</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Project</mat-label>
-        <mat-select formControlName="projectId">
-          <mat-option *ngFor="let p of projects" [value]="p.id">
-            {{ p.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Assigned Members</mat-label>
-        <mat-select formControlName="assignedUserIds" multiple>
-          <mat-option *ngFor="let u of users" [value]="u.id">
-            {{ u.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <div class="form-actions">
-        <button
-          mat-stroked-button
-          type="button"
-          (click)="router.navigate(['/tasks'])">
-          Cancel
-        </button>
-
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          [disabled]="form.invalid || loading">
-          {{ isEdit ? 'Update' : 'Create' }}
-        </button>
+      <div class="member-pick-list" *ngIf="participants.length > 0">
+        <div
+          *ngFor="let p of participants"
+          class="member-pick"
+          [class.is-selected]="isMemberSelected(p.id)"
+          (click)="toggleMember(p.id)"
+        >
+          <span class="member-pick-check">{{
+            isMemberSelected(p.id) ? "✓" : ""
+          }}</span>
+          <span class="chip-avatar">{{
+            p.name | slice: 0 : 2 | uppercase
+          }}</span>
+          <span>{{ p.name }}</span>
+        </div>
       </div>
 
-    </form>
-  </mat-card>
+      <div class="summary-empty" *ngIf="participants.length === 0">
+        No participants yet — add them in step 2, or assign this task later.
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" (click)="cancel()">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-primary" (click)="submit()">
+        {{ isEditMode ? "Save changes" : "Add task" }}
+      </button>
+    </div>
+  </div>
 </div>
