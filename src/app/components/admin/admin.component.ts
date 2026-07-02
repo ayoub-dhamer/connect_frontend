@@ -5,11 +5,13 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.scss']
+  styleUrls: ['./admin.component.scss'],
 })
 export class AdminComponent implements OnInit {
-
-  constructor(private auth: AuthService, private router: Router) { }
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+  ) {}
 
   sideBarOpen = true;
 
@@ -18,19 +20,12 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-    // User is NOT authenticated → redirect
-    if (!this.auth.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    // User is authenticated but NOT ADMIN → reject
-   /* if (!this.auth.hasRole('ROLE_ADMIN')) {
-      this.router.navigate(['/unauthorized']);      
-      return;
-    }*/
-
-    console.log("Admin loaded.");
+    this.auth.isAuthenticated().subscribe((isAuth) => {
+      if (!isAuth) {
+        this.router.navigate(['/login']);
+        return;
+      }
+      console.log('Admin loaded.');
+    });
   }
 }

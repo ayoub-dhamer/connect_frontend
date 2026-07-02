@@ -5,6 +5,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 
 // ✅ Import the Client constructor only — avoid type imports from @stomp/stompjs
 import { Client } from '@stomp/stompjs';
+import { environment } from 'src/environments/environment';
 
 export interface ChatMessage {
   sender: { email: string };
@@ -34,7 +35,7 @@ export class WebSocketService {
   private chatSubscription: any;
   private signalingSubscriptions = new Map<string, any>();
 
-  private readonly WS_URL = 'http://localhost:8080/ws';
+  private readonly WS_URL = environment.wsUrl;
 
   connect(): void {
     if (this.client?.active) return;
@@ -59,7 +60,7 @@ export class WebSocketService {
 
   disconnect(): void {
     this.chatSubscription?.unsubscribe();
-    this.signalingSubscriptions.forEach(sub => sub.unsubscribe());
+    this.signalingSubscriptions.forEach((sub) => sub.unsubscribe());
     this.signalingSubscriptions.clear();
 
     if (this.client?.active) {
@@ -76,7 +77,7 @@ export class WebSocketService {
           const chatMsg: ChatMessage = JSON.parse(message.body);
           this.messagesSubject.next(chatMsg);
         }
-      }
+      },
     );
   }
 
@@ -106,7 +107,7 @@ export class WebSocketService {
           const signal: SignalMessage = JSON.parse(message.body);
           this.signalingSubject.next(signal);
         }
-      }
+      },
     );
 
     this.signalingSubscriptions.set(roomId, sub);

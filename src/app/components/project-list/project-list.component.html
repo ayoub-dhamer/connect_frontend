@@ -13,7 +13,9 @@
 
   <!-- Table -->
   <table class="responsive-table">
-    <caption>List of projects</caption>
+    <caption>
+      List of projects
+    </caption>
     <thead>
       <tr>
         <th scope="col">#</th>
@@ -27,32 +29,31 @@
     </thead>
     <tbody>
       <tr *ngFor="let project of filteredProjects; let i = index">
-        <td data-label="#"> {{ i + 1 }} </td>
+        <td data-label="#">{{ i + 1 }}</td>
         <td data-label="Name">{{ project.name }}</td>
-         <td data-label="Status">
-          <span class="status">{{ project.projectStatus }}</span>
+        <td data-label="Status">
+          <span class="status">{{ project.status }}</span>
         </td>
         <td data-label="Owner">{{ project.owner.name }}</td>
-       <td data-label="Participants">
-  <button class="view-btn" 
-          (click)="openModal(getParticipantLabels(project), 'Participants')">
-    View <span class="count-badge">{{ project.participants.length }}</span>
-  </button>
-</td>
+        <td data-label="Participants">
+          <button
+            class="view-btn"
+            (click)="openModal(getParticipantLabels(project), 'Participants')"
+          >
+            View
+            <span class="count-badge">{{ project.participants.length }}</span>
+          </button>
+        </td>
 
+        <td data-label="Tasks">
+          <button
+            class="view-btn"
+            (click)="openModal(getTaskLabels(project), 'Tasks')"
+          >
+            View <span class="count-badge">{{ project.tasks.length }}</span>
+          </button>
+        </td>
 
-
-<td data-label="Tasks">
-  <button class="view-btn" 
-          (click)="openModal(getTaskLabels(project), 'Tasks')">
-    View <span class="count-badge">{{ project.tasks.length }}</span>
-  </button>
-</td>
-
-
-
-
-       
         <td data-label="Actions">
           <button class="delete-btn" (click)="deleteProject(project)">
             <i class="fas fa-trash"></i> Delete
@@ -66,26 +67,32 @@
     </tbody>
   </table>
 
-   <!-- Pagination Controls -->
+  <!-- Pagination Controls -->
   <div class="pagination-container" *ngIf="filteredProjects.length > 0">
     <div class="page-size">
       <label for="pageSize">Rows per page:</label>
-      <select id="pageSize" [(ngModel)]="pageSize" (change)="updatePagination()">
-        <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+      <select
+        id="pageSize"
+        [(ngModel)]="pageSize"
+        (change)="updatePagination()"
+      >
+        <option *ngFor="let size of pageSizes" [value]="size">
+          {{ size }}
+        </option>
       </select>
     </div>
 
     <div class="page-controls">
-      <button (click)="previousPage()" [disabled]="currentPage === 1">Prev</button>
+      <button (click)="previousPage()" [disabled]="currentPage === 1">
+        Prev
+      </button>
       <span>Page {{ currentPage }} of {{ totalPages }}</span>
-      <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
     </div>
   </div>
 </div>
-
-
-
-
 
 <!-- MODAL BACKDROP -->
 <div class="modal-backdrop" *ngIf="modalOpen" (click)="closeModal()"></div>
@@ -105,7 +112,12 @@
   <div class="modal-pagination">
     <button (click)="prevModalPage()" [disabled]="modalPage === 1">Prev</button>
     <span>Page {{ modalPage }} of {{ modalTotalPages }}</span>
-    <button (click)="nextModalPage()" [disabled]="modalPage === modalTotalPages">Next</button>
+    <button
+      (click)="nextModalPage()"
+      [disabled]="modalPage === modalTotalPages"
+    >
+      Next
+    </button>
   </div>
 
   <button class="close-btn" (click)="closeModal()">Close</button>

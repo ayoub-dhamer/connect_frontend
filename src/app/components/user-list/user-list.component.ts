@@ -4,7 +4,7 @@ import { UserService } from '../../services/user.service';
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.css']
+  styleUrls: ['./user-list.component.css'],
 })
 export class UserListComponent implements OnInit {
   users: any[] = [];
@@ -13,8 +13,8 @@ export class UserListComponent implements OnInit {
   loading = false;
   error?: string;
 
-   pagedUsers: any[] = [];
-    // Pagination variables
+  pagedUsers: any[] = [];
+  // Pagination variables
   currentPage = 1;
   pageSize = 5;
   pageSizes = [5, 10, 20];
@@ -29,27 +29,27 @@ export class UserListComponent implements OnInit {
   loadUsers() {
     this.loading = true;
     this.userService.getAll().subscribe({
-      next: (data) => {
-       // this.users = data;
-       // this.filteredUsers = data;
+      next: (res: any) => {
+        this.users = res.content ?? res;
+        this.filteredUsers = this.users;
         this.updatePagination();
         this.loading = false;
       },
       error: (err) => {
         this.error = err.message || 'Failed to load users';
         this.loading = false;
-      }
+      },
     });
   }
 
   applyFilter() {
     const term = this.searchTerm.trim().toLowerCase();
     this.filteredUsers = this.users.filter(
-      u =>
+      (u) =>
         u.name?.toLowerCase().includes(term) ||
-        u.email?.toLowerCase().includes(term)
+        u.email?.toLowerCase().includes(term),
     );
-     this.currentPage = 1;
+    this.currentPage = 1;
     this.updatePagination();
   }
 
@@ -60,7 +60,7 @@ export class UserListComponent implements OnInit {
     this.pagedUsers = this.filteredUsers.slice(start, end);
   }
 
-   nextPage() {
+  nextPage() {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
       this.updatePagination();

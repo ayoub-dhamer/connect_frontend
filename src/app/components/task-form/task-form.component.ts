@@ -7,8 +7,13 @@ import {
   SimpleChanges,
 } from '@angular/core';
 
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-export type TaskStatus = 'TO_DO' | 'IN_PROGRESS' | 'DONE';
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+export type TaskStatus =
+  | 'DONE'
+  | 'ONGOING'
+  | 'FAILED'
+  | 'EXPIRED'
+  | 'CANCELLED';
 
 export interface Participant {
   id: number;
@@ -44,20 +49,21 @@ export class TaskFormComponent implements OnChanges {
   name = '';
   nameTouched = false;
   priority: TaskPriority = 'MEDIUM';
-  status: TaskStatus = 'TO_DO';
+  status: TaskStatus = 'ONGOING';
   selectedMemberIds: number[] = [];
 
   readonly priorities: { value: TaskPriority; label: string }[] = [
     { value: 'LOW', label: 'Low' },
     { value: 'MEDIUM', label: 'Medium' },
     { value: 'HIGH', label: 'High' },
-    { value: 'CRITICAL', label: 'Critical' },
   ];
 
   readonly statuses: { value: TaskStatus; label: string }[] = [
-    { value: 'TO_DO', label: 'To do' },
-    { value: 'IN_PROGRESS', label: 'In progress' },
     { value: 'DONE', label: 'Done' },
+    { value: 'ONGOING', label: 'Ongoing' },
+    { value: 'FAILED', label: 'Failed' },
+    { value: 'EXPIRED', label: 'Expired' },
+    { value: 'CANCELLED', label: 'Cacelled' },
   ];
 
   get isEditMode(): boolean {
@@ -79,7 +85,7 @@ export class TaskFormComponent implements OnChanges {
   private resetForm(): void {
     this.name = this.task?.name ?? '';
     this.priority = this.task?.priority ?? 'MEDIUM';
-    this.status = this.task?.status ?? 'TO_DO';
+    this.status = this.task?.status ?? 'ONGOING';
     this.selectedMemberIds = this.task ? [...this.task.assignedMemberIds] : [];
     this.nameTouched = false;
   }

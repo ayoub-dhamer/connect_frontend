@@ -14,7 +14,6 @@ import { AdminComponent } from './components/admin/admin.component';
 import { CancelComponent } from './components/cancel/cancel.component';
 import { UserDashboardComponent } from './components/user-dashboard/user-dashboard.component';
 import { LoginComponent } from './components/login/login.component';
-import { PaymentComponent } from './components/payment/payment.component';
 import { SuccessComponent } from './components/success/success.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { LoginSuccessComponent } from './components/login-success/login-success.component';
@@ -81,7 +80,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     CancelComponent,
     UserDashboardComponent,
     LoginComponent,
-    PaymentComponent,
     SuccessComponent,
     UnauthorizedComponent,
     LoginSuccessComponent,

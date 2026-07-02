@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Participant, TaskFormValue } from '../task-form/task-form.component';
 import { ProjectService } from 'src/app/services/project.service';
 
-export type ProjectStatus = 'PLANNING' | 'ONGOING' | 'CLOSED';
+export type ProjectStatus = 'COMPLETED' | 'ONGOING' | 'EXPIRED' | 'CLOSED';
 
 export interface PendingTask extends TaskFormValue {
   /** Resolved from assignedMemberIds purely for display in the task list / summary */
@@ -32,9 +32,10 @@ export class ProjectFormComponent implements OnInit {
   };
 
   readonly projectStatus: { value: ProjectStatus; label: string }[] = [
-    { value: 'PLANNING', label: 'Planning' },
+    { value: 'COMPLETED', label: 'Completed' },
     { value: 'ONGOING', label: 'Ongoing' },
     { value: 'CLOSED', label: 'Closed' },
+    { value: 'EXPIRED', label: 'Expired' },
   ];
 
   // ── Participants ──
@@ -81,7 +82,7 @@ export class ProjectFormComponent implements OnInit {
         ],
       ],
       description: ['', Validators.maxLength(1000)],
-      status: ['PLANNING', Validators.required],
+      status: ['ONGOING', Validators.required],
       deadline: [null],
     });
   }
@@ -253,7 +254,7 @@ export class ProjectFormComponent implements OnInit {
 
     this.projectService.create(payload).subscribe({
       next: () => {
-        // this.router.navigate(['/projects']);
+        this.router.navigate(['/users/projects']);
       },
       error: (err) => {
         console.error('Failed to create project:', err);

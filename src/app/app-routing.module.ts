@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { PaymentComponent } from './components/payment/payment.component';
 import { SuccessComponent } from './components/success/success.component';
 import { CancelComponent } from './components/cancel/cancel.component';
 import { LoginComponent } from './components/login/login.component';
@@ -85,12 +84,6 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
 
-  {
-    path: 'payment',
-    component: PaymentComponent,
-    canActivate: [RoleGuard],
-    data: { roles: ['ROLE_USER'] },
-  },
   {
     path: 'payment-success',
     component: SuccessComponent,
