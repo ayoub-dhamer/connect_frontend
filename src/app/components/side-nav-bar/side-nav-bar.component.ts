@@ -2,14 +2,17 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy, // 1. Import OnDestroy for cleanup
+  OnDestroy,
   Output,
   EventEmitter,
   HostListener,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
-import { Subject, takeUntil } from 'rxjs'; // 2. Import Subject and takeUntil
+import { ProjectService } from '../../services/project.service';
+import { UserService } from '../../services/user.service';
+import { TaskService } from '../../services/task.service';
+import { Subject, takeUntil, forkJoin, map } from 'rxjs';
 
 export interface MenuItem {
   label: string;
@@ -25,17 +28,13 @@ export interface MenuItem {
   styleUrls: ['./side-nav-bar.component.scss'],
 })
 export class SideNavBarComponent implements OnInit, OnDestroy {
-  // 3. Implement OnDestroy
   @Input() isExpanded = true;
   @Output() expandedChange = new EventEmitter<boolean>();
 
   currentLang!: string;
   langOpen = false;
-
-  // 4. Change this back to a regular string array, initialized as empty
   userRoles: string[] = [];
 
-  // A notifier stream to cleanly close subscriptions when component dies
   private destroy$ = new Subject<void>();
 
   menu: MenuItem[] = [
@@ -51,14 +50,21 @@ export class SideNavBarComponent implements OnInit, OnDestroy {
       icon: 'group',
       link: '/admin/users',
       roles: ['ROLE_ADMIN'],
-      badge: 12,
+      badge: null,
     },
     {
-      label: 'My Tasks',
-      icon: 'task_alt',
-      link: '/user/tasks',
+      label: 'settingsLabel',
+      icon: 'settings',
+      link: '/admin/settings',
+      roles: ['ROLE_ADMIN'],
+      badge: null,
+    },
+    {
+      label: 'dashboardLabel',
+      icon: 'dashboard',
+      link: '/user',
       roles: ['ROLE_USER'],
-      badge: 3,
+      badge: null,
     },
     {
       label: 'projectsLabel',
@@ -68,10 +74,17 @@ export class SideNavBarComponent implements OnInit, OnDestroy {
       badge: null,
     },
     {
+      label: 'tasksLabel',
+      icon: 'task_alt',
+      link: '/user/tasks',
+      roles: ['ROLE_USER'],
+      badge: null,
+    },
+    {
       label: 'settingsLabel',
       icon: 'settings',
-      link: '/settings',
-      roles: ['ROLE_ADMIN', 'ROLE_USER'],
+      link: '/user/settings',
+      roles: ['ROLE_USER'],
       badge: null,
     },
   ];
@@ -79,6 +92,9 @@ export class SideNavBarComponent implements OnInit, OnDestroy {
   constructor(
     private translate: TranslateService,
     private auth: AuthService,
+    private projectService: ProjectService,
+    private userService: UserService,
+    private taskService: TaskService,
   ) {
     this.translate.setDefaultLang('en');
     this.currentLang =
@@ -86,19 +102,54 @@ export class SideNavBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // 5. Manually subscribe to the observable stream here
     this.auth
       .getRoles()
-      .pipe(takeUntil(this.destroy$)) // Prevents memory leaks
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (roles) => {
-          this.userRoles = roles; // Unpacks the stream into your array
+          this.userRoles = roles;
+          this.fetchDynamicBadges();
         },
         error: (err) => console.error('Error fetching roles:', err),
       });
   }
 
-  // 6. Clean up the subscription when the user leaves this component
+  fetchDynamicBadges(): void {
+    // Request minimal data sizing (size=1) just to acquire the total counts safely
+    const usersCount$ = this.userService
+      .getAll(0, 1)
+      .pipe(map((res) => res.totalElements));
+    const projectsCount$ = this.projectService
+      .getAll(0, 1)
+      .pipe(map((res) => res.totalElements));
+    const tasksCount$ = this.taskService
+      .getAll(0, 1)
+      .pipe(map((res) => res.totalElements));
+
+    forkJoin({
+      users: usersCount$,
+      projects: projectsCount$,
+      tasks: tasksCount$,
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (counts) => {
+          this.updateBadge('/admin/users', counts.users);
+          this.updateBadge('/user/projects', counts.projects);
+          this.updateBadge('/user/tasks', counts.tasks);
+        },
+        error: (err) => console.error('Error updating menu badges:', err),
+      });
+  }
+
+  private updateBadge(link: string, count: number): void {
+    const item = this.menu.find((m) => m.link === link);
+    if (item) {
+      // If count is zero, keep badge hidden
+      item.badge = count > 0 ? count : null;
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -115,12 +166,10 @@ export class SideNavBarComponent implements OnInit, OnDestroy {
     this.expandedChange.emit(this.isExpanded);
   }
 
-  // 7. This remains perfectly clean and synchronous!
   canShow(item: MenuItem): boolean {
     return item.roles.some((role) => this.userRoles.includes(role));
   }
 
-  // Close dropdown when clicking outside
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;

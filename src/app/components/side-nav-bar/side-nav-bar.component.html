@@ -23,6 +23,7 @@
         class="nav-item"
         routerLinkActive="nav-item--active"
         [routerLink]="item.link"
+        [routerLinkActiveOptions]="{ exact: true }"
         [matTooltip]="!isExpanded ? (item.label | translate) : ''"
         matTooltipPosition="right"
       >

@@ -1,21 +1,99 @@
-<div>
-  <h2>Tasks</h2>
-  <button (click)="add()">New Task</button>
-  <div *ngIf="loading">Loading...</div>
-  <table *ngIf="!loading">
-    <thead><tr><th>Name</th><th>Project</th><th>Priority</th><th>Status</th><th>Assignees</th><th>Actions</th></tr></thead>
-    <tbody>
-      <tr *ngFor="let t of tasks">
-        <td>{{ t.name }}</td>
-        <td>{{ t.project?.name }}</td>
-        <td>{{ t.priority }}</td>
-        <td>{{ t.status }}</td>
-        <td>{{ getAssignedEmails(t) }}</td>
-        <td>
-          <button (click)="edit(t)">Edit</button>
-          <button (click)="delete(t)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="task-page">
+  <div class="page-header">
+    <div>
+      <h2>Tasks</h2>
+      <p class="subtitle">
+        {{ tasks.length }} total task{{ tasks.length === 1 ? "" : "s" }}
+      </p>
+    </div>
+    <button class="btn-primary" (click)="add()">+ New Task</button>
+  </div>
+
+  <div class="toolbar" *ngIf="!loading && tasks.length">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by task or project name..."
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onFilterChange()"
+    />
+
+    <select
+      class="filter-select"
+      [(ngModel)]="statusFilter"
+      (ngModelChange)="onFilterChange()"
+    >
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+    </select>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="priorityFilter"
+      (ngModelChange)="onFilterChange()"
+    >
+      <option value="">All priorities</option>
+      <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+    </select>
+  </div>
+
+  <div class="state-message" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Loading tasks...</span>
+  </div>
+
+  <div class="state-message error" *ngIf="error && !loading">
+    {{ error }}
+  </div>
+
+  <div class="state-message" *ngIf="!loading && !error && tasks.length === 0">
+    No tasks yet. Create your first one to get started.
+  </div>
+
+  <div
+    class="state-message"
+    *ngIf="!loading && !error && tasks.length > 0 && groups.length === 0"
+  >
+    No tasks match your filters.
+  </div>
+
+  <div class="project-group" *ngFor="let group of groups">
+    <div class="group-header" (click)="toggleGroup(group)">
+      <div class="group-title">
+        <span class="chevron" [class.collapsed]="!group.expanded">▾</span>
+        <h3>{{ group.projectName }}</h3>
+        <span class="count-pill">{{ group.tasks.length }}</span>
+      </div>
+    </div>
+
+    <table class="task-table" *ngIf="group.expanded">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Assignees</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of group.tasks">
+          <td class="task-name">{{ t.name }}</td>
+          <td>
+            <span [class]="priorityClass(t.priority)">{{ t.priority }}</span>
+          </td>
+          <td>
+            <span [class]="statusClass(t.status)">{{ t.status }}</span>
+          </td>
+          <td class="assignees">{{ getAssignedEmails(t) }}</td>
+          <td class="actions">
+            <button class="icon-btn" (click)="edit(t)" title="Edit">✏️</button>
+            <button class="icon-btn danger" (click)="delete(t)" title="Delete">
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

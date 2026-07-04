@@ -1,8 +1,10 @@
 {
-    "dir": "ltr",
+  "dir": "ltr",
 
-    "_comment": "Side-Nav-Bar",
-    "usersLabel": "Utilisateurs",
-    "dashboardLabel": "Tableau de bord",
-    "projectsLabel": "Projets"
+  "_comment": "Side-Nav-Bar",
+  "usersLabel": "Utilisateurs",
+  "dashboardLabel": "Tableau de bord",
+  "projectsLabel": "Projets",
+  "tasksLabel": "Taches",
+  "settingsLabel": "Paramètres"
 }

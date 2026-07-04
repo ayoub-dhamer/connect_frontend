@@ -1,0 +1,123 @@
+<div class="settings-page">
+  <div class="page-header">
+    <h2>Settings</h2>
+    <p class="subtitle">Manage your account and preferences</p>
+  </div>
+
+  <!-- Appearance -->
+  <div class="settings-card">
+    <div class="card-header">
+      <h3>Appearance</h3>
+      <p class="card-desc">Choose how the app looks to you</p>
+    </div>
+
+    <div class="theme-grid">
+      <button
+        *ngFor="let opt of themeOptions"
+        class="theme-option"
+        [class.active]="currentTheme === opt.value"
+        (click)="selectTheme(opt.value)"
+      >
+        <span class="theme-icon">{{ opt.icon }}</span>
+        <span>{{ opt.label }}</span>
+        <span class="check" *ngIf="currentTheme === opt.value">✓</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Language -->
+  <div class="settings-card">
+    <div class="card-header">
+      <h3>Language</h3>
+      <p class="card-desc">Select your preferred language</p>
+    </div>
+
+    <div class="lang-grid">
+      <button
+        *ngFor="let lang of languages"
+        class="lang-option"
+        [class.active]="currentLang === lang.code"
+        (click)="selectLang(lang.code)"
+      >
+        {{ lang.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="settings-card">
+    <div class="card-header">
+      <h3>Notifications</h3>
+      <p class="card-desc">Control what you get notified about</p>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Email notifications</span>
+        <span class="toggle-hint">Receive updates via email</span>
+      </div>
+      <button
+        class="switch"
+        [class.on]="notifications.email"
+        (click)="toggleNotification('email')"
+      >
+        <span class="switch-knob"></span>
+      </button>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Task assigned to you</span>
+        <span class="toggle-hint">Get notified when a task is assigned</span>
+      </div>
+      <button
+        class="switch"
+        [class.on]="notifications.taskAssigned"
+        (click)="toggleNotification('taskAssigned')"
+      >
+        <span class="switch-knob"></span>
+      </button>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Project updates</span>
+        <span class="toggle-hint">Get notified on project changes</span>
+      </div>
+      <button
+        class="switch"
+        [class.on]="notifications.projectUpdates"
+        (click)="toggleNotification('projectUpdates')"
+      >
+        <span class="switch-knob"></span>
+      </button>
+    </div>
+
+    <button class="btn-primary save-btn" (click)="saveNotifications()">
+      Save changes
+    </button>
+  </div>
+
+  <!-- Account -->
+  <div class="settings-card" *ngIf="user">
+    <div class="card-header">
+      <h3>Account</h3>
+      <p class="card-desc">Your account information</p>
+    </div>
+
+    <div class="account-info">
+      <img
+        [src]="user.pictureUrl"
+        alt=""
+        class="avatar"
+        *ngIf="user.pictureUrl"
+      />
+      <div>
+        <div class="account-name">{{ user.name }}</div>
+        <div class="account-email">{{ user.email }}</div>
+      </div>
+    </div>
+
+    <button class="btn-danger" (click)="logout()">Log out</button>
+  </div>
+</div>

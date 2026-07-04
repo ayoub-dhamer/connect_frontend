@@ -1,8 +1,10 @@
 {
-    "dir": "rtl",
+  "dir": "rtl",
 
-    "_comment": "Side-Nav-Bar",
-    "usersLabel": "المستخدمين",
-    "dashboardLabel": "لوحة القيادة",
-    "projectsLabel": "المشاريع"
+  "_comment": "Side-Nav-Bar",
+  "usersLabel": "المستخدمين",
+  "dashboardLabel": "لوحة القيادة",
+  "projectsLabel": "المشاريع",
+  "tasksLabel": "المهام",
+  "settingsLabel": "إعدادات"
 }

@@ -27,6 +27,7 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { LoginGuard } from './guards/login.guard';
 import { HomeComponent } from './components/home/home.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
+import { SettingsComponent } from './components/settings/settings.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
@@ -71,6 +72,7 @@ const routes: Routes = [
         component: TaskFormComponent,
       },
       { path: 'profile', component: UserProfileComponent },
+      { path: 'settings', component: SettingsComponent },
     ],
   },
 

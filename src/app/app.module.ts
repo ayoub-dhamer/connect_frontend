@@ -72,6 +72,7 @@ import {
 import { CsrfInterceptor } from './interceptors/csrf.interceptor';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { SettingsComponent } from './components/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -98,6 +99,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     PageNotFoundComponent,
     CheckoutComponent,
     HomeComponent,
+    SettingsComponent,
   ],
   imports: [
     BrowserModule,
