@@ -63,16 +63,12 @@ const routes: Routes = [
       { path: 'tasks/new', component: TaskFormComponent },
       { path: 'tasks/:id', component: TaskFormComponent },
 
+      { path: 'chat', component: ChatComponent },
+      { path: 'video/:roomId', component: VideoCallComponent },
+
       { path: 'profile', component: UserProfileComponent },
       { path: 'settings', component: SettingsComponent },
     ],
-  },
-
-  { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
-  {
-    path: 'video/:roomId',
-    component: VideoCallComponent,
-    canActivate: [AuthGuard],
   },
 
   {
