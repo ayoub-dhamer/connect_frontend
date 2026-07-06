@@ -57,20 +57,12 @@ const routes: Routes = [
       { path: '', component: UserDashboardComponent },
       { path: 'projects', component: ProjectListComponent },
       { path: 'projects/new', component: ProjectFormComponent },
-      {
-        path: 'projects/:id',
-        component: ProjectFormComponent,
-      },
+      { path: 'projects/:id', component: ProjectFormComponent },
 
       { path: 'tasks', component: TaskListComponent },
-      {
-        path: 'tasks/new',
-        component: TaskFormComponent,
-      },
-      {
-        path: 'tasks/:id',
-        component: TaskFormComponent,
-      },
+      { path: 'tasks/new', component: TaskFormComponent },
+      { path: 'tasks/:id', component: TaskFormComponent },
+
       { path: 'profile', component: UserProfileComponent },
       { path: 'settings', component: SettingsComponent },
     ],
