@@ -1,14 +1,14 @@
 .chat-layout {
   display: flex;
   height: calc(100vh - 64px);
-  background: #f5f7fb;
+  background: var(--bg-secondary);
 }
 
 /* Sidebar */
 .user-list {
   width: 280px;
-  background: white;
-  border-right: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
   padding: 16px;
   overflow-y: auto;
 }
@@ -16,7 +16,7 @@
 .user-list h2 {
   font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }
 
@@ -32,7 +32,7 @@
 
 .user-item:hover,
 .user-item.active {
-  background: #f3f4f6;
+  background: var(--hover-bg);
 }
 
 .avatar {
@@ -54,14 +54,15 @@
   align-items: center;
   gap: 12px;
   padding: 16px 24px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
   font-weight: 600;
   font-size: 16px;
+  color: var(--text-primary);
 }
 
 .chat-header.empty {
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-weight: 400;
   justify-content: center;
 }
@@ -86,7 +87,8 @@
 }
 
 .bubble {
-  background: #e5e7eb;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   padding: 10px 16px;
   border-radius: 18px;
   max-width: 60%;
@@ -94,13 +96,13 @@
 }
 
 .message.mine .bubble {
-  background: #4f46e5;
+  background: var(--accent);
   color: white;
 }
 
 .time {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 
@@ -110,19 +112,21 @@
   align-items: center;
   gap: 8px;
   padding: 16px 24px;
-  background: white;
-  border-top: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
 }
 
 .msg-input {
   flex: 1;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 10px 16px;
   font-size: 14px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   outline: none;
 }
 
 .msg-input:focus {
-  border-color: #4f46e5;
+  border-color: var(--accent);
 }

@@ -3,17 +3,21 @@ import {
   OnInit,
   OnDestroy,
   ViewChild,
-  ElementRef
+  ElementRef,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { WebSocketService, ChatMessage } from '../../services/websocket.service';
+import {
+  WebSocketService,
+  ChatMessage,
+} from '../../services/websocket.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { ChatService } from 'src/app/services/chat.service';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.css']
+  styleUrls: ['./chat.component.css'],
 })
 export class ChatComponent implements OnInit, OnDestroy {
   users: any[] = [];
@@ -28,11 +32,12 @@ export class ChatComponent implements OnInit, OnDestroy {
   constructor(
     private ws: WebSocketService,
     private auth: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private chatService: ChatService,
   ) {}
 
   ngOnInit(): void {
-    this.auth.loadUser().subscribe(user => {
+    this.auth.loadUser().subscribe((user) => {
       if (user) {
         this.currentUserEmail = user.email;
       }
@@ -40,14 +45,14 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.userService.getAll().subscribe((res: any) => {
       const all = res.content ?? res;
-      this.auth.loadUser().subscribe(me => {
+      this.auth.loadUser().subscribe((me) => {
         this.users = all.filter((u: any) => u.email !== me?.email);
       });
     });
 
     this.ws.connect();
 
-    this.sub = this.ws.messages$.subscribe(msg => {
+    this.sub = this.ws.messages$.subscribe((msg) => {
       if (msg) {
         this.messages.push(msg);
         this.scrollToBottom();
@@ -58,16 +63,24 @@ export class ChatComponent implements OnInit, OnDestroy {
   selectUser(user: any): void {
     this.selectedUser = user;
     this.messages = [];
+
+    this.chatService.getHistory(user.email).subscribe({
+      next: (history) => {
+        this.messages = history;
+        this.scrollToBottom();
+      },
+      error: (err) => console.error('Failed to load chat history:', err),
+    });
   }
 
   send(): void {
     if (!this.newMessage.trim() || !this.selectedUser) return;
 
     const msg: ChatMessage = {
-      sender: { email: this.currentUserEmail },
-      receiver: { email: this.selectedUser.email },
+      senderEmail: this.currentUserEmail,
+      receiverEmail: this.selectedUser.email,
       content: this.newMessage.trim(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     this.ws.sendChatMessage(msg);

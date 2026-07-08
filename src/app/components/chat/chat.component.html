@@ -1,5 +1,4 @@
 <div class="chat-layout">
-
   <!-- User list sidebar -->
   <div class="user-list">
     <h2>Contacts</h2>
@@ -8,7 +7,8 @@
       *ngFor="let u of users"
       class="user-item"
       [class.active]="selectedUser?.id === u.id"
-      (click)="selectUser(u)">
+      (click)="selectUser(u)"
+    >
       <img [src]="u.pictureUrl || 'assets/img/user.jpg'" class="avatar" />
       <span>{{ u.name }}</span>
     </div>
@@ -16,7 +16,6 @@
 
   <!-- Chat area -->
   <div class="chat-area">
-
     <div class="chat-header" *ngIf="selectedUser">
       <img
         [src]="selectedUser.pictureUrl || 'assets/img/user.jpg'"
@@ -33,11 +32,11 @@
       <div
         *ngFor="let m of messages"
         class="message"
-        [class.mine]="m.sender.email === currentUserEmail">
-
+        [class.mine]="m.senderEmail === currentUserEmail"
+      >
         <div class="bubble">{{ m.content }}</div>
         <span class="time">
-          {{ m.timestamp | date:'shortTime' }}
+          {{ m.timestamp | date: "shortTime" }}
         </span>
       </div>
     </div>
@@ -53,10 +52,10 @@
         mat-icon-button
         color="primary"
         (click)="send()"
-        [disabled]="!newMessage.trim()">
+        [disabled]="!newMessage.trim()"
+      >
         <mat-icon>send</mat-icon>
       </button>
     </div>
-
   </div>
 </div>

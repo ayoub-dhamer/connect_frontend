@@ -7,9 +7,11 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
 import { environment } from 'src/environments/environment';
 
+// websocket.service.ts
 export interface ChatMessage {
-  sender: { email: string };
-  receiver: { email: string };
+  id?: number;
+  senderEmail: string;
+  receiverEmail: string;
   content: string;
   timestamp?: string;
 }
@@ -37,6 +39,9 @@ export class WebSocketService {
 
   private readonly WS_URL = environment.wsUrl;
 
+  private connectedSubject = new BehaviorSubject<boolean>(false);
+  public connected$ = this.connectedSubject.asObservable();
+
   connect(): void {
     if (this.client?.active) return;
 
@@ -49,10 +54,15 @@ export class WebSocketService {
     this.client.onConnect = () => {
       console.log('✅ STOMP connected');
       this.subscribeToChat();
+      this.connectedSubject.next(true); // ← add this
     };
 
     this.client.onStompError = (frame: any) => {
       console.error('❌ STOMP error:', frame.headers['message']);
+    };
+
+    this.client.onWebSocketClose = () => {
+      this.connectedSubject.next(false); // ← add this
     };
 
     this.client.activate();

@@ -6,5 +6,6 @@
   "dashboardLabel": "Tableau de bord",
   "projectsLabel": "Projets",
   "tasksLabel": "Taches",
-  "settingsLabel": "Paramètres"
+  "settingsLabel": "Paramètres",
+  "messagesLabel": "Messages"
 }

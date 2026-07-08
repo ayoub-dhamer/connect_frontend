@@ -81,6 +81,13 @@ export class SideNavBarComponent implements OnInit, OnDestroy {
       badge: null,
     },
     {
+      label: 'messagesLabel',
+      icon: 'message_alt',
+      link: '/user/chat',
+      roles: ['ROLE_USER'],
+      badge: null,
+    },
+    {
       label: 'settingsLabel',
       icon: 'settings',
       link: '/user/settings',
