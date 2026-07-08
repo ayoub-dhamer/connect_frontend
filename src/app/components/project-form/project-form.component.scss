@@ -1,15 +1,15 @@
 :host {
-  --paper: #fafaf8;
-  --surface: #ffffff;
-  --ink: #16181d;
-  --muted: #80808c;
-  --faint: #b4b3ac;
-  --hairline: #e5e4dd;
-  --hairline-strong: #d6d4cb;
-  --accent: #4338ca;
-  --accent-soft: #eeecfb;
-  --accent-soft-text: #362e91;
-  --danger: #b3261e;
+  --paper: var(--bg-secondary);
+  --surface: var(--bg-primary);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --faint: color-mix(in srgb, var(--text-secondary) 65%, var(--bg-primary));
+  --hairline: var(--border-color);
+  --hairline-strong: var(--border-color);
+  --accent: var(--accent);
+  --accent-soft: var(--accent-light);
+  --accent-soft-text: var(--accent);
+  --danger: var(--danger);
   --radius: 10px;
   --radius-lg: 14px;
 
@@ -403,8 +403,8 @@ textarea {
   font-weight: 500;
 
   &.chip-pending {
-    background: #fdf6e8;
-    border-color: #e8d49a;
+    background: var(--warning-bg);
+    border-color: var(--warning-text);
   }
 }
 
@@ -424,7 +424,7 @@ textarea {
 
 .chip-mail-icon {
   font-size: 13px;
-  color: #9a7b2e;
+  color: var(--warning-text);
 }
 
 .chip-remove {
@@ -464,7 +464,7 @@ textarea {
   background: var(--surface);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius);
-  box-shadow: 0 8px 24px rgba(20, 20, 25, 0.08);
+  box-shadow: var(--card-shadow);
   overflow: hidden;
   z-index: 5;
 }

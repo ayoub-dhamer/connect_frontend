@@ -1,15 +1,18 @@
 .app-header {
   width: 100%;
   height: 60px;
-  background: #ffffff;
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   padding: 0 16px;
-  border-bottom: 0.5px solid #e2e8f0;
+  border-bottom: 0.5px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 200;
   gap: 8px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .header-spacer {
@@ -27,13 +30,13 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 20px;
   transition: background 0.15s;
   position: relative;
 
   &:hover {
-    background: #f1f5f9;
+    background: var(--hover-bg);
   }
 }
 
@@ -41,7 +44,7 @@
   position: absolute;
   top: 3px;
   right: 3px;
-  background: #e24b4a;
+  background: var(--danger);
   color: #fff;
   font-size: 9px;
   font-weight: 500;
@@ -52,7 +55,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 4px;
-  border: 2px solid #fff;
+  border: 2px solid var(--bg-primary);
 }
 
 .header-actions {
@@ -64,7 +67,7 @@
 .divider {
   width: 0.5px;
   height: 24px;
-  background: #e2e8f0;
+  background: var(--border-color);
   margin: 0 8px;
   position: relative;
   right: 8%;
@@ -79,10 +82,10 @@
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
-  background: #ffffff;
-  border: 0.5px solid #e2e8f0;
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--card-shadow);
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
@@ -107,7 +110,7 @@
 
 .dropdown-header {
   padding: 12px 14px 10px;
-  border-bottom: 0.5px solid #e2e8f0;
+  border-bottom: 0.5px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -115,12 +118,12 @@
   span {
     font-size: 13px;
     font-weight: 500;
-    color: #334155;
+    color: var(--text-primary);
   }
 
   .mark-read {
     font-size: 12px;
-    color: #3b82f6;
+    color: var(--accent);
     background: none;
     border: none;
     outline: none;
@@ -136,7 +139,7 @@
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
+    background: var(--border-color);
     border-radius: 99px;
   }
 }
@@ -146,12 +149,12 @@
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-bottom: 0.5px solid #f1f5f9;
+  border-bottom: 0.5px solid var(--bg-tertiary);
   cursor: pointer;
   transition: background 0.12s;
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-secondary);
   }
   &:last-child {
     border-bottom: none;
@@ -162,13 +165,13 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #e2e8f0;
+  background: var(--bg-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
@@ -176,23 +179,23 @@
   .name {
     font-size: 13px;
     font-weight: 500;
-    color: #334155;
+    color: var(--text-primary);
     margin-bottom: 2px;
   }
   .email {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 }
 
 .dropdown-footer {
   padding: 10px 14px;
-  border-top: 0.5px solid #e2e8f0;
+  border-top: 0.5px solid var(--border-color);
   text-align: center;
 
   button {
     font-size: 12px;
-    color: #3b82f6;
+    color: var(--accent);
     background: none;
     border: none;
     outline: none;
@@ -215,12 +218,12 @@
 
   &:hover,
   &.open {
-    background: #f1f5f9;
+    background: var(--hover-bg);
   }
 
   .ti-chevron-down {
     font-size: 15px;
-    color: #64748b;
+    color: var(--text-secondary);
     transition: transform 0.2s;
   }
   &.open .ti-chevron-down {
@@ -232,13 +235,13 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #b5d4f4;
+  background: var(--accent-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 500;
-  color: #0c447c;
+  color: var(--accent);
   flex-shrink: 0;
   overflow: hidden;
 
@@ -252,7 +255,7 @@
 .profile-name {
   font-size: 13px;
   font-weight: 500;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 .profile-dropdown {
@@ -262,16 +265,16 @@
 
 .dropdown-user-info {
   padding: 12px 14px;
-  border-bottom: 0.5px solid #e2e8f0;
+  border-bottom: 0.5px solid var(--border-color);
 
   .user-name {
     font-size: 13px;
     font-weight: 500;
-    color: #334155;
+    color: var(--text-primary);
   }
   .user-email {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     margin-top: 2px;
   }
 }
@@ -286,7 +289,7 @@
   gap: 10px;
   padding: 9px 14px;
   font-size: 13px;
-  color: #334155;
+  color: var(--text-primary);
   cursor: pointer;
   background: none;
   border: none;
@@ -297,11 +300,11 @@
 
   i {
     font-size: 16px;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-secondary);
   }
   &.upgrade {
     color: #7c3aed;
@@ -310,24 +313,24 @@
     }
   }
   &.danger {
-    color: #e24b4a;
+    color: var(--danger);
     i {
-      color: #e24b4a;
+      color: var(--danger);
     }
   }
 }
 
 .menu-divider {
   height: 0.5px;
-  background: #e2e8f0;
+  background: var(--border-color);
   margin: 4px 0;
 }
 
 .plan-badge {
   display: inline-flex;
   align-items: center;
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--warning-bg);
+  color: var(--warning-text);
   font-size: 10px;
   font-weight: 500;
   padding: 2px 7px;
@@ -337,7 +340,7 @@
 
 .main {
   flex: 1;
-  min-width: 0; // ← keeps header from overflowing
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;

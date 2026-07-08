@@ -8,8 +8,11 @@
 /* Sidebar (full height) */
 .sidebar {
   width: 260px;
-  transition: width 0.3s ease;
-  background-color: #f5f5f5; /* Or transparent, you control this */
+  transition:
+    width 0.3s ease,
+    background-color 0.2s ease;
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
 }
 
 /* Collapsed sidebar */
@@ -29,7 +32,8 @@
 app-home-header {
   height: 60px;
   flex-shrink: 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
 
 /* Content scrolls */
@@ -37,7 +41,8 @@ app-home-header {
   padding: 20px;
   height: calc(100vh - 60px);
   overflow-y: auto;
-  background: #f8fafc;
+  background: var(--bg-secondary);
+  transition: background 0.2s ease;
 }
 
 @media (max-width: 768px) {

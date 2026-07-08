@@ -4,19 +4,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  background: var(--bg-secondary);
   padding: 1rem;
 }
 
 /* Card box */
 .not-found-box {
   text-align: center;
-  background: #ffffff;
+  background: var(--bg-primary);
   padding: 3rem 2rem;
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--card-shadow);
   animation: fadeIn 0.4s ease-in-out;
 }
 
@@ -24,7 +24,7 @@
 .not-found-box h1 {
   font-size: 6rem;
   margin: 0;
-  color: #2563eb;
+  color: var(--accent);
   font-weight: 700;
 }
 
@@ -32,12 +32,12 @@
 .not-found-box h2 {
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 /* text */
 .not-found-box p {
-  color: #64748b;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
   font-size: 1rem;
 }
@@ -57,23 +57,23 @@
 
 /* Back button style */
 .back-btn {
-  background-color: #334155;
-  color: #fff;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
 }
 
 .back-btn:hover {
-  background-color: #1e293b;
+  background-color: var(--text-secondary);
 }
 
 /* Home button style */
 .home-btn {
-  background-color: #2563eb;
+  background-color: var(--accent);
   color: #fff;
 }
 
 .home-btn:hover {
-  background-color: #1d4ed8;
+  background-color: var(--accent-hover);
 }
 
 /* Fade animation */

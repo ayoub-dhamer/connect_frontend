@@ -55,10 +55,11 @@
     <div class="divider"></div>
 
     <!-- Profile -->
-    <div class="dropdown-wrapper" (clickOutside)="profileOpen = false">
+    <div class="dropdown-wrapper">
       <button
         class="profile-btn"
         [class.open]="profileOpen"
+        (click)="notificationsOpen = false"
         (click)="profileOpen = !profileOpen"
         aria-label="Profile menu"
       >
