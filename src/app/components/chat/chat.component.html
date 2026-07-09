@@ -17,11 +17,30 @@
   <!-- Chat area -->
   <div class="chat-area">
     <div class="chat-header" *ngIf="selectedUser">
-      <img
-        [src]="selectedUser.pictureUrl || 'assets/img/user.jpg'"
-        class="avatar"
-      />
-      <span>{{ selectedUser.name }}</span>
+      <div class="chat-header-info">
+        <img
+          [src]="selectedUser.pictureUrl || 'assets/img/user.jpg'"
+          class="avatar"
+        />
+        <span>{{ selectedUser.name }}</span>
+      </div>
+
+      <div class="chat-header-actions">
+        <button
+          class="call-btn"
+          (click)="startCall('audio')"
+          title="Audio call"
+        >
+          <mat-icon>call</mat-icon>
+        </button>
+        <button
+          class="call-btn"
+          (click)="startCall('video')"
+          title="Video call"
+        >
+          <mat-icon>videocam</mat-icon>
+        </button>
+      </div>
     </div>
 
     <div class="chat-header empty" *ngIf="!selectedUser">
@@ -57,5 +76,27 @@
         <mat-icon>send</mat-icon>
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Incoming call modal -->
+<div class="call-backdrop" *ngIf="incomingCall"></div>
+<div class="call-modal" *ngIf="incomingCall">
+  <div class="call-modal-icon">
+    <mat-icon>{{
+      incomingCall.type === "video" ? "videocam" : "call"
+    }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ incomingCall.callerName }}</div>
+  <div class="call-modal-sub">
+    Incoming {{ incomingCall.type === "video" ? "video" : "audio" }} call…
+  </div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="declineCall()">
+      <mat-icon>call_end</mat-icon>
+    </button>
+    <button class="call-accept" (click)="acceptCall()">
+      <mat-icon>call</mat-icon>
+    </button>
   </div>
 </div>

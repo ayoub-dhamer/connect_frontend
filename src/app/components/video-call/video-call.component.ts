@@ -5,7 +5,7 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, filter, take } from 'rxjs';
 
 import {
@@ -23,6 +23,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   @ViewChild('localVideo') localVideoRef!: ElementRef<HTMLVideoElement>;
 
   roomId = '';
+  callType: 'video' | 'audio' = 'video';
   micOn = true;
   camOn = true;
 
@@ -42,10 +43,15 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private ws: WebSocketService,
     private auth: AuthService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.roomId = this.route.snapshot.paramMap.get('roomId') || 'default-room';
+    this.callType =
+      (this.route.snapshot.queryParamMap.get('type') as 'video' | 'audio') ||
+      'video';
+    this.camOn = this.callType === 'video';
 
     this.auth.loadUser().subscribe((user) => {
       if (user) this.currentUserEmail = user.email;
@@ -53,7 +59,6 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
     this.ws.connect();
 
-    // Wait for a real connection before subscribing to the room
     this.sub = this.ws.connected$
       .pipe(
         filter((connected) => connected),
@@ -61,23 +66,24 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.ws.subscribeToRoom(this.roomId);
+        this.startLocalStream();
       });
 
     this.signalSub = this.ws.signals$.subscribe((signal) =>
       this.handleSignal(signal),
     );
-
-    this.startLocalStream();
   }
 
   async startLocalStream(): Promise<void> {
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: this.callType === 'video',
         audio: true,
       });
 
-      this.localVideoRef.nativeElement.srcObject = this.localStream;
+      if (this.callType === 'video') {
+        this.localVideoRef.nativeElement.srcObject = this.localStream;
+      }
 
       this.ws.sendSignalMessage(this.roomId, {
         type: 'join',
@@ -191,9 +197,20 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   toggleMic(): void {
     this.micOn = !this.micOn;
     this.localStream.getAudioTracks().forEach((t) => (t.enabled = this.micOn));
+    this.resumeRemoteAudio();
+  }
+
+  private resumeRemoteAudio(): void {
+    document.querySelectorAll('audio, video').forEach((el) => {
+      const media = el as HTMLMediaElement;
+      media.play().catch(() => {
+        // still blocked — needs a direct user gesture on this element
+      });
+    });
   }
 
   toggleCam(): void {
+    if (this.callType !== 'video') return; // no-op in audio-only calls
     this.camOn = !this.camOn;
     this.localStream.getVideoTracks().forEach((t) => (t.enabled = this.camOn));
   }
@@ -211,6 +228,8 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
     this.remotePeers = [];
     this.ws.unsubscribeFromRoom(this.roomId);
+
+    this.router.navigate(['/user/chat']);
   }
 
   ngOnDestroy(): void {

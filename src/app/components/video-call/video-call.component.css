@@ -1,7 +1,7 @@
 .video-page {
-  background: #111827;
+  background: var(--bg-primary);
   min-height: 100vh;
-  color: white;
+  color: var(--text-primary);
   padding: 24px;
 }
 
@@ -31,7 +31,7 @@
 
 .video-tile {
   position: relative;
-  background: #1f2937;
+  background: var(--bg-tertiary);
   border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 16/9;
@@ -47,7 +47,8 @@ video {
   position: absolute;
   bottom: 12px;
   left: 12px;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 13px;

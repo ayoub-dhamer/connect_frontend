@@ -1,16 +1,28 @@
 <div class="video-page">
-
-  <!-- Header -->
   <div class="room-header">
-    <h2>Room: {{ roomId }}</h2>
+    <h2>
+      Room: {{ roomId }}
+      <span class="call-type-tag">{{
+        callType === "video" ? "Video" : "Audio"
+      }}</span>
+    </h2>
 
     <div class="controls">
-      <button mat-icon-button (click)="toggleMic()" [color]="micOn ? 'primary' : 'warn'">
-        <mat-icon>{{ micOn ? 'mic' : 'mic_off' }}</mat-icon>
+      <button
+        mat-icon-button
+        (click)="toggleMic()"
+        [color]="micOn ? 'primary' : 'warn'"
+      >
+        <mat-icon>{{ micOn ? "mic" : "mic_off" }}</mat-icon>
       </button>
 
-      <button mat-icon-button (click)="toggleCam()" [color]="camOn ? 'primary' : 'warn'">
-        <mat-icon>{{ camOn ? 'videocam' : 'videocam_off' }}</mat-icon>
+      <button
+        mat-icon-button
+        *ngIf="callType === 'video'"
+        (click)="toggleCam()"
+        [color]="camOn ? 'primary' : 'warn'"
+      >
+        <mat-icon>{{ camOn ? "videocam" : "videocam_off" }}</mat-icon>
       </button>
 
       <button mat-raised-button color="warn" (click)="hangUp()">
@@ -21,19 +33,26 @@
   </div>
 
   <!-- Video grid -->
-  <div class="video-grid">
-
-    <!-- Local video -->
+  <div class="video-grid" *ngIf="callType === 'video'">
     <div class="video-tile">
       <video #localVideo autoplay muted playsinline></video>
       <span class="label">You</span>
     </div>
-
-    <!-- Remote peers -->
     <div class="video-tile" *ngFor="let peer of remotePeers">
       <video [srcObject]="peer.stream" autoplay playsinline></video>
       <span class="label">{{ peer.id }}</span>
     </div>
+  </div>
 
+  <!-- Audio-only view -->
+  <div class="audio-grid" *ngIf="callType === 'audio'">
+    <div class="audio-tile">
+      <div class="audio-avatar">You</div>
+    </div>
+    <div class="audio-tile" *ngFor="let peer of remotePeers">
+      <div class="audio-avatar">{{ peer.id }}</div>
+      <!-- audio still needs to play even with no visible video element -->
+      <audio [srcObject]="peer.stream" autoplay></audio>
+    </div>
   </div>
 </div>

@@ -23,6 +23,14 @@ export interface SignalMessage {
   payload?: any;
 }
 
+export interface CallInvite {
+  type: 'video' | 'audio';
+  roomId: string;
+  callerEmail: string;
+  callerName: string;
+  receiverEmail: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   // ✅ Everything from @stomp/stompjs typed as any
@@ -42,6 +50,11 @@ export class WebSocketService {
   private connectedSubject = new BehaviorSubject<boolean>(false);
   public connected$ = this.connectedSubject.asObservable();
 
+  private callInviteSubject = new Subject<CallInvite>();
+  public callInvite$ = this.callInviteSubject.asObservable();
+
+  private callInviteSubscription: any;
+
   connect(): void {
     if (this.client?.active) return;
 
@@ -54,6 +67,7 @@ export class WebSocketService {
     this.client.onConnect = () => {
       console.log('✅ STOMP connected');
       this.subscribeToChat();
+      this.subscribeToCallInvites();
       this.connectedSubject.next(true); // ← add this
     };
 
@@ -68,8 +82,32 @@ export class WebSocketService {
     this.client.activate();
   }
 
+  private subscribeToCallInvites(): void {
+    this.callInviteSubscription = this.client.subscribe(
+      '/user/queue/call-invite',
+      (message: any) => {
+        if (message.body) {
+          const invite: CallInvite = JSON.parse(message.body);
+          this.callInviteSubject.next(invite);
+        }
+      },
+    );
+  }
+
+  sendCallInvite(invite: CallInvite): void {
+    if (!this.client?.active) {
+      console.warn('Cannot send call invite — STOMP not connected');
+      return;
+    }
+    this.client.publish({
+      destination: '/app/call/invite',
+      body: JSON.stringify(invite),
+    });
+  }
+
   disconnect(): void {
     this.chatSubscription?.unsubscribe();
+    this.callInviteSubscription?.unsubscribe();
     this.signalingSubscriptions.forEach((sub) => sub.unsubscribe());
     this.signalingSubscriptions.clear();
 
