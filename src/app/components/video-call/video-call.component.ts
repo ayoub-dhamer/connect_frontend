@@ -13,6 +13,13 @@ import {
   SignalMessage,
 } from '../../services/websocket.service';
 import { AuthService } from '../../services/auth.service';
+import { CallService } from 'src/app/services/call.service';
+
+interface RemotePeer {
+  id: string;
+  stream: MediaStream;
+  muted: boolean;
+}
 
 @Component({
   selector: 'app-video-call',
@@ -27,7 +34,13 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   micOn = true;
   camOn = true;
 
-  remotePeers: { id: string; stream: MediaStream }[] = [];
+  callId = '';
+  callerEmail = '';
+  receiverEmail = '';
+  otherEmail = '';
+  private joinedAt = 0;
+
+  remotePeers: RemotePeer[] = [];
 
   private localStream!: MediaStream;
   private peerConnections = new Map<string, RTCPeerConnection>();
@@ -44,6 +57,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     private ws: WebSocketService,
     private auth: AuthService,
     private router: Router,
+    private callService: CallService,
   ) {}
 
   ngOnInit(): void {
@@ -51,7 +65,14 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.callType =
       (this.route.snapshot.queryParamMap.get('type') as 'video' | 'audio') ||
       'video';
+    this.callId = this.route.snapshot.queryParamMap.get('callId') || '';
+    this.callerEmail =
+      this.route.snapshot.queryParamMap.get('callerEmail') || '';
+    this.receiverEmail =
+      this.route.snapshot.queryParamMap.get('receiverEmail') || '';
+    this.otherEmail = this.route.snapshot.queryParamMap.get('otherEmail') || '';
     this.camOn = this.callType === 'video';
+    this.joinedAt = Date.now();
 
     this.auth.loadUser().subscribe((user) => {
       if (user) this.currentUserEmail = user.email;
@@ -99,7 +120,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     if (signal.sender === this.currentUserEmail) return;
 
     if (signal.type === 'join') {
-      await this.createOffer(signal.sender);
+      // Only the peer with the "larger" email creates the offer,
+      // preventing both sides from offering simultaneously (glare).
+      if (this.currentUserEmail > signal.sender) {
+        await this.createOffer(signal.sender);
+      }
+      // else: do nothing — wait for their offer instead.
     } else if (signal.type === 'offer') {
       await this.handleOffer(signal);
     } else if (signal.type === 'answer') {
@@ -134,9 +160,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       if (existing) {
         existing.stream = streams[0];
       } else {
+        // Start muted — guarantees the browser lets playback begin
+        // immediately without a gesture. User unmutes via the overlay.
         this.remotePeers.push({
           id: peerId,
           stream: streams[0],
+          muted: true,
         });
       }
     };
@@ -194,23 +223,18 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.remotePeers = this.remotePeers.filter((p) => p.id !== peerId);
   }
 
+  unmutePeer(peerId: string): void {
+    const peer = this.remotePeers.find((p) => p.id === peerId);
+    if (peer) peer.muted = false;
+  }
+
   toggleMic(): void {
     this.micOn = !this.micOn;
     this.localStream.getAudioTracks().forEach((t) => (t.enabled = this.micOn));
-    this.resumeRemoteAudio();
-  }
-
-  private resumeRemoteAudio(): void {
-    document.querySelectorAll('audio, video').forEach((el) => {
-      const media = el as HTMLMediaElement;
-      media.play().catch(() => {
-        // still blocked — needs a direct user gesture on this element
-      });
-    });
   }
 
   toggleCam(): void {
-    if (this.callType !== 'video') return; // no-op in audio-only calls
+    if (this.callType !== 'video') return;
     this.camOn = !this.camOn;
     this.localStream.getVideoTracks().forEach((t) => (t.enabled = this.camOn));
   }
@@ -229,7 +253,27 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.remotePeers = [];
     this.ws.unsubscribeFromRoom(this.roomId);
 
-    this.router.navigate(['/user/chat']);
+    if (this.callId) {
+      const durationSeconds = Math.round((Date.now() - this.joinedAt) / 1000);
+      this.callService
+        .logCall({
+          callId: this.callId,
+          callerEmail: this.callerEmail,
+          receiverEmail: this.receiverEmail,
+          callType: this.callType.toUpperCase() as 'VIDEO' | 'AUDIO',
+          status: 'ACCEPTED',
+          startedAt: new Date(this.joinedAt).toISOString(),
+          endedAt: new Date().toISOString(),
+          durationSeconds,
+        })
+        .subscribe({
+          error: (err) => console.error('Failed to log call:', err),
+        });
+    }
+
+    this.router.navigate(['/user/chat'], {
+      queryParams: { with: this.otherEmail },
+    });
   }
 
   ngOnDestroy(): void {

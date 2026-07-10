@@ -250,3 +250,51 @@
 .msg-input:focus {
   border-color: var(--accent);
 }
+
+.call-modal-icon.calling {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.75;
+  }
+}
+
+.call-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.call-entry.mine {
+  align-items: flex-end;
+}
+
+.call-entry-bubble {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 18px;
+  font-size: 13px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.call-entry-bubble.status-declined,
+.call-entry-bubble.status-missed {
+  color: var(--danger);
+}
+
+.call-entry-bubble mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}

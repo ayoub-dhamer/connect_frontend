@@ -1,8 +1,6 @@
 <div class="chat-layout">
-  <!-- User list sidebar -->
   <div class="user-list">
     <h2>Contacts</h2>
-
     <div
       *ngFor="let u of users"
       class="user-item"
@@ -14,7 +12,6 @@
     </div>
   </div>
 
-  <!-- Chat area -->
   <div class="chat-area">
     <div class="chat-header" *ngIf="selectedUser">
       <div class="chat-header-info">
@@ -24,7 +21,6 @@
         />
         <span>{{ selectedUser.name }}</span>
       </div>
-
       <div class="chat-header-actions">
         <button
           class="call-btn"
@@ -48,16 +44,46 @@
     </div>
 
     <div class="messages" #messageContainer>
-      <div
-        *ngFor="let m of messages"
-        class="message"
-        [class.mine]="m.senderEmail === currentUserEmail"
-      >
-        <div class="bubble">{{ m.content }}</div>
-        <span class="time">
-          {{ m.timestamp | date: "shortTime" }}
-        </span>
-      </div>
+      <ng-container *ngFor="let item of timeline">
+        <div
+          *ngIf="item.kind === 'message'"
+          class="message"
+          [class.mine]="item.message!.senderEmail === currentUserEmail"
+        >
+          <div class="bubble">{{ item.message!.content }}</div>
+          <span class="time">{{
+            item.message!.timestamp | date: "shortTime"
+          }}</span>
+        </div>
+
+        <div
+          *ngIf="item.kind === 'call'"
+          class="call-entry"
+          [class.mine]="item.call!.callerEmail === currentUserEmail"
+        >
+          <div
+            class="call-entry-bubble"
+            [ngClass]="'status-' + item.call!.status.toLowerCase()"
+          >
+            <mat-icon>{{
+              item.call!.callType === "VIDEO" ? "videocam" : "call"
+            }}</mat-icon>
+            <span *ngIf="item.call!.status === 'ACCEPTED'">
+              {{ item.call!.callType === "VIDEO" ? "Video" : "Audio" }} call ·
+              {{
+                item.call!.durationSeconds
+                  ? (item.call!.durationSeconds | number) + "s"
+                  : ""
+              }}
+            </span>
+            <span *ngIf="item.call!.status === 'DECLINED'">Call declined</span>
+            <span *ngIf="item.call!.status === 'MISSED'">Missed call</span>
+          </div>
+          <span class="time">{{
+            item.call!.startedAt | date: "shortTime"
+          }}</span>
+        </div>
+      </ng-container>
     </div>
 
     <div class="input-row" *ngIf="selectedUser">
@@ -84,19 +110,34 @@
 <div class="call-modal" *ngIf="incomingCall">
   <div class="call-modal-icon">
     <mat-icon>{{
-      incomingCall.type === "video" ? "videocam" : "call"
+      incomingCall.callType === "video" ? "videocam" : "call"
     }}</mat-icon>
   </div>
   <div class="call-modal-title">{{ incomingCall.callerName }}</div>
-  <div class="call-modal-sub">
-    Incoming {{ incomingCall.type === "video" ? "video" : "audio" }} call…
-  </div>
+  <div class="call-modal-sub">Incoming {{ incomingCall.callType }} call…</div>
   <div class="call-modal-actions">
     <button class="call-decline" (click)="declineCall()">
       <mat-icon>call_end</mat-icon>
     </button>
     <button class="call-accept" (click)="acceptCall()">
       <mat-icon>call</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- Outgoing call modal -->
+<div class="call-backdrop" *ngIf="outgoingCall"></div>
+<div class="call-modal" *ngIf="outgoingCall">
+  <div class="call-modal-icon calling">
+    <mat-icon>{{
+      outgoingCall.callType === "video" ? "videocam" : "call"
+    }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ selectedUser?.name }}</div>
+  <div class="call-modal-sub">Ringing…</div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="cancelOutgoingCall()">
+      <mat-icon>call_end</mat-icon>
     </button>
   </div>
 </div>

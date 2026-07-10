@@ -39,8 +39,21 @@
       <span class="label">You</span>
     </div>
     <div class="video-tile" *ngFor="let peer of remotePeers">
-      <video [srcObject]="peer.stream" autoplay playsinline></video>
+      <video
+        [srcObject]="peer.stream"
+        [muted]="peer.muted"
+        autoplay
+        playsinline
+      ></video>
       <span class="label">{{ peer.id }}</span>
+      <button
+        class="unmute-overlay"
+        *ngIf="peer.muted"
+        (click)="unmutePeer(peer.id)"
+      >
+        <mat-icon>volume_off</mat-icon>
+        <span>Tap to unmute</span>
+      </button>
     </div>
   </div>
 
@@ -51,8 +64,15 @@
     </div>
     <div class="audio-tile" *ngFor="let peer of remotePeers">
       <div class="audio-avatar">{{ peer.id }}</div>
-      <!-- audio still needs to play even with no visible video element -->
-      <audio [srcObject]="peer.stream" autoplay></audio>
+      <audio [srcObject]="peer.stream" [muted]="peer.muted" autoplay></audio>
+      <button
+        class="unmute-overlay audio-unmute"
+        *ngIf="peer.muted"
+        (click)="unmutePeer(peer.id)"
+      >
+        <mat-icon>volume_off</mat-icon>
+        <span>Tap to unmute</span>
+      </button>
     </div>
   </div>
 </div>

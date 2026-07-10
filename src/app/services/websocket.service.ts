@@ -31,6 +31,23 @@ export interface CallInvite {
   receiverEmail: string;
 }
 
+export type CallSignalType =
+  | 'invite'
+  | 'accept'
+  | 'decline'
+  | 'cancel'
+  | 'hangup';
+
+export interface CallSignal {
+  type: CallSignalType;
+  callId: string;
+  roomId: string;
+  callType: 'video' | 'audio';
+  callerEmail: string;
+  callerName: string;
+  receiverEmail: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   // ✅ Everything from @stomp/stompjs typed as any
@@ -55,6 +72,11 @@ export class WebSocketService {
 
   private callInviteSubscription: any;
 
+  private callSignalSubject = new Subject<CallSignal>();
+  public callSignal$ = this.callSignalSubject.asObservable();
+
+  private callSignalSubscription: any;
+
   connect(): void {
     if (this.client?.active) return;
 
@@ -67,7 +89,7 @@ export class WebSocketService {
     this.client.onConnect = () => {
       console.log('✅ STOMP connected');
       this.subscribeToChat();
-      this.subscribeToCallInvites();
+      this.subscribeToCallSignals();
       this.connectedSubject.next(true); // ← add this
     };
 
@@ -105,9 +127,32 @@ export class WebSocketService {
     });
   }
 
+  private subscribeToCallSignals(): void {
+    this.callSignalSubscription = this.client.subscribe(
+      '/user/queue/call-signal',
+      (message: any) => {
+        if (message.body) {
+          const signal: CallSignal = JSON.parse(message.body);
+          this.callSignalSubject.next(signal);
+        }
+      },
+    );
+  }
+
+  sendCallSignal(signal: CallSignal): void {
+    if (!this.client?.active) {
+      console.warn('Cannot send call signal — STOMP not connected');
+      return;
+    }
+    this.client.publish({
+      destination: '/app/call/signal',
+      body: JSON.stringify(signal),
+    });
+  }
+
   disconnect(): void {
     this.chatSubscription?.unsubscribe();
-    this.callInviteSubscription?.unsubscribe();
+    this.callSignalSubscription?.unsubscribe();
     this.signalingSubscriptions.forEach((sub) => sub.unsubscribe());
     this.signalingSubscriptions.clear();
 
@@ -146,7 +191,8 @@ export class WebSocketService {
       return;
     }
 
-    if (this.signalingSubscriptions.has(roomId)) return;
+    this.signalingSubscriptions.get(roomId)?.unsubscribe();
+    this.signalingSubscriptions.delete(roomId);
 
     const sub = this.client.subscribe(
       `/topic/room.${roomId}`,
