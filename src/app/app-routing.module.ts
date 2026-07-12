@@ -64,7 +64,11 @@ const routes: Routes = [
       { path: 'tasks/:id', component: TaskFormComponent },
 
       { path: 'chat', component: ChatComponent },
-      { path: 'video/:roomId', component: VideoCallComponent },
+      {
+        path: 'video/:roomId',
+        component: VideoCallComponent,
+        runGuardsAndResolvers: 'always',
+      },
 
       { path: 'profile', component: UserProfileComponent },
       { path: 'settings', component: SettingsComponent },

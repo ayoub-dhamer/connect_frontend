@@ -20,6 +20,7 @@ import {
   ConversationService,
   TimelineItem,
 } from '../../services/conversation.service';
+import { ToastMessageService } from 'src/app/services/toast-message.service';
 
 @Component({
   selector: 'app-chat',
@@ -44,6 +45,15 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
 
+  private ringtoneAudio: HTMLAudioElement | null = null;
+
+  private inCall = false;
+
+  private readonly tabId = crypto.randomUUID();
+
+  private readonly OUTGOING_LOCK_KEY = 'outgoing-call-lock';
+  private readonly OUTGOING_LOCK_TTL_MS = 45000; // slightly longer than the 30s ring timeout
+
   constructor(
     private ws: WebSocketService,
     private auth: AuthService,
@@ -53,9 +63,12 @@ export class ChatComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private conversationService: ConversationService,
+    private toast: ToastMessageService,
   ) {}
 
   ngOnInit(): void {
+    this.inCall = false;
+
     this.auth.loadUser().subscribe((user) => {
       if (user) {
         this.currentUserEmail = user.email;
@@ -88,7 +101,26 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.callSub = this.ws.callSignal$.subscribe((signal) => {
       this.handleCallSignal(signal);
     });
+
+    window.addEventListener('beforeunload', this.handleUnload);
   }
+
+  private handleUnload = (): void => {
+    if (this.outgoingCall) {
+      this.ws.sendCallSignal({
+        ...this.outgoingCall,
+        type: 'cancel',
+        receiverEmail: this.outgoingCall.receiverEmail,
+      });
+    }
+    if (this.incomingCall) {
+      this.ws.sendCallSignal({
+        ...this.incomingCall,
+        type: 'decline',
+        receiverEmail: this.incomingCall.callerEmail,
+      });
+    }
+  };
 
   private isForCurrentConversation(msg: ChatMessage): boolean {
     return (
@@ -110,14 +142,32 @@ export class ChatComponent implements OnInit, OnDestroy {
   private handleCallSignal(signal: CallSignal): void {
     switch (signal.type) {
       case 'invite':
+        if (this.inCall || this.outgoingCall || this.incomingCall) {
+          // We're busy — auto-decline so the caller isn't left hanging.
+          this.ws.sendCallSignal({
+            ...signal,
+            type: 'decline',
+            receiverEmail: signal.callerEmail,
+          });
+          return;
+        }
+        if (!this.claimCall(signal.callId)) {
+          // Another tab of ours already claimed this invite — stay silent here.
+          return;
+        }
         this.incomingCall = signal;
+        this.startRingtone();
         break;
 
       case 'accept':
         if (this.outgoingCall?.callId === signal.callId) {
           this.clearOutgoingTimeout();
+          this.stopRingtone();
+          this.releaseOutgoing();
+          this.releaseClaim(signal.callId);
           const call = this.outgoingCall;
           this.outgoingCall = null;
+          this.playCallAcceptedTone();
           this.navigateToRoom(call, call.receiverEmail);
         }
         break;
@@ -125,19 +175,69 @@ export class ChatComponent implements OnInit, OnDestroy {
       case 'decline':
         if (this.outgoingCall?.callId === signal.callId) {
           this.clearOutgoingTimeout();
+          this.stopRingtone();
+          this.releaseOutgoing();
+          this.releaseClaim(signal.callId);
+          const call = this.outgoingCall;
           this.outgoingCall = null;
+          this.pushLocalCallEntry(
+            call,
+            'DECLINED',
+            signal.startedAt ?? new Date().toISOString(),
+          );
+        }
+        break;
+
+      case 'busy':
+        if (this.outgoingCall?.callId === signal.callId) {
+          this.clearOutgoingTimeout();
+          this.stopRingtone();
+          this.releaseOutgoing();
+          const call = this.outgoingCall;
+          this.outgoingCall = null;
+          this.pushLocalCallEntry(
+            call,
+            'MISSED',
+            signal.startedAt ?? new Date().toISOString(),
+          );
+          this.toast.info(
+            `${this.selectedUser?.name ?? 'They'} are on another call`,
+          );
         }
         break;
 
       case 'cancel':
         if (this.incomingCall?.callId === signal.callId) {
+          this.stopRingtone();
+          this.releaseClaim(signal.callId);
+          const call = this.incomingCall;
           this.incomingCall = null;
+          // Caller already logged this as MISSED — just reflect it
+          // locally on the receiver's side without re-posting.
+          this.pushLocalCallEntry(
+            call,
+            'MISSED',
+            signal.startedAt ?? new Date().toISOString(),
+          );
         }
         break;
     }
   }
 
+  private claimCall(callId: string): boolean {
+    const key = `call-claim-${callId}`;
+    if (localStorage.getItem(key)) return false;
+    localStorage.setItem(key, this.tabId);
+    return true;
+  }
+
+  private releaseClaim(callId: string): void {
+    localStorage.removeItem(`call-claim-${callId}`);
+  }
+
   private navigateToRoom(call: CallSignal, otherEmail: string): void {
+    this.inCall = true;
+
     this.router.navigate(['/user/video', call.roomId], {
       queryParams: {
         type: call.callType,
@@ -210,7 +310,18 @@ export class ChatComponent implements OnInit, OnDestroy {
   // ── Calling ─────────────────────────────────────────────
 
   startCall(type: 'video' | 'audio'): void {
-    if (!this.selectedUser) return;
+    if (
+      !this.selectedUser ||
+      this.inCall ||
+      this.outgoingCall ||
+      this.incomingCall
+    )
+      return;
+
+    if (!this.claimOutgoing()) {
+      this.toast.info('You already have a call in progress in another tab');
+      return;
+    }
 
     const roomId = this.buildRoomId(
       this.currentUserEmail,
@@ -230,6 +341,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.outgoingCall = invite;
     this.ws.sendCallSignal(invite);
+    this.startRingtone();
 
     this.outgoingCallTimeout = setTimeout(() => {
       if (this.outgoingCall?.callId === callId) {
@@ -238,20 +350,50 @@ export class ChatComponent implements OnInit, OnDestroy {
     }, 30000);
   }
 
+  private claimOutgoing(): boolean {
+    const existing = localStorage.getItem(this.OUTGOING_LOCK_KEY);
+    if (existing) {
+      const { timestamp } = JSON.parse(existing);
+      if (Date.now() - timestamp < this.OUTGOING_LOCK_TTL_MS) {
+        return false; // another tab already has an active outgoing call
+      }
+      // stale lock (older tab crashed/closed without releasing) — reclaim it
+    }
+    localStorage.setItem(
+      this.OUTGOING_LOCK_KEY,
+      JSON.stringify({ tabId: this.tabId, timestamp: Date.now() }),
+    );
+    return true;
+  }
+
+  private releaseOutgoing(): void {
+    const existing = localStorage.getItem(this.OUTGOING_LOCK_KEY);
+    if (existing) {
+      const { tabId } = JSON.parse(existing);
+      if (tabId === this.tabId) {
+        localStorage.removeItem(this.OUTGOING_LOCK_KEY);
+      }
+    }
+  }
+
   cancelOutgoingCall(): void {
     if (!this.outgoingCall) return;
     const call = this.outgoingCall;
 
     this.clearOutgoingTimeout();
+    this.stopRingtone();
+    this.releaseOutgoing();
+
+    const startedAt = new Date().toISOString();
 
     this.ws.sendCallSignal({
       ...call,
       type: 'cancel',
       receiverEmail: call.receiverEmail,
+      startedAt,
     });
     this.outgoingCall = null;
 
-    const startedAt = new Date().toISOString();
     this.callService
       .logCall({
         callId: call.callId,
@@ -278,27 +420,42 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (!this.incomingCall) return;
     const call = this.incomingCall;
     this.incomingCall = null;
+    this.stopRingtone();
+    this.releaseClaim(call.callId);
 
     this.ws.sendCallSignal({
       ...call,
       type: 'accept',
       receiverEmail: call.callerEmail,
     });
+    this.playCallAcceptedTone();
     this.navigateToRoom(call, call.callerEmail);
+  }
+
+  private playCallAcceptedTone(): void {
+    const audio = new Audio('assets/sounds/call-accepted.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(() => {
+      // Non-critical if blocked — skip silently.
+    });
   }
 
   declineCall(): void {
     if (!this.incomingCall) return;
     const call = this.incomingCall;
     this.incomingCall = null;
+    this.stopRingtone();
+    this.releaseClaim(call.callId);
+
+    const startedAt = new Date().toISOString();
 
     this.ws.sendCallSignal({
       ...call,
       type: 'decline',
       receiverEmail: call.callerEmail,
+      startedAt,
     });
 
-    const startedAt = new Date().toISOString();
     this.callService
       .logCall({
         callId: call.callId,
@@ -312,6 +469,25 @@ export class ChatComponent implements OnInit, OnDestroy {
         next: () => this.pushLocalCallEntry(call, 'DECLINED', startedAt),
         error: (err) => console.error('Failed to log call:', err),
       });
+  }
+
+  private startRingtone(): void {
+    this.stopRingtone(); // guard against double-start
+    this.ringtoneAudio = new Audio('assets/sounds/ringtone.mp3');
+    this.ringtoneAudio.loop = true;
+    this.ringtoneAudio.volume = 0.6;
+    this.ringtoneAudio.play().catch(() => {
+      // Autoplay may be blocked if this fires with no prior gesture on the page —
+      // non-critical, the visual modal still shows either way.
+    });
+  }
+
+  private stopRingtone(): void {
+    if (this.ringtoneAudio) {
+      this.ringtoneAudio.pause();
+      this.ringtoneAudio.currentTime = 0;
+      this.ringtoneAudio = null;
+    }
   }
 
   private pushLocalCallEntry(
@@ -361,8 +537,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('beforeunload', this.handleUnload);
+
     this.sub?.unsubscribe();
     this.callSub?.unsubscribe();
     this.clearOutgoingTimeout();
+    this.stopRingtone();
   }
 }

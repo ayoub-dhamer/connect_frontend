@@ -6,7 +6,6 @@
         callType === "video" ? "Video" : "Audio"
       }}</span>
     </h2>
-
     <div class="controls">
       <button
         mat-icon-button
@@ -15,7 +14,6 @@
       >
         <mat-icon>{{ micOn ? "mic" : "mic_off" }}</mat-icon>
       </button>
-
       <button
         mat-icon-button
         *ngIf="callType === 'video'"
@@ -24,7 +22,16 @@
       >
         <mat-icon>{{ camOn ? "videocam" : "videocam_off" }}</mat-icon>
       </button>
-
+      <button
+        mat-icon-button
+        (click)="toggleChatPanel()"
+        class="chat-toggle-btn"
+      >
+        <mat-icon>chat</mat-icon>
+        <span class="unread-badge" *ngIf="unreadChatCount > 0">{{
+          unreadChatCount
+        }}</span>
+      </button>
       <button mat-raised-button color="warn" (click)="hangUp()">
         <mat-icon>call_end</mat-icon>
         Leave
@@ -32,47 +39,111 @@
     </div>
   </div>
 
-  <!-- Video grid -->
-  <div class="video-grid" *ngIf="callType === 'video'">
-    <div class="video-tile">
-      <video #localVideo autoplay muted playsinline></video>
-      <span class="label">You</span>
-    </div>
-    <div class="video-tile" *ngFor="let peer of remotePeers">
-      <video
-        [srcObject]="peer.stream"
-        [muted]="peer.muted"
-        autoplay
-        playsinline
-      ></video>
-      <span class="label">{{ peer.id }}</span>
-      <button
-        class="unmute-overlay"
-        *ngIf="peer.muted"
-        (click)="unmutePeer(peer.id)"
-      >
-        <mat-icon>volume_off</mat-icon>
-        <span>Tap to unmute</span>
-      </button>
-    </div>
-  </div>
+  <div class="leave-toast" *ngIf="leftPeerNotice">{{ leftPeerNotice }}</div>
 
-  <!-- Audio-only view -->
-  <div class="audio-grid" *ngIf="callType === 'audio'">
-    <div class="audio-tile">
-      <div class="audio-avatar">You</div>
+  <div class="call-body">
+    <!-- Video / audio grids — unchanged from before -->
+    <div class="video-grid" *ngIf="callType === 'video'">
+      <div class="video-tile">
+        <video #localVideo autoplay muted playsinline></video>
+        <span class="label">You</span>
+        <span class="status-icons">
+          <mat-icon *ngIf="!micOn" class="status-icon warn">mic_off</mat-icon>
+          <mat-icon *ngIf="!camOn" class="status-icon warn"
+            >videocam_off</mat-icon
+          >
+        </span>
+      </div>
+      <div class="video-tile" *ngFor="let peer of remotePeers">
+        <video
+          [srcObject]="peer.stream"
+          [muted]="peer.muted"
+          autoplay
+          playsinline
+        ></video>
+        <span class="label">{{ peer.id }}</span>
+        <span class="status-icons">
+          <mat-icon *ngIf="!peer.micOn" class="status-icon warn"
+            >mic_off</mat-icon
+          >
+          <mat-icon *ngIf="!peer.camOn" class="status-icon warn"
+            >videocam_off</mat-icon
+          >
+        </span>
+        <button
+          class="unmute-overlay"
+          *ngIf="peer.muted"
+          (click)="unmutePeer(peer.id)"
+        >
+          <mat-icon>volume_off</mat-icon>
+          <span>Tap to unmute</span>
+        </button>
+      </div>
     </div>
-    <div class="audio-tile" *ngFor="let peer of remotePeers">
-      <div class="audio-avatar">{{ peer.id }}</div>
-      <audio [srcObject]="peer.stream" [muted]="peer.muted" autoplay></audio>
-      <button
-        class="unmute-overlay audio-unmute"
-        *ngIf="peer.muted"
-        (click)="unmutePeer(peer.id)"
-      >
-        <mat-icon>volume_off</mat-icon>
-        <span>Tap to unmute</span>
-      </button>
+
+    <div class="audio-grid" *ngIf="callType === 'audio'">
+      <div class="audio-tile">
+        <div class="audio-avatar">You</div>
+        <span class="status-icons">
+          <mat-icon *ngIf="!micOn" class="status-icon warn">mic_off</mat-icon>
+        </span>
+      </div>
+      <div class="audio-tile" *ngFor="let peer of remotePeers">
+        <div class="audio-avatar">{{ peer.id }}</div>
+        <span class="status-icons">
+          <mat-icon *ngIf="!peer.micOn" class="status-icon warn"
+            >mic_off</mat-icon
+          >
+        </span>
+        <audio [srcObject]="peer.stream" [muted]="peer.muted" autoplay></audio>
+        <button
+          class="unmute-overlay audio-unmute"
+          *ngIf="peer.muted"
+          (click)="unmutePeer(peer.id)"
+        >
+          <mat-icon>volume_off</mat-icon>
+          <span>Tap to unmute</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- In-call chat panel -->
+    <div class="in-call-chat" [class.open]="chatOpen">
+      <div class="in-call-chat-header">
+        <span>In-call chat</span>
+        <span class="chat-ephemeral-note">Not saved after the call</span>
+        <button class="chat-close-btn" (click)="toggleChatPanel()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="in-call-chat-messages" #chatContainer>
+        <div
+          *ngFor="let m of chatMessages"
+          class="in-call-msg"
+          [class.mine]="m.mine"
+        >
+          <div class="in-call-bubble">{{ m.text }}</div>
+        </div>
+        <div class="in-call-chat-empty" *ngIf="chatMessages.length === 0">
+          No messages yet
+        </div>
+      </div>
+
+      <div class="in-call-chat-input">
+        <input
+          [(ngModel)]="newChatMessage"
+          placeholder="Message..."
+          (keyup.enter)="sendChatMessage()"
+        />
+        <button
+          mat-icon-button
+          (click)="sendChatMessage()"
+          [disabled]="!newChatMessage.trim()"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
     </div>
   </div>
 </div>

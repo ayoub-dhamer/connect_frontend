@@ -17,10 +17,13 @@ export interface ChatMessage {
 }
 
 export interface SignalMessage {
-  type: 'offer' | 'answer' | 'candidate' | 'join' | 'leave';
+  type: 'offer' | 'answer' | 'candidate' | 'join' | 'leave' | 'status' | 'chat';
   roomId: string;
   sender: string;
   payload?: any;
+  micOn?: boolean;
+  camOn?: boolean;
+  text?: string;
 }
 
 export interface CallInvite {
@@ -36,7 +39,8 @@ export type CallSignalType =
   | 'accept'
   | 'decline'
   | 'cancel'
-  | 'hangup';
+  | 'busy'
+  | 'ended';
 
 export interface CallSignal {
   type: CallSignalType;
@@ -46,6 +50,7 @@ export interface CallSignal {
   callerEmail: string;
   callerName: string;
   receiverEmail: string;
+  startedAt?: string; // add this — ISO timestamp, set on cancel/decline
 }
 
 @Injectable({ providedIn: 'root' })
