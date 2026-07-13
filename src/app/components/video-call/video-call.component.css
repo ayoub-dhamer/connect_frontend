@@ -300,3 +300,10 @@ video {
 .in-call-chat-input button mat-icon {
   color: var(--accent);
 }
+
+.in-call-sender {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-bottom: 2px;
+  display: block;
+}

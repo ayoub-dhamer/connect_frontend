@@ -1,11 +1,12 @@
 <div class="video-page">
   <div class="room-header">
     <h2>
-      Room: {{ roomId }}
+      {{ isGroup ? groupName : "Room: " + roomId }}
       <span class="call-type-tag">{{
         callType === "video" ? "Video" : "Audio"
       }}</span>
     </h2>
+
     <div class="controls">
       <button
         mat-icon-button
@@ -14,6 +15,7 @@
       >
         <mat-icon>{{ micOn ? "mic" : "mic_off" }}</mat-icon>
       </button>
+
       <button
         mat-icon-button
         *ngIf="callType === 'video'"
@@ -22,6 +24,7 @@
       >
         <mat-icon>{{ camOn ? "videocam" : "videocam_off" }}</mat-icon>
       </button>
+
       <button
         mat-icon-button
         (click)="toggleChatPanel()"
@@ -32,6 +35,7 @@
           unreadChatCount
         }}</span>
       </button>
+
       <button mat-raised-button color="warn" (click)="hangUp()">
         <mat-icon>call_end</mat-icon>
         Leave
@@ -42,7 +46,7 @@
   <div class="leave-toast" *ngIf="leftPeerNotice">{{ leftPeerNotice }}</div>
 
   <div class="call-body">
-    <!-- Video / audio grids — unchanged from before -->
+    <!-- Video grid -->
     <div class="video-grid" *ngIf="callType === 'video'">
       <div class="video-tile">
         <video #localVideo autoplay muted playsinline></video>
@@ -54,6 +58,7 @@
           >
         </span>
       </div>
+
       <div class="video-tile" *ngFor="let peer of remotePeers">
         <video
           [srcObject]="peer.stream"
@@ -81,6 +86,7 @@
       </div>
     </div>
 
+    <!-- Audio-only grid -->
     <div class="audio-grid" *ngIf="callType === 'audio'">
       <div class="audio-tile">
         <div class="audio-avatar">You</div>
@@ -88,6 +94,7 @@
           <mat-icon *ngIf="!micOn" class="status-icon warn">mic_off</mat-icon>
         </span>
       </div>
+
       <div class="audio-tile" *ngFor="let peer of remotePeers">
         <div class="audio-avatar">{{ peer.id }}</div>
         <span class="status-icons">
@@ -107,7 +114,7 @@
       </div>
     </div>
 
-    <!-- In-call chat panel -->
+    <!-- In-call ephemeral chat panel -->
     <div class="in-call-chat" [class.open]="chatOpen">
       <div class="in-call-chat-header">
         <span>In-call chat</span>
@@ -123,6 +130,7 @@
           class="in-call-msg"
           [class.mine]="m.mine"
         >
+          <span class="in-call-sender" *ngIf="!m.mine">{{ m.sender }}</span>
           <div class="in-call-bubble">{{ m.text }}</div>
         </div>
         <div class="in-call-chat-empty" *ngIf="chatMessages.length === 0">

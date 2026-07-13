@@ -1,0 +1,51 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="cancel()"></div>
+<div class="modal-box" *ngIf="isOpen">
+  <h3 class="modal-title">New Group</h3>
+
+  <input class="group-name-input" placeholder="Group name" [(ngModel)]="name" />
+
+  <div class="member-list-label">Add members</div>
+
+  <div class="member-list">
+    <div
+      *ngFor="let u of allUsers"
+      class="member-item"
+      [class.selected]="selectedIds.has(u.id)"
+      (click)="toggleMember(u.id)"
+    >
+      <div class="member-checkbox">
+        <mat-icon *ngIf="selectedIds.has(u.id)">check</mat-icon>
+      </div>
+      <img
+        [src]="u.pictureUrl || 'assets/img/user.jpg'"
+        class="member-avatar"
+      />
+      <div class="member-info">
+        <span class="member-name">{{ u.name }}</span>
+        <span class="member-email">{{ u.email }}</span>
+      </div>
+    </div>
+
+    <div class="member-list-empty" *ngIf="allUsers.length === 0">
+      No users available
+    </div>
+  </div>
+
+  <div class="selected-count" *ngIf="selectedIds.size > 0">
+    {{ selectedIds.size }} member{{
+      selectedIds.size === 1 ? "" : "s"
+    }}
+    selected
+  </div>
+
+  <div class="modal-actions">
+    <button class="cancel-btn" (click)="cancel()">Cancel</button>
+    <button
+      class="create-btn"
+      [disabled]="!name.trim() || selectedIds.size === 0"
+      (click)="create()"
+    >
+      Create Group
+    </button>
+  </div>
+</div>

@@ -1,11 +1,12 @@
 // websocket.service.ts
 import { Injectable } from '@angular/core';
 import SockJS from 'sockjs-client';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 // ✅ Import the Client constructor only — avoid type imports from @stomp/stompjs
 import { Client } from '@stomp/stompjs';
 import { environment } from 'src/environments/environment';
+import { GroupMessage } from './group.service';
 
 // websocket.service.ts
 export interface ChatMessage {
@@ -50,7 +51,9 @@ export interface CallSignal {
   callerEmail: string;
   callerName: string;
   receiverEmail: string;
-  startedAt?: string; // add this — ISO timestamp, set on cancel/decline
+  startedAt?: string;
+  groupId?: number;
+  groupName?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -81,6 +84,48 @@ export class WebSocketService {
   public callSignal$ = this.callSignalSubject.asObservable();
 
   private callSignalSubscription: any;
+
+  private groupMessageSubjects = new Map<number, Subject<GroupMessage>>();
+  private groupSubscriptions = new Map<number, any>();
+
+  subscribeToGroupChat(groupId: number): Observable<GroupMessage> {
+    if (!this.groupMessageSubjects.has(groupId)) {
+      this.groupMessageSubjects.set(groupId, new Subject<GroupMessage>());
+    }
+
+    if (this.client?.active && !this.groupSubscriptions.has(groupId)) {
+      const sub = this.client.subscribe(
+        `/topic/group.${groupId}`,
+        (message: any) => {
+          if (message.body) {
+            this.groupMessageSubjects
+              .get(groupId)!
+              .next(JSON.parse(message.body));
+          }
+        },
+      );
+      this.groupSubscriptions.set(groupId, sub);
+    }
+
+    return this.groupMessageSubjects.get(groupId)!.asObservable();
+  }
+
+  unsubscribeFromGroupChat(groupId: number): void {
+    this.groupSubscriptions.get(groupId)?.unsubscribe();
+    this.groupSubscriptions.delete(groupId);
+  }
+
+  sendGroupMessage(
+    groupId: number,
+    senderEmail: string,
+    content: string,
+  ): void {
+    if (!this.client?.active) return;
+    this.client.publish({
+      destination: `/app/group-chat/${groupId}`,
+      body: JSON.stringify({ senderEmail, content }),
+    });
+  }
 
   connect(): void {
     if (this.client?.active) return;

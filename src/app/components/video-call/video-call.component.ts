@@ -54,6 +54,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   otherEmail = '';
   private joinedAt = 0;
 
+  groupId: number | null = null;
+  groupName = '';
+  isGroup = false;
+
   remotePeers: RemotePeer[] = [];
   leftPeerNotice: string | null = null;
   private pendingStatus = new Map<
@@ -115,6 +119,11 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.otherEmail = this.route.snapshot.queryParamMap.get('otherEmail') || '';
     this.camOn = this.callType === 'video';
     this.joinedAt = Date.now();
+
+    const gid = this.route.snapshot.queryParamMap.get('groupId');
+    this.groupId = gid ? Number(gid) : null;
+    this.groupName = this.route.snapshot.queryParamMap.get('groupName') || '';
+    this.isGroup = this.route.snapshot.queryParamMap.get('isGroup') === 'true';
 
     this.auth.loadUser().subscribe((user) => {
       if (user) this.currentUserEmail = user.email;
@@ -178,6 +187,22 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       });
       // Announce our starting status once tracks are live
       this.broadcastStatus();
+
+      // Record that we actually joined (group calls only — 1:1 already
+      // handled via the accept/decline handshake in ChatComponent).
+      if (this.isGroup && this.callId) {
+        this.ws.sendCallSignal({
+          type: 'accept',
+          callId: this.callId,
+          roomId: this.roomId,
+          callType: this.callType,
+          callerEmail: this.currentUserEmail, // "whoever is joining" — see backend note
+          callerName: '',
+          receiverEmail: '',
+          groupId: this.groupId!,
+          groupName: this.groupName,
+        });
+      }
     } catch (e) {
       console.error('Could not access camera/mic', e);
     }
@@ -516,7 +541,19 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       sender: this.currentUserEmail,
     });
 
-    if (this.callId && this.callerEmail && this.receiverEmail) {
+    if (this.isGroup && this.callId) {
+      this.ws.sendCallSignal({
+        type: 'ended',
+        callId: this.callId,
+        roomId: this.roomId,
+        callType: this.callType,
+        callerEmail: this.currentUserEmail,
+        callerName: '',
+        receiverEmail: '',
+        groupId: this.groupId!,
+        groupName: this.groupName,
+      });
+    } else if (this.callId && this.callerEmail && this.receiverEmail) {
       this.ws.sendCallSignal({
         type: 'ended',
         callId: this.callId,
@@ -557,7 +594,9 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     }
 
     this.router.navigate(['/user/chat'], {
-      queryParams: { with: this.otherEmail },
+      queryParams: this.isGroup
+        ? { group: this.groupId }
+        : { with: this.otherEmail },
     });
   }
 

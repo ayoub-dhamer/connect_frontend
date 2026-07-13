@@ -1,6 +1,10 @@
 <div class="chat-layout">
   <div class="user-list">
-    <h2>Contacts</h2>
+    <div
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <h2>Contacts</h2>
+    </div>
     <div
       *ngFor="let u of users"
       class="user-item"
@@ -10,9 +14,45 @@
       <img [src]="u.pictureUrl || 'assets/img/user.jpg'" class="avatar" />
       <span>{{ u.name }}</span>
     </div>
+
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+      "
+    >
+      <h2>Groups</h2>
+      <button class="call-btn" (click)="openGroupCreate()" title="New group">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+    <div
+      *ngFor="let g of groups"
+      class="user-item"
+      [class.active]="selectedGroup?.id === g.id"
+      (click)="selectGroup(g)"
+    >
+      <div
+        class="avatar"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--accent-light);
+          color: var(--accent);
+          font-weight: 600;
+        "
+      >
+        {{ g.name.slice(0, 2).toUpperCase() }}
+      </div>
+      <span>{{ g.name }}</span>
+    </div>
   </div>
 
   <div class="chat-area">
+    <!-- 1:1 header -->
     <div class="chat-header" *ngIf="selectedUser">
       <div class="chat-header-info">
         <img
@@ -39,8 +79,46 @@
       </div>
     </div>
 
-    <div class="chat-header empty" *ngIf="!selectedUser">
-      Select a contact to start chatting
+    <!-- Group header -->
+    <div class="chat-header" *ngIf="selectedGroup">
+      <div class="chat-header-info">
+        <div
+          class="avatar"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-weight: 600;
+          "
+        >
+          {{ selectedGroup.name.slice(0, 2).toUpperCase() }}
+        </div>
+        <span
+          >{{ selectedGroup.name }} ({{ selectedGroup.members.length }})</span
+        >
+      </div>
+      <div class="chat-header-actions">
+        <button
+          class="call-btn"
+          (click)="startGroupCall('audio')"
+          title="Group audio call"
+        >
+          <mat-icon>call</mat-icon>
+        </button>
+        <button
+          class="call-btn"
+          (click)="startGroupCall('video')"
+          title="Group video call"
+        >
+          <mat-icon>videocam</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-header empty" *ngIf="!selectedUser && !selectedGroup">
+      Select a contact or group to start chatting
     </div>
 
     <div class="messages" #messageContainer>
@@ -50,6 +128,14 @@
           class="message"
           [class.mine]="item.message!.senderEmail === currentUserEmail"
         >
+          <span
+            class="sender-name"
+            *ngIf="
+              selectedGroup && item.message!.senderEmail !== currentUserEmail
+            "
+          >
+            {{ getGroupSenderName(item.message!.senderEmail) }}
+          </span>
           <div class="bubble">{{ item.message!.content }}</div>
           <span class="time">{{
             item.message!.timestamp | date: "shortTime"
@@ -86,7 +172,7 @@
       </ng-container>
     </div>
 
-    <div class="input-row" *ngIf="selectedUser">
+    <div class="input-row" *ngIf="selectedUser || selectedGroup">
       <input
         [(ngModel)]="newMessage"
         placeholder="Type a message..."
@@ -105,7 +191,7 @@
   </div>
 </div>
 
-<!-- Incoming call modal -->
+<!-- Incoming call modal (1:1 and group) -->
 <div class="call-backdrop" *ngIf="incomingCall"></div>
 <div class="call-modal" *ngIf="incomingCall">
   <div class="call-modal-icon">
@@ -113,8 +199,18 @@
       incomingCall.callType === "video" ? "videocam" : "call"
     }}</mat-icon>
   </div>
-  <div class="call-modal-title">{{ incomingCall.callerName }}</div>
-  <div class="call-modal-sub">Incoming {{ incomingCall.callType }} call…</div>
+  <div class="call-modal-title">
+    {{
+      incomingCall.groupId ? incomingCall.groupName : incomingCall.callerName
+    }}
+  </div>
+  <div class="call-modal-sub">
+    {{
+      incomingCall.groupId
+        ? incomingCall.callerName + " started a group call"
+        : "Incoming " + incomingCall.callType + " call…"
+    }}
+  </div>
   <div class="call-modal-actions">
     <button class="call-decline" (click)="declineCall()">
       <mat-icon>call_end</mat-icon>
@@ -125,7 +221,7 @@
   </div>
 </div>
 
-<!-- Outgoing call modal -->
+<!-- Outgoing call modal (1:1 only — group calls navigate immediately, no ringing wait) -->
 <div class="call-backdrop" *ngIf="outgoingCall"></div>
 <div class="call-modal" *ngIf="outgoingCall">
   <div class="call-modal-icon calling">
@@ -139,5 +235,40 @@
     <button class="call-decline" (click)="cancelOutgoingCall()">
       <mat-icon>call_end</mat-icon>
     </button>
+  </div>
+</div>
+
+<!-- Group creation modal -->
+<app-group-create
+  [isOpen]="groupCreateOpen"
+  (closed)="onGroupCreated($event)"
+></app-group-create>
+
+<div *ngIf="item.kind === 'group-call'" class="call-entry">
+  <div class="call-entry-bubble status-accepted">
+    <mat-icon>{{
+      item.groupCall!.callType === "VIDEO" ? "videocam" : "call"
+    }}</mat-icon>
+    <span
+      >{{ item.groupCall!.startedByName }} started a
+      {{ item.groupCall!.callType === "VIDEO" ? "video" : "audio" }} call</span
+    >
+  </div>
+  <div class="group-call-participants">
+    <span
+      *ngFor="let p of item.groupCall!.participants"
+      [ngClass]="'outcome-' + p.outcome.toLowerCase()"
+    >
+      {{ p.name }}:
+      {{
+        p.outcome === "JOINED"
+          ? "Joined"
+          : p.outcome === "DECLINED"
+            ? "Declined"
+            : p.outcome === "MISSED"
+              ? "Missed (offline)"
+              : "No answer"
+      }}
+    </span>
   </div>
 </div>

@@ -298,3 +298,10 @@
   width: 18px;
   height: 18px;
 }
+
+.sender-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+  font-weight: 500;
+}
