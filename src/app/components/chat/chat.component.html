@@ -123,6 +123,7 @@
 
     <div class="messages" #messageContainer>
       <ng-container *ngFor="let item of timeline">
+        <!-- Regular text message -->
         <div
           *ngIf="item.kind === 'message'"
           class="message"
@@ -142,6 +143,7 @@
           }}</span>
         </div>
 
+        <!-- 1:1 call log entry -->
         <div
           *ngIf="item.kind === 'call'"
           class="call-entry"
@@ -169,6 +171,46 @@
             item.call!.startedAt | date: "shortTime"
           }}</span>
         </div>
+
+        <!-- Group call log entry -->
+        <div
+          *ngIf="item.kind === 'group-call'"
+          class="call-entry group-call-entry"
+        >
+          <div class="call-entry-bubble status-accepted">
+            <mat-icon>{{
+              item.groupCall!.callType === "VIDEO" ? "videocam" : "call"
+            }}</mat-icon>
+            <span>
+              {{ item.groupCall!.startedByName }} started a
+              {{ item.groupCall!.callType === "VIDEO" ? "video" : "audio" }}
+              call
+            </span>
+          </div>
+          <div class="group-call-participants">
+            <span
+              *ngFor="let p of item.groupCall!.participants"
+              class="participant-chip"
+              [ngClass]="'outcome-' + p.outcome.toLowerCase()"
+            >
+              {{ p.name }}:
+              {{
+                p.outcome === "JOINED"
+                  ? "Joined"
+                  : p.outcome === "DECLINED"
+                    ? "Declined"
+                    : p.outcome === "MISSED"
+                      ? "Missed (offline)"
+                      : p.outcome === "CANCELLED"
+                        ? "Call ended before answering"
+                        : "No answer"
+              }}
+            </span>
+          </div>
+          <span class="time">{{
+            item.groupCall!.startedAt | date: "shortTime"
+          }}</span>
+        </div>
       </ng-container>
     </div>
 
@@ -191,7 +233,7 @@
   </div>
 </div>
 
-<!-- Incoming call modal (1:1 and group) -->
+<!-- 1:1 incoming -->
 <div class="call-backdrop" *ngIf="incomingCall"></div>
 <div class="call-modal" *ngIf="incomingCall">
   <div class="call-modal-icon">
@@ -199,18 +241,8 @@
       incomingCall.callType === "video" ? "videocam" : "call"
     }}</mat-icon>
   </div>
-  <div class="call-modal-title">
-    {{
-      incomingCall.groupId ? incomingCall.groupName : incomingCall.callerName
-    }}
-  </div>
-  <div class="call-modal-sub">
-    {{
-      incomingCall.groupId
-        ? incomingCall.callerName + " started a group call"
-        : "Incoming " + incomingCall.callType + " call…"
-    }}
-  </div>
+  <div class="call-modal-title">{{ incomingCall.callerName }}</div>
+  <div class="call-modal-sub">Incoming {{ incomingCall.callType }} call…</div>
   <div class="call-modal-actions">
     <button class="call-decline" (click)="declineCall()">
       <mat-icon>call_end</mat-icon>
@@ -221,7 +253,7 @@
   </div>
 </div>
 
-<!-- Outgoing call modal (1:1 only — group calls navigate immediately, no ringing wait) -->
+<!-- 1:1 outgoing -->
 <div class="call-backdrop" *ngIf="outgoingCall"></div>
 <div class="call-modal" *ngIf="outgoingCall">
   <div class="call-modal-icon calling">
@@ -238,37 +270,47 @@
   </div>
 </div>
 
+<!-- Group incoming -->
+<div class="call-backdrop" *ngIf="incomingGroupCall"></div>
+<div class="call-modal" *ngIf="incomingGroupCall">
+  <div class="call-modal-icon">
+    <mat-icon>{{
+      incomingGroupCall.callType === "video" ? "videocam" : "call"
+    }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ incomingGroupCall.groupName }}</div>
+  <div class="call-modal-sub">
+    {{ incomingGroupCall.callerName }} started a group call
+  </div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="declineGroupCall()">
+      <mat-icon>call_end</mat-icon>
+    </button>
+    <button class="call-accept" (click)="acceptGroupCall()">
+      <mat-icon>call</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- Group outgoing -->
+<div class="call-backdrop" *ngIf="outgoingGroupCall"></div>
+<div class="call-modal" *ngIf="outgoingGroupCall">
+  <div class="call-modal-icon calling">
+    <mat-icon>{{
+      outgoingGroupCall.callType === "video" ? "videocam" : "call"
+    }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ outgoingGroupCall.groupName }}</div>
+  <div class="call-modal-sub">Calling group…</div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="cancelOutgoingGroupCall()">
+      <mat-icon>call_end</mat-icon>
+    </button>
+  </div>
+</div>
+
 <!-- Group creation modal -->
 <app-group-create
   [isOpen]="groupCreateOpen"
   (closed)="onGroupCreated($event)"
 ></app-group-create>
-
-<div *ngIf="item.kind === 'group-call'" class="call-entry">
-  <div class="call-entry-bubble status-accepted">
-    <mat-icon>{{
-      item.groupCall!.callType === "VIDEO" ? "videocam" : "call"
-    }}</mat-icon>
-    <span
-      >{{ item.groupCall!.startedByName }} started a
-      {{ item.groupCall!.callType === "VIDEO" ? "video" : "audio" }} call</span
-    >
-  </div>
-  <div class="group-call-participants">
-    <span
-      *ngFor="let p of item.groupCall!.participants"
-      [ngClass]="'outcome-' + p.outcome.toLowerCase()"
-    >
-      {{ p.name }}:
-      {{
-        p.outcome === "JOINED"
-          ? "Joined"
-          : p.outcome === "DECLINED"
-            ? "Declined"
-            : p.outcome === "MISSED"
-              ? "Missed (offline)"
-              : "No answer"
-      }}
-    </span>
-  </div>
-</div>

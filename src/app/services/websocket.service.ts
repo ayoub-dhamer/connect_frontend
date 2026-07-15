@@ -52,8 +52,27 @@ export interface CallSignal {
   callerName: string;
   receiverEmail: string;
   startedAt?: string;
-  groupId?: number;
-  groupName?: string;
+}
+
+export type GroupCallSignalType =
+  | 'invite'
+  | 'accept'
+  | 'decline'
+  | 'cancel'
+  | 'ended'
+  | 'all-declined';
+
+export interface GroupCallSignal {
+  type: GroupCallSignalType;
+  callId: string;
+  roomId: string;
+  callType: 'video' | 'audio';
+  callerEmail: string;
+  callerName: string;
+  groupId: number;
+  groupName: string;
+  respondentEmail?: string;
+  startedAt?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -82,8 +101,11 @@ export class WebSocketService {
 
   private callSignalSubject = new Subject<CallSignal>();
   public callSignal$ = this.callSignalSubject.asObservable();
-
   private callSignalSubscription: any;
+
+  private groupCallSignalSubject = new Subject<GroupCallSignal>();
+  public groupCallSignal$ = this.groupCallSignalSubject.asObservable();
+  private groupCallSignalSubscription: any;
 
   private groupMessageSubjects = new Map<number, Subject<GroupMessage>>();
   private groupSubscriptions = new Map<number, any>();
@@ -140,7 +162,8 @@ export class WebSocketService {
       console.log('✅ STOMP connected');
       this.subscribeToChat();
       this.subscribeToCallSignals();
-      this.connectedSubject.next(true); // ← add this
+      this.subscribeToGroupCallSignals(); // add
+      this.connectedSubject.next(true);
     };
 
     this.client.onStompError = (frame: any) => {
@@ -181,21 +204,33 @@ export class WebSocketService {
     this.callSignalSubscription = this.client.subscribe(
       '/user/queue/call-signal',
       (message: any) => {
-        if (message.body) {
-          const signal: CallSignal = JSON.parse(message.body);
-          this.callSignalSubject.next(signal);
-        }
+        if (message.body) this.callSignalSubject.next(JSON.parse(message.body));
+      },
+    );
+  }
+
+  private subscribeToGroupCallSignals(): void {
+    this.groupCallSignalSubscription = this.client.subscribe(
+      '/user/queue/group-call-signal',
+      (message: any) => {
+        if (message.body)
+          this.groupCallSignalSubject.next(JSON.parse(message.body));
       },
     );
   }
 
   sendCallSignal(signal: CallSignal): void {
-    if (!this.client?.active) {
-      console.warn('Cannot send call signal — STOMP not connected');
-      return;
-    }
+    if (!this.client?.active) return;
     this.client.publish({
       destination: '/app/call/signal',
+      body: JSON.stringify(signal),
+    });
+  }
+
+  sendGroupCallSignal(signal: GroupCallSignal): void {
+    if (!this.client?.active) return;
+    this.client.publish({
+      destination: '/app/group-call/signal',
       body: JSON.stringify(signal),
     });
   }
@@ -203,12 +238,11 @@ export class WebSocketService {
   disconnect(): void {
     this.chatSubscription?.unsubscribe();
     this.callSignalSubscription?.unsubscribe();
+    this.groupCallSignalSubscription?.unsubscribe(); // add
     this.signalingSubscriptions.forEach((sub) => sub.unsubscribe());
     this.signalingSubscriptions.clear();
-
     if (this.client?.active) {
       this.client.deactivate();
-      console.log('🔌 STOMP disconnected');
     }
   }
 

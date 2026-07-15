@@ -4,12 +4,12 @@
   </aside>
 
   <div class="main">
-    <app-home-header
-      (toggleSidebarForMe)="sideBarToggler()">
-    </app-home-header>
+    <app-home-header (toggleSidebarForMe)="sideBarToggler()"> </app-home-header>
 
     <div class="content">
       <router-outlet></router-outlet>
     </div>
   </div>
 </div>
+
+<app-call-overlay></app-call-overlay>

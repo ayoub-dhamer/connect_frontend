@@ -22,7 +22,7 @@ export interface GroupMessage {
 export interface ParticipantOutcome {
   email: string;
   name: string;
-  outcome: 'JOINED' | 'DECLINED' | 'MISSED' | 'NO_ANSWER';
+  outcome: 'JOINED' | 'DECLINED' | 'MISSED' | 'NO_ANSWER' | 'CANCELLED';
 }
 
 export interface GroupCallSession {

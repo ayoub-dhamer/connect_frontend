@@ -5,12 +5,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ChatMessage } from './websocket.service';
 import { CallLog } from './call.service';
+import { GroupCallSession } from './group.service';
 
 export interface TimelineItem {
-  kind: 'message' | 'call';
+  kind: 'message' | 'call' | 'group-call';
   timestamp: string;
   message: ChatMessage | null;
   call: CallLog | null;
+  groupCall?: GroupCallSession | null;
 }
 
 @Injectable({ providedIn: 'root' })

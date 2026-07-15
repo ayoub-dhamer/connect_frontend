@@ -14,6 +14,7 @@ import {
 } from '../../services/websocket.service';
 import { AuthService } from '../../services/auth.service';
 import { CallService } from 'src/app/services/call.service';
+import { CallSignalService } from 'src/app/services/call-signal.service';
 
 interface RemotePeer {
   id: string;
@@ -100,6 +101,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     private auth: AuthService,
     private router: Router,
     private callService: CallService,
+    private callSignal: CallSignalService,
   ) {}
 
   ngOnInit(): void {
@@ -187,22 +189,6 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       });
       // Announce our starting status once tracks are live
       this.broadcastStatus();
-
-      // Record that we actually joined (group calls only — 1:1 already
-      // handled via the accept/decline handshake in ChatComponent).
-      if (this.isGroup && this.callId) {
-        this.ws.sendCallSignal({
-          type: 'accept',
-          callId: this.callId,
-          roomId: this.roomId,
-          callType: this.callType,
-          callerEmail: this.currentUserEmail, // "whoever is joining" — see backend note
-          callerName: '',
-          receiverEmail: '',
-          groupId: this.groupId!,
-          groupName: this.groupName,
-        });
-      }
     } catch (e) {
       console.error('Could not access camera/mic', e);
     }
@@ -542,14 +528,14 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     });
 
     if (this.isGroup && this.callId) {
-      this.ws.sendCallSignal({
+      this.ws.sendGroupCallSignal({
         type: 'ended',
         callId: this.callId,
         roomId: this.roomId,
         callType: this.callType,
         callerEmail: this.currentUserEmail,
         callerName: '',
-        receiverEmail: '',
+        respondentEmail: '',
         groupId: this.groupId!,
         groupName: this.groupName,
       });
@@ -593,6 +579,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
         });
     }
 
+    this.callSignal.markInCall(false);
     this.router.navigate(['/user/chat'], {
       queryParams: this.isGroup
         ? { group: this.groupId }

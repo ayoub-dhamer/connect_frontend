@@ -75,6 +75,7 @@ import { CsrfInterceptor } from './interceptors/csrf.interceptor';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsComponent } from './components/settings/settings.component';
 import { GroupCreateComponent } from './components/group-create/group-create.component';
+import { CallOverlayComponent } from './components/call-overlay/call-overlay.component';
 
 @NgModule({
   declarations: [
@@ -103,6 +104,7 @@ import { GroupCreateComponent } from './components/group-create/group-create.com
     HomeComponent,
     SettingsComponent,
     GroupCreateComponent,
+    CallOverlayComponent,
   ],
   imports: [
     BrowserModule,

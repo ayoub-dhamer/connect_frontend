@@ -1,0 +1,61 @@
+<div class="call-backdrop" *ngIf="callSignal.incomingCall$ | async"></div>
+<div class="call-modal" *ngIf="callSignal.incomingCall$ | async as call">
+  <div class="call-modal-icon">
+    <mat-icon>{{ call.callType === "video" ? "videocam" : "call" }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ call.callerName }}</div>
+  <div class="call-modal-sub">Incoming {{ call.callType }} call…</div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="callSignal.declineCall()">
+      <mat-icon>call_end</mat-icon>
+    </button>
+    <button class="call-accept" (click)="callSignal.acceptCall()">
+      <mat-icon>call</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div class="call-backdrop" *ngIf="callSignal.outgoingCall$ | async"></div>
+<div class="call-modal" *ngIf="callSignal.outgoingCall$ | async as call">
+  <div class="call-modal-icon calling">
+    <mat-icon>{{ call.callType === "video" ? "videocam" : "call" }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ call.receiverEmail }}</div>
+  <div class="call-modal-sub">Ringing…</div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="callSignal.cancelOutgoingCall()">
+      <mat-icon>call_end</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div class="call-backdrop" *ngIf="callSignal.incomingGroupCall$ | async"></div>
+<div class="call-modal" *ngIf="callSignal.incomingGroupCall$ | async as call">
+  <div class="call-modal-icon">
+    <mat-icon>{{ call.callType === "video" ? "videocam" : "call" }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ call.groupName }}</div>
+  <div class="call-modal-sub">{{ call.callerName }} started a group call</div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="callSignal.declineGroupCall()">
+      <mat-icon>call_end</mat-icon>
+    </button>
+    <button class="call-accept" (click)="callSignal.acceptGroupCall()">
+      <mat-icon>call</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div class="call-backdrop" *ngIf="callSignal.outgoingGroupCall$ | async"></div>
+<div class="call-modal" *ngIf="callSignal.outgoingGroupCall$ | async as call">
+  <div class="call-modal-icon calling">
+    <mat-icon>{{ call.callType === "video" ? "videocam" : "call" }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ call.groupName }}</div>
+  <div class="call-modal-sub">Calling group…</div>
+  <div class="call-modal-actions">
+    <button class="call-decline" (click)="callSignal.cancelOutgoingGroupCall()">
+      <mat-icon>call_end</mat-icon>
+    </button>
+  </div>
+</div>

@@ -305,3 +305,43 @@
   margin-bottom: 2px;
   font-weight: 500;
 }
+
+.group-call-entry {
+  align-items: flex-start;
+}
+
+.group-call-participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.participant-chip {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.participant-chip.outcome-joined {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.participant-chip.outcome-declined,
+.participant-chip.outcome-missed {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.participant-chip.outcome-no_answer {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.participant-chip.outcome-cancelled {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
