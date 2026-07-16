@@ -5,25 +5,22 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import {
   WebSocketService,
   ChatMessage,
-  CallSignal,
-  GroupCallSignal,
 } from '../../services/websocket.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { ChatService } from '../../services/chat.service';
-import { CallService, CallLog } from '../../services/call.service';
+import { CallLog } from '../../services/call.service';
 import {
   ConversationService,
   TimelineItem,
 } from '../../services/conversation.service';
-import { ToastMessageService } from 'src/app/services/toast-message.service';
-import { Group, GroupService } from 'src/app/services/group.service';
-import { GroupCreateComponent } from '../../components/group-create/group-create.component';
+import { Group, GroupService } from '../../services/group.service';
+import { CallSignalService } from '../../services/call-signal.service';
 
 @Component({
   selector: 'app-chat',
@@ -38,55 +35,35 @@ export class ChatComponent implements OnInit, OnDestroy {
   currentUserEmail = '';
   currentUserName = '';
 
-  //incomingCall: CallSignal | null = null;
-  //outgoingCall: CallSignal | null = null;
-
-  //incomingGroupCall: GroupCallSignal | null = null;
-  //outgoingGroupCall: GroupCallSignal | null = null;
-
-  private sub!: Subscription;
-  private callSub!: Subscription;
-  private groupCallSub!: Subscription;
-
-  private outgoingCallTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  @ViewChild('messageContainer') messageContainer!: ElementRef;
-
-  private ringtoneAudio: HTMLAudioElement | null = null;
-
-  private inCall = false;
-
-  private readonly tabId = crypto.randomUUID();
-
-  private readonly OUTGOING_LOCK_KEY = 'outgoing-call-lock';
-  private readonly OUTGOING_LOCK_TTL_MS = 45000; // slightly longer than the 30s ring timeout
-
   groups: Group[] = [];
   selectedGroup: Group | null = null;
   groupCreateOpen = false;
 
+  groupSettingsOpen = false;
+
+  private sub!: Subscription;
   private groupChatSub: Subscription | null = null;
+  private callLoggedSub!: Subscription;
+
+  @ViewChild('messageContainer') messageContainer!: ElementRef;
 
   constructor(
     private ws: WebSocketService,
     private auth: AuthService,
     private userService: UserService,
     private chatService: ChatService,
-    private callService: CallService,
-    private router: Router,
     private route: ActivatedRoute,
     private conversationService: ConversationService,
-    private toast: ToastMessageService,
     private groupService: GroupService,
+    public callSignal: CallSignalService,
   ) {}
 
   ngOnInit(): void {
-    this.inCall = false;
-
     this.auth.loadUser().subscribe((user) => {
       if (user) {
         this.currentUserEmail = user.email;
         this.currentUserName = user.name;
+        this.callSignal.init(user.email, user.name);
       }
     });
 
@@ -112,80 +89,37 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.callSub = this.ws.callSignal$.subscribe((signal) => {
-      this.handleCallSignal(signal);
-    });
-
-    this.groupCallSub = this.ws.groupCallSignal$.subscribe((signal) =>
-      this.handleGroupCallSignal(signal),
+    // Resolved 1:1 calls (missed/declined) get appended to the open
+    // conversation's timeline live, if that conversation is the one open.
+    this.callLoggedSub = this.callSignal.callLogged$.subscribe(
+      ({ call, status, startedAt }) => {
+        this.pushLocalCallEntry(call, status, startedAt);
+      },
     );
 
     this.groupService
       .getMyGroups()
       .subscribe((groups) => (this.groups = groups));
-
-    window.addEventListener('beforeunload', this.handleUnload);
   }
 
-  private handleGroupCallSignal(signal: GroupCallSignal): void {
-    switch (signal.type) {
-      case 'invite':
-        if (
-          this.inCall ||
-          this.outgoingCall ||
-          this.incomingCall ||
-          this.outgoingGroupCall ||
-          this.incomingGroupCall
-        ) {
-          this.ws.sendGroupCallSignal({
-            ...signal,
-            type: 'decline',
-            respondentEmail: this.currentUserEmail,
-          });
-          return;
-        }
-        if (!this.claimCall(signal.callId)) return;
-        this.incomingGroupCall = signal;
-        this.startRingtone();
-        break;
+  openGroupSettings(): void {
+    this.groupSettingsOpen = true;
+  }
 
-      case 'accept':
-        if (this.outgoingGroupCall?.callId === signal.callId) {
-          this.clearOutgoingTimeout();
-          this.stopRingtone();
-          this.releaseOutgoing();
-          const call = this.outgoingGroupCall;
-          this.outgoingGroupCall = null;
-          this.playCallAcceptedTone();
-          this.navigateToGroupRoom(call);
-        } else {
-          this.toast.info(`${signal.respondentEmail} joined the call`);
-        }
-        break;
+  onGroupSettingsClosed(result: Group | 'deleted' | 'left' | null): void {
+    this.groupSettingsOpen = false;
 
-      case 'decline':
-        if (this.outgoingGroupCall?.callId === signal.callId) {
-          this.toast.info(`${signal.respondentEmail} declined`);
-        }
-        break;
+    if (result === 'deleted' || result === 'left') {
+      this.groups = this.groups.filter((g) => g.id !== this.selectedGroup?.id);
+      this.selectedGroup = null;
+      this.timeline = [];
+      return;
+    }
 
-      case 'all-declined':
-        if (this.outgoingGroupCall?.callId === signal.callId) {
-          this.clearOutgoingTimeout();
-          this.stopRingtone();
-          this.releaseOutgoing();
-          this.outgoingGroupCall = null;
-          this.toast.info('Everyone declined the call');
-        }
-        break;
-
-      case 'cancel':
-        if (this.incomingGroupCall?.callId === signal.callId) {
-          this.stopRingtone();
-          this.releaseClaim(signal.callId);
-          this.incomingGroupCall = null;
-        }
-        break;
+    if (result) {
+      const idx = this.groups.findIndex((g) => g.id === result.id);
+      if (idx >= 0) this.groups[idx] = result;
+      this.selectedGroup = result;
     }
   }
 
@@ -275,115 +209,13 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   startGroupCall(type: 'video' | 'audio'): void {
-    if (
-      !this.selectedGroup ||
-      this.inCall ||
-      this.outgoingCall ||
-      this.incomingCall ||
-      this.outgoingGroupCall ||
-      this.incomingGroupCall
-    )
-      return;
-    if (!this.claimOutgoing()) {
-      this.toast.info('You already have a call in progress in another tab');
-      return;
-    }
-
-    const callId = crypto.randomUUID();
-    const roomId = `group-${this.selectedGroup.id}-${callId}`;
-
-    const invite: GroupCallSignal = {
-      type: 'invite',
-      callId,
-      roomId,
-      callType: type,
-      callerEmail: this.currentUserEmail,
-      callerName: this.currentUserName,
-      groupId: this.selectedGroup.id,
-      groupName: this.selectedGroup.name,
-    };
-
-    this.outgoingGroupCall = invite;
-    this.ws.sendGroupCallSignal(invite);
-    this.startRingtone();
-
-    this.outgoingCallTimeout = setTimeout(() => {
-      if (this.outgoingGroupCall?.callId === callId)
-        this.cancelOutgoingGroupCall();
-    }, 30000);
+    if (!this.selectedGroup) return;
+    this.callSignal.startGroupCall(
+      this.selectedGroup.id,
+      this.selectedGroup.name,
+      type,
+    );
   }
-
-  cancelOutgoingGroupCall(): void {
-    if (!this.outgoingGroupCall) return;
-    const call = this.outgoingGroupCall;
-
-    this.clearOutgoingTimeout();
-    this.stopRingtone();
-    this.releaseOutgoing();
-
-    this.ws.sendGroupCallSignal({ ...call, type: 'cancel' });
-    this.outgoingGroupCall = null;
-  }
-
-  acceptGroupCall(): void {
-    if (!this.incomingGroupCall) return;
-    const call = this.incomingGroupCall;
-    this.incomingGroupCall = null;
-    this.stopRingtone();
-    this.releaseClaim(call.callId);
-
-    this.ws.sendGroupCallSignal({
-      ...call,
-      type: 'accept',
-      respondentEmail: this.currentUserEmail,
-    });
-    this.playCallAcceptedTone();
-    this.navigateToGroupRoom(call);
-  }
-
-  declineGroupCall(): void {
-    if (!this.incomingGroupCall) return;
-    const call = this.incomingGroupCall;
-    this.incomingGroupCall = null;
-    this.stopRingtone();
-    this.releaseClaim(call.callId);
-
-    this.ws.sendGroupCallSignal({
-      ...call,
-      type: 'decline',
-      respondentEmail: this.currentUserEmail,
-    });
-  }
-
-  private navigateToGroupRoom(call: GroupCallSignal): void {
-    this.inCall = true;
-    this.router.navigate(['/user/video', call.roomId], {
-      queryParams: {
-        type: call.callType,
-        callId: call.callId,
-        groupId: call.groupId,
-        groupName: call.groupName,
-        isGroup: true,
-      },
-    });
-  }
-
-  private handleUnload = (): void => {
-    if (this.outgoingCall) {
-      this.ws.sendCallSignal({
-        ...this.outgoingCall,
-        type: 'cancel',
-        receiverEmail: this.outgoingCall.receiverEmail,
-      });
-    }
-    if (this.incomingCall) {
-      this.ws.sendCallSignal({
-        ...this.incomingCall,
-        type: 'decline',
-        receiverEmail: this.incomingCall.callerEmail,
-      });
-    }
-  };
 
   private isForCurrentConversation(msg: ChatMessage): boolean {
     return (
@@ -402,107 +234,9 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  private handleCallSignal(signal: CallSignal): void {
-    switch (signal.type) {
-      case 'invite':
-        if (this.inCall || this.outgoingCall || this.incomingCall) {
-          this.ws.sendCallSignal({
-            ...signal,
-            type: 'decline',
-            receiverEmail: signal.callerEmail,
-          });
-          return;
-        }
-        if (!this.claimCall(signal.callId)) return;
-        this.incomingCall = signal;
-        this.startRingtone();
-        break;
-
-      case 'accept':
-        if (this.outgoingCall?.callId === signal.callId) {
-          this.clearOutgoingTimeout();
-          this.stopRingtone();
-          this.releaseOutgoing();
-          const call = this.outgoingCall;
-          this.outgoingCall = null;
-          this.playCallAcceptedTone();
-          this.navigateToRoom(call, call.receiverEmail);
-        }
-        break;
-      case 'decline':
-        if (this.outgoingCall?.callId === signal.callId) {
-          this.clearOutgoingTimeout();
-          this.stopRingtone();
-          this.releaseOutgoing();
-          const call = this.outgoingCall;
-          this.outgoingCall = null;
-          this.pushLocalCallEntry(
-            call,
-            'DECLINED',
-            signal.startedAt ?? new Date().toISOString(),
-          );
-        }
-        break;
-      case 'busy':
-        if (this.outgoingCall?.callId === signal.callId) {
-          this.clearOutgoingTimeout();
-          this.stopRingtone();
-          this.releaseOutgoing();
-          const call = this.outgoingCall;
-          this.outgoingCall = null;
-          this.pushLocalCallEntry(
-            call,
-            'MISSED',
-            signal.startedAt ?? new Date().toISOString(),
-          );
-          this.toast.info(
-            `${this.selectedUser?.name ?? 'They'} are on another call`,
-          );
-        }
-        break;
-      case 'cancel':
-        if (this.incomingCall?.callId === signal.callId) {
-          this.stopRingtone();
-          this.releaseClaim(signal.callId);
-          const call = this.incomingCall;
-          this.incomingCall = null;
-          this.pushLocalCallEntry(
-            call,
-            'MISSED',
-            signal.startedAt ?? new Date().toISOString(),
-          );
-        }
-        break;
-    }
-  }
-
-  private claimCall(callId: string): boolean {
-    const key = `call-claim-${callId}`;
-    if (localStorage.getItem(key)) return false;
-    localStorage.setItem(key, this.tabId);
-    return true;
-  }
-
-  private releaseClaim(callId: string): void {
-    localStorage.removeItem(`call-claim-${callId}`);
-  }
-
-  private navigateToRoom(call: CallSignal, otherEmail: string): void {
-    this.inCall = true;
-    this.router.navigate(['/user/video', call.roomId], {
-      queryParams: {
-        type: call.callType,
-        callId: call.callId,
-        callerEmail: call.callerEmail,
-        receiverEmail: call.receiverEmail,
-        otherEmail,
-        isGroup: false,
-      },
-    });
-  }
-
   selectUser(user: any): void {
     this.selectedUser = user;
+    this.selectedGroup = null;
     this.timeline = [];
 
     this.conversationService.getTimeline(user.email).subscribe({
@@ -513,30 +247,6 @@ export class ChatComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Failed to load conversation:', err),
     });
   }
-
-  /*private mergeMessages(messages: ChatMessage[]): void {
-    const items: TimelineItem[] = messages.map((m) => ({
-      kind: 'message',
-      data: m,
-      time: new Date(m.timestamp!).getTime(),
-    }));
-    this.timeline = [...this.timeline, ...items].sort(
-      (a, b) => a.time - b.time,
-    );
-    this.scrollToBottom();
-  }
-
-  private mergeCalls(calls: CallLog[]): void {
-    const items: TimelineItem[] = calls.map((c) => ({
-      kind: 'call',
-      data: c,
-      time: new Date(c.startedAt).getTime(),
-    }));
-    this.timeline = [...this.timeline, ...items].sort(
-      (a, b) => a.time - b.time,
-    );
-    this.scrollToBottom();
-  }*/
 
   send(): void {
     if (this.selectedGroup) {
@@ -563,185 +273,19 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
   }
 
-  // ── Calling ─────────────────────────────────────────────
+  // ── Calling — just delegates to the global service ──────
 
   startCall(type: 'video' | 'audio'): void {
-    if (
-      !this.selectedUser ||
-      this.inCall ||
-      this.outgoingCall ||
-      this.incomingCall
-    )
-      return;
-    if (!this.claimOutgoing()) {
-      this.toast.info('You already have a call in progress in another tab');
-      return;
-    }
-
-    const roomId = this.buildRoomId(
-      this.currentUserEmail,
+    if (!this.selectedUser) return;
+    this.callSignal.startCall(
       this.selectedUser.email,
+      this.selectedUser.name,
+      type,
     );
-    const callId = crypto.randomUUID();
-
-    const invite: CallSignal = {
-      type: 'invite',
-      callId,
-      roomId,
-      callType: type,
-      callerEmail: this.currentUserEmail,
-      callerName: this.currentUserName,
-      receiverEmail: this.selectedUser.email,
-    };
-
-    this.outgoingCall = invite;
-    this.ws.sendCallSignal(invite);
-    this.startRingtone();
-
-    this.outgoingCallTimeout = setTimeout(() => {
-      if (this.outgoingCall?.callId === callId) this.cancelOutgoingCall();
-    }, 30000);
-  }
-
-  private claimOutgoing(): boolean {
-    const existing = localStorage.getItem(this.OUTGOING_LOCK_KEY);
-    if (existing) {
-      const { timestamp } = JSON.parse(existing);
-      if (Date.now() - timestamp < this.OUTGOING_LOCK_TTL_MS) {
-        return false; // another tab already has an active outgoing call
-      }
-      // stale lock (older tab crashed/closed without releasing) — reclaim it
-    }
-    localStorage.setItem(
-      this.OUTGOING_LOCK_KEY,
-      JSON.stringify({ tabId: this.tabId, timestamp: Date.now() }),
-    );
-    return true;
-  }
-
-  private releaseOutgoing(): void {
-    const existing = localStorage.getItem(this.OUTGOING_LOCK_KEY);
-    if (existing) {
-      const { tabId } = JSON.parse(existing);
-      if (tabId === this.tabId) {
-        localStorage.removeItem(this.OUTGOING_LOCK_KEY);
-      }
-    }
-  }
-
-  cancelOutgoingCall(): void {
-    if (!this.outgoingCall) return;
-    const call = this.outgoingCall;
-
-    this.clearOutgoingTimeout();
-    this.stopRingtone();
-    this.releaseOutgoing();
-
-    const startedAt = new Date().toISOString();
-    this.ws.sendCallSignal({
-      ...call,
-      type: 'cancel',
-      receiverEmail: call.receiverEmail,
-      startedAt,
-    });
-    this.outgoingCall = null;
-
-    this.callService
-      .logCall({
-        callId: call.callId,
-        callerEmail: call.callerEmail,
-        receiverEmail: call.receiverEmail,
-        callType: call.callType.toUpperCase() as 'VIDEO' | 'AUDIO',
-        status: 'MISSED',
-        startedAt,
-      })
-      .subscribe({
-        next: () => this.pushLocalCallEntry(call, 'MISSED', startedAt),
-        error: (err) => console.error('Failed to log call:', err),
-      });
-  }
-
-  private clearOutgoingTimeout(): void {
-    if (this.outgoingCallTimeout) {
-      clearTimeout(this.outgoingCallTimeout);
-      this.outgoingCallTimeout = null;
-    }
-  }
-
-  acceptCall(): void {
-    if (!this.incomingCall) return;
-    const call = this.incomingCall;
-    this.incomingCall = null;
-    this.stopRingtone();
-    this.releaseClaim(call.callId);
-
-    this.ws.sendCallSignal({
-      ...call,
-      type: 'accept',
-      receiverEmail: call.callerEmail,
-    });
-    this.playCallAcceptedTone();
-    this.navigateToRoom(call, call.callerEmail);
-  }
-
-  private playCallAcceptedTone(): void {
-    const audio = new Audio('assets/sounds/call-accepted.mp3');
-    audio.volume = 0.5;
-    audio.play().catch(() => {
-      // Non-critical if blocked — skip silently.
-    });
-  }
-
-  declineCall(): void {
-    if (!this.incomingCall) return;
-    const call = this.incomingCall;
-    this.incomingCall = null;
-    this.stopRingtone();
-    this.releaseClaim(call.callId);
-
-    const startedAt = new Date().toISOString();
-    this.ws.sendCallSignal({
-      ...call,
-      type: 'decline',
-      receiverEmail: call.callerEmail,
-      startedAt,
-    });
-    this.callService
-      .logCall({
-        callId: call.callId,
-        callerEmail: call.callerEmail,
-        receiverEmail: call.receiverEmail,
-        callType: call.callType.toUpperCase() as 'VIDEO' | 'AUDIO',
-        status: 'DECLINED',
-        startedAt,
-      })
-      .subscribe({
-        next: () => this.pushLocalCallEntry(call, 'DECLINED', startedAt),
-        error: (err) => console.error('Failed to log call:', err),
-      });
-  }
-
-  private startRingtone(): void {
-    this.stopRingtone(); // guard against double-start
-    this.ringtoneAudio = new Audio('assets/sounds/ringtone.mp3');
-    this.ringtoneAudio.loop = true;
-    this.ringtoneAudio.volume = 0.6;
-    this.ringtoneAudio.play().catch(() => {
-      // Autoplay may be blocked if this fires with no prior gesture on the page —
-      // non-critical, the visual modal still shows either way.
-    });
-  }
-
-  private stopRingtone(): void {
-    if (this.ringtoneAudio) {
-      this.ringtoneAudio.pause();
-      this.ringtoneAudio.currentTime = 0;
-      this.ringtoneAudio = null;
-    }
   }
 
   private pushLocalCallEntry(
-    call: CallSignal,
+    call: any,
     status: 'MISSED' | 'DECLINED',
     startedAt: string,
   ): void {
@@ -771,10 +315,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
   }
 
-  private buildRoomId(a: string, b: string): string {
-    return [a, b].sort().join('__').replace(/[@.]/g, '-');
-  }
-
   // ── Helpers ─────────────────────────────────────────────
 
   scrollToBottom(): void {
@@ -787,12 +327,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    window.removeEventListener('beforeunload', this.handleUnload);
-
     this.sub?.unsubscribe();
-    this.callSub?.unsubscribe();
-    this.groupCallSub?.unsubscribe();
-    this.clearOutgoingTimeout();
-    this.stopRingtone();
+    this.groupChatSub?.unsubscribe();
+    this.callLoggedSub?.unsubscribe();
   }
 }

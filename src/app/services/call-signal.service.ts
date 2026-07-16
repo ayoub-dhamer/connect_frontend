@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import {
   WebSocketService,
   CallSignal,
@@ -9,12 +9,22 @@ import {
 import { CallService } from './call.service';
 import { ToastMessageService } from './toast-message.service';
 
+export interface LoggedCallEvent {
+  call: CallSignal;
+  status: 'MISSED' | 'DECLINED';
+  startedAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CallSignalService {
   incomingCall$ = new BehaviorSubject<CallSignal | null>(null);
   outgoingCall$ = new BehaviorSubject<CallSignal | null>(null);
   incomingGroupCall$ = new BehaviorSubject<GroupCallSignal | null>(null);
   outgoingGroupCall$ = new BehaviorSubject<GroupCallSignal | null>(null);
+
+  /** Fires whenever a 1:1 call resolves to MISSED/DECLINED, so ChatComponent
+   *  can append it to the open conversation's timeline if relevant. */
+  callLogged$ = new Subject<LoggedCallEvent>();
 
   private inCall = false;
   private outgoingCallTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -24,6 +34,9 @@ export class CallSignalService {
 
   currentUserEmail = '';
   currentUserName = '';
+
+  private readonly OUTGOING_LOCK_KEY = 'outgoing-call-lock';
+  private readonly OUTGOING_LOCK_TTL_MS = 45000;
 
   constructor(
     private ws: WebSocketService,
@@ -45,6 +58,8 @@ export class CallSignalService {
     this.ws.groupCallSignal$.subscribe((signal) =>
       this.handleGroupCallSignal(signal),
     );
+
+    window.addEventListener('beforeunload', this.handleUnload);
   }
 
   markInCall(value: boolean): void {
@@ -114,7 +129,11 @@ export class CallSignalService {
         status: 'MISSED',
         startedAt,
       })
-      .subscribe({ error: (err) => console.error('Failed to log call:', err) });
+      .subscribe({
+        next: () =>
+          this.callLogged$.next({ call, status: 'MISSED', startedAt }),
+        error: (err) => console.error('Failed to log call:', err),
+      });
   }
 
   acceptCall(): void {
@@ -157,7 +176,11 @@ export class CallSignalService {
         status: 'DECLINED',
         startedAt,
       })
-      .subscribe({ error: (err) => console.error('Failed to log call:', err) });
+      .subscribe({
+        next: () =>
+          this.callLogged$.next({ call, status: 'DECLINED', startedAt }),
+        error: (err) => console.error('Failed to log call:', err),
+      });
   }
 
   private navigateToRoom(call: CallSignal, otherEmail: string): void {
@@ -211,7 +234,10 @@ export class CallSignalService {
           this.clearOutgoingTimeout();
           this.stopRingtone();
           this.releaseOutgoing();
+          const call = this.outgoingCall$.value;
           this.outgoingCall$.next(null);
+          const startedAt = signal.startedAt ?? new Date().toISOString();
+          this.callLogged$.next({ call, status: 'DECLINED', startedAt });
         }
         break;
 
@@ -220,7 +246,10 @@ export class CallSignalService {
           this.clearOutgoingTimeout();
           this.stopRingtone();
           this.releaseOutgoing();
+          const call = this.outgoingCall$.value;
           this.outgoingCall$.next(null);
+          const startedAt = signal.startedAt ?? new Date().toISOString();
+          this.callLogged$.next({ call, status: 'MISSED', startedAt });
           this.toast.info('They are on another call');
         }
         break;
@@ -229,7 +258,10 @@ export class CallSignalService {
         if (this.incomingCall$.value?.callId === signal.callId) {
           this.stopRingtone();
           this.releaseClaim(signal.callId);
+          const call = this.incomingCall$.value;
           this.incomingCall$.next(null);
+          const startedAt = signal.startedAt ?? new Date().toISOString();
+          this.callLogged$.next({ call, status: 'MISSED', startedAt });
         }
         break;
     }
@@ -396,6 +428,39 @@ export class CallSignalService {
     }
   }
 
+  // ── Tab close / navigate-away safety net ────────────────
+
+  private handleUnload = (): void => {
+    const outgoing = this.outgoingCall$.value;
+    if (outgoing) {
+      this.ws.sendCallSignal({
+        ...outgoing,
+        type: 'cancel',
+        receiverEmail: outgoing.receiverEmail,
+      });
+    }
+    const incoming = this.incomingCall$.value;
+    if (incoming) {
+      this.ws.sendCallSignal({
+        ...incoming,
+        type: 'decline',
+        receiverEmail: incoming.callerEmail,
+      });
+    }
+    const outgoingGroup = this.outgoingGroupCall$.value;
+    if (outgoingGroup) {
+      this.ws.sendGroupCallSignal({ ...outgoingGroup, type: 'cancel' });
+    }
+    const incomingGroup = this.incomingGroupCall$.value;
+    if (incomingGroup) {
+      this.ws.sendGroupCallSignal({
+        ...incomingGroup,
+        type: 'decline',
+        respondentEmail: this.currentUserEmail,
+      });
+    }
+  };
+
   // ── Shared helpers ──────────────────────────────────────
 
   private buildRoomId(a: string, b: string): string {
@@ -441,9 +506,6 @@ export class CallSignalService {
   private releaseClaim(callId: string): void {
     localStorage.removeItem(`call-claim-${callId}`);
   }
-
-  private readonly OUTGOING_LOCK_KEY = 'outgoing-call-lock';
-  private readonly OUTGOING_LOCK_TTL_MS = 45000;
 
   private claimOutgoing(): boolean {
     const existing = localStorage.getItem(this.OUTGOING_LOCK_KEY);

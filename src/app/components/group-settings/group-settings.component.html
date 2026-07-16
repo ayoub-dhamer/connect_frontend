@@ -1,0 +1,149 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="cancel()"></div>
+<div class="modal-box" *ngIf="isOpen && group">
+  <h3 class="modal-title">Group settings</h3>
+
+  <!-- Avatar -->
+  <div class="avatar-upload-row">
+    <div class="group-avatar-preview">
+      <img *ngIf="group.avatarUrl" [src]="group.avatarUrl" alt="" />
+      <span *ngIf="!group.avatarUrl">{{
+        group.name.slice(0, 2).toUpperCase()
+      }}</span>
+    </div>
+    <label class="avatar-upload-btn" *ngIf="isCreator">
+      {{ uploading ? "Uploading…" : "Change photo" }}
+      <input
+        type="file"
+        accept="image/*"
+        (change)="onAvatarSelected($event)"
+        hidden
+        [disabled]="uploading"
+      />
+    </label>
+  </div>
+
+  <!-- Rename -->
+  <input
+    class="group-name-input"
+    [(ngModel)]="editedName"
+    [disabled]="!isCreator"
+  />
+  <button
+    class="save-name-btn"
+    *ngIf="isCreator && editedName.trim() && editedName !== group.name"
+    (click)="saveRename()"
+  >
+    Save name
+  </button>
+
+  <!-- Members -->
+  <div class="member-list-label" style="margin-top: 16px">
+    Members ({{ group.members.length }})
+  </div>
+  <div class="member-list">
+    <div class="member-item" *ngFor="let m of group.members">
+      <img
+        [src]="m.pictureUrl || 'assets/img/user.jpg'"
+        class="member-avatar"
+      />
+      <div class="member-info">
+        <span class="member-name">
+          {{ m.name }}
+          <span class="creator-badge" *ngIf="m.role === 'OWNER'">Owner</span>
+          <span class="admin-badge" *ngIf="m.role === 'ADMIN'">Admin</span>
+        </span>
+        <span class="member-email">{{ m.email }}</span>
+      </div>
+
+      <ng-container *ngIf="isOwner && m.role !== 'OWNER'">
+        <button
+          class="role-btn"
+          *ngIf="m.role === 'MEMBER'"
+          (click)="promoteToAdmin(m.id)"
+          title="Make admin"
+        >
+          <mat-icon>arrow_upward</mat-icon>
+        </button>
+        <button
+          class="role-btn"
+          *ngIf="m.role === 'ADMIN'"
+          (click)="demoteToMember(m.id)"
+          title="Remove admin"
+        >
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+        <button
+          class="role-btn"
+          (click)="transferOwnership(m.id)"
+          title="Make owner"
+        >
+          <mat-icon>swap_horiz</mat-icon>
+        </button>
+      </ng-container>
+
+      <button
+        class="remove-member-btn"
+        *ngIf="canManage && m.role !== 'OWNER'"
+        (click)="removeMember(m.id)"
+        title="Remove"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <button
+    class="add-members-btn"
+    *ngIf="!addingMembers"
+    (click)="openAddMembers()"
+  >
+    + Add members
+  </button>
+
+  <div *ngIf="addingMembers">
+    <div class="member-list" style="margin-top: 8px">
+      <div
+        *ngFor="let u of allUsers"
+        class="member-item"
+        [class.selected]="selectedIdsToAdd.has(u.id)"
+        (click)="toggleAddMember(u.id)"
+      >
+        <div class="member-checkbox">
+          <mat-icon *ngIf="selectedIdsToAdd.has(u.id)">check</mat-icon>
+        </div>
+        <img
+          [src]="u.pictureUrl || 'assets/img/user.jpg'"
+          class="member-avatar"
+        />
+        <div class="member-info">
+          <span class="member-name">{{ u.name }}</span>
+          <span class="member-email">{{ u.email }}</span>
+        </div>
+      </div>
+      <div class="member-list-empty" *ngIf="allUsers.length === 0">
+        Everyone is already a member
+      </div>
+    </div>
+    <button
+      class="create-btn"
+      [disabled]="selectedIdsToAdd.size === 0"
+      (click)="confirmAddMembers()"
+    >
+      Add {{ selectedIdsToAdd.size || "" }}
+    </button>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="danger-zone">
+    <button class="leave-btn" *ngIf="!isCreator" (click)="leaveGroup()">
+      Leave group
+    </button>
+    <button class="delete-btn-full" *ngIf="isCreator" (click)="deleteGroup()">
+      Delete group
+    </button>
+  </div>
+
+  <button class="cancel-btn" style="margin-top: 8px" (click)="cancel()">
+    Close
+  </button>
+</div>

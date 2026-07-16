@@ -4,7 +4,6 @@
   background: var(--bg-secondary);
 }
 
-/* Sidebar */
 .user-list {
   width: 280px;
   background: var(--bg-primary);
@@ -42,7 +41,6 @@
   object-fit: cover;
 }
 
-/* Chat area */
 .chat-area {
   flex: 1;
   display: flex;
@@ -59,10 +57,6 @@
   font-weight: 600;
   font-size: 16px;
   color: var(--text-primary);
-  justify-content: space-between;
-}
-
-.chat-header {
   justify-content: space-between;
 }
 
@@ -93,92 +87,6 @@
 
 .call-btn:hover {
   background: var(--accent-light);
-}
-
-/* Incoming call modal */
-.call-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-}
-
-.call-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg-primary);
-  border-radius: 16px;
-  padding: 32px 28px;
-  width: 280px;
-  text-align: center;
-  box-shadow: var(--card-shadow);
-  z-index: 1000;
-}
-
-.call-modal-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--accent-light);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-}
-
-.call-modal-icon mat-icon {
-  font-size: 28px;
-  width: 28px;
-  height: 28px;
-}
-
-.call-modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.call-modal-sub {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-}
-
-.call-modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-}
-
-.call-decline,
-.call-accept {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: white;
-  transition: filter 0.15s;
-}
-
-.call-decline {
-  background: var(--danger);
-}
-
-.call-accept {
-  background: #16a34a;
-}
-
-.call-decline:hover,
-.call-accept:hover {
-  filter: brightness(0.9);
 }
 
 .chat-header.empty {
@@ -226,7 +134,6 @@
   margin-top: 4px;
 }
 
-/* Input */
 .input-row {
   display: flex;
   align-items: center;
@@ -249,22 +156,6 @@
 
 .msg-input:focus {
   border-color: var(--accent);
-}
-
-.call-modal-icon.calling {
-  animation: pulse 1.4s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.08);
-    opacity: 0.75;
-  }
 }
 
 .call-entry {
@@ -344,4 +235,13 @@
 .participant-chip.outcome-cancelled {
   background: var(--bg-tertiary);
   color: var(--text-secondary);
+}
+
+.group-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 600;
 }

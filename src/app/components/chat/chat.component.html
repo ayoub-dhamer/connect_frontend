@@ -28,31 +28,72 @@
         <mat-icon>add</mat-icon>
       </button>
     </div>
+    <!-- chat.component.html — sidebar group avatar now shows uploaded image if present -->
     <div
       *ngFor="let g of groups"
       class="user-item"
       [class.active]="selectedGroup?.id === g.id"
       (click)="selectGroup(g)"
     >
-      <div
-        class="avatar"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--accent-light);
-          color: var(--accent);
-          font-weight: 600;
-        "
-      >
+      <div class="avatar group-avatar-fallback" *ngIf="!g.avatarUrl">
         {{ g.name.slice(0, 2).toUpperCase() }}
       </div>
+      <img *ngIf="g.avatarUrl" [src]="g.avatarUrl" class="avatar" />
       <span>{{ g.name }}</span>
     </div>
+
+    <!-- Group header — add a settings button, replace the inline avatar div similarly -->
+    <div class="chat-header" *ngIf="selectedGroup">
+      <div class="chat-header-info">
+        <div
+          class="avatar group-avatar-fallback"
+          *ngIf="!selectedGroup.avatarUrl"
+        >
+          {{ selectedGroup.name.slice(0, 2).toUpperCase() }}
+        </div>
+        <img
+          *ngIf="selectedGroup.avatarUrl"
+          [src]="selectedGroup.avatarUrl"
+          class="avatar"
+        />
+        <span
+          >{{ selectedGroup.name }} ({{ selectedGroup.members.length }})</span
+        >
+      </div>
+      <div class="chat-header-actions">
+        <button
+          class="call-btn"
+          (click)="startGroupCall('audio')"
+          title="Group audio call"
+        >
+          <mat-icon>call</mat-icon>
+        </button>
+        <button
+          class="call-btn"
+          (click)="startGroupCall('video')"
+          title="Group video call"
+        >
+          <mat-icon>videocam</mat-icon>
+        </button>
+        <button
+          class="call-btn"
+          (click)="openGroupSettings()"
+          title="Group settings"
+        >
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <app-group-settings
+      [isOpen]="groupSettingsOpen"
+      [group]="selectedGroup"
+      [currentUserEmail]="currentUserEmail"
+      (closed)="onGroupSettingsClosed($event)"
+    ></app-group-settings>
   </div>
 
   <div class="chat-area">
-    <!-- 1:1 header -->
     <div class="chat-header" *ngIf="selectedUser">
       <div class="chat-header-info">
         <img
@@ -79,7 +120,6 @@
       </div>
     </div>
 
-    <!-- Group header -->
     <div class="chat-header" *ngIf="selectedGroup">
       <div class="chat-header-info">
         <div
@@ -123,7 +163,6 @@
 
     <div class="messages" #messageContainer>
       <ng-container *ngFor="let item of timeline">
-        <!-- Regular text message -->
         <div
           *ngIf="item.kind === 'message'"
           class="message"
@@ -143,7 +182,6 @@
           }}</span>
         </div>
 
-        <!-- 1:1 call log entry -->
         <div
           *ngIf="item.kind === 'call'"
           class="call-entry"
@@ -172,7 +210,6 @@
           }}</span>
         </div>
 
-        <!-- Group call log entry -->
         <div
           *ngIf="item.kind === 'group-call'"
           class="call-entry group-call-entry"
@@ -233,83 +270,6 @@
   </div>
 </div>
 
-<!-- 1:1 incoming -->
-<div class="call-backdrop" *ngIf="incomingCall"></div>
-<div class="call-modal" *ngIf="incomingCall">
-  <div class="call-modal-icon">
-    <mat-icon>{{
-      incomingCall.callType === "video" ? "videocam" : "call"
-    }}</mat-icon>
-  </div>
-  <div class="call-modal-title">{{ incomingCall.callerName }}</div>
-  <div class="call-modal-sub">Incoming {{ incomingCall.callType }} call…</div>
-  <div class="call-modal-actions">
-    <button class="call-decline" (click)="declineCall()">
-      <mat-icon>call_end</mat-icon>
-    </button>
-    <button class="call-accept" (click)="acceptCall()">
-      <mat-icon>call</mat-icon>
-    </button>
-  </div>
-</div>
-
-<!-- 1:1 outgoing -->
-<div class="call-backdrop" *ngIf="outgoingCall"></div>
-<div class="call-modal" *ngIf="outgoingCall">
-  <div class="call-modal-icon calling">
-    <mat-icon>{{
-      outgoingCall.callType === "video" ? "videocam" : "call"
-    }}</mat-icon>
-  </div>
-  <div class="call-modal-title">{{ selectedUser?.name }}</div>
-  <div class="call-modal-sub">Ringing…</div>
-  <div class="call-modal-actions">
-    <button class="call-decline" (click)="cancelOutgoingCall()">
-      <mat-icon>call_end</mat-icon>
-    </button>
-  </div>
-</div>
-
-<!-- Group incoming -->
-<div class="call-backdrop" *ngIf="incomingGroupCall"></div>
-<div class="call-modal" *ngIf="incomingGroupCall">
-  <div class="call-modal-icon">
-    <mat-icon>{{
-      incomingGroupCall.callType === "video" ? "videocam" : "call"
-    }}</mat-icon>
-  </div>
-  <div class="call-modal-title">{{ incomingGroupCall.groupName }}</div>
-  <div class="call-modal-sub">
-    {{ incomingGroupCall.callerName }} started a group call
-  </div>
-  <div class="call-modal-actions">
-    <button class="call-decline" (click)="declineGroupCall()">
-      <mat-icon>call_end</mat-icon>
-    </button>
-    <button class="call-accept" (click)="acceptGroupCall()">
-      <mat-icon>call</mat-icon>
-    </button>
-  </div>
-</div>
-
-<!-- Group outgoing -->
-<div class="call-backdrop" *ngIf="outgoingGroupCall"></div>
-<div class="call-modal" *ngIf="outgoingGroupCall">
-  <div class="call-modal-icon calling">
-    <mat-icon>{{
-      outgoingGroupCall.callType === "video" ? "videocam" : "call"
-    }}</mat-icon>
-  </div>
-  <div class="call-modal-title">{{ outgoingGroupCall.groupName }}</div>
-  <div class="call-modal-sub">Calling group…</div>
-  <div class="call-modal-actions">
-    <button class="call-decline" (click)="cancelOutgoingGroupCall()">
-      <mat-icon>call_end</mat-icon>
-    </button>
-  </div>
-</div>
-
-<!-- Group creation modal -->
 <app-group-create
   [isOpen]="groupCreateOpen"
   (closed)="onGroupCreated($event)"

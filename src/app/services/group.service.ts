@@ -3,11 +3,19 @@ import { ApiService } from './api.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface GroupMember {
+  id: number;
+  email: string;
+  name: string;
+  pictureUrl: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+}
+
 export interface Group {
   id: number;
   name: string;
-  createdByEmail: string;
-  members: { id: number; email: string; name: string; pictureUrl: string }[];
+  avatarUrl: string | null;
+  members: GroupMember[];
 }
 
 export interface GroupMessage {
@@ -40,6 +48,79 @@ export interface GroupCallSession {
 export class GroupService extends ApiService {
   constructor(http: HttpClient) {
     super(http);
+  }
+
+  renameGroup(groupId: number, name: string): Observable<Group> {
+    return this.http.put<Group>(
+      this.url(`groups/${groupId}/rename`),
+      { name },
+      this.options(),
+    );
+  }
+
+  addMembers(groupId: number, memberIds: number[]): Observable<Group> {
+    return this.http.post<Group>(
+      this.url(`groups/${groupId}/members`),
+      { memberIds },
+      this.options(),
+    );
+  }
+
+  removeMember(groupId: number, userId: number): Observable<Group> {
+    return this.http.delete<Group>(
+      this.url(`groups/${groupId}/members/${userId}`),
+      this.options(),
+    );
+  }
+
+  leaveGroup(groupId: number): Observable<void> {
+    return this.http.post<void>(
+      this.url(`groups/${groupId}/leave`),
+      {},
+      this.options(),
+    );
+  }
+
+  deleteGroup(groupId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.url(`groups/${groupId}`),
+      this.options(),
+    );
+  }
+
+  uploadAvatar(groupId: number, file: File): Observable<Group> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Group>(
+      this.url(`groups/${groupId}/avatar`),
+      formData,
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
+  transferOwnership(
+    groupId: number,
+    newOwnerUserId: number,
+  ): Observable<Group> {
+    return this.http.post<Group>(
+      this.url(`groups/${groupId}/transfer-ownership`),
+      { newOwnerUserId },
+      this.options(),
+    );
+  }
+
+  changeRole(
+    groupId: number,
+    userId: number,
+    role: 'ADMIN' | 'MEMBER',
+  ): Observable<Group> {
+    return this.http.put<Group>(
+      this.url(`groups/${groupId}/members/${userId}/role`),
+      { role },
+      this.options(),
+    );
   }
 
   createGroup(name: string, memberIds: number[]): Observable<Group> {

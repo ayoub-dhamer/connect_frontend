@@ -76,6 +76,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsComponent } from './components/settings/settings.component';
 import { GroupCreateComponent } from './components/group-create/group-create.component';
 import { CallOverlayComponent } from './components/call-overlay/call-overlay.component';
+import { GroupSettingsComponent } from './components/group-settings/group-settings.component';
 
 @NgModule({
   declarations: [
@@ -105,6 +106,7 @@ import { CallOverlayComponent } from './components/call-overlay/call-overlay.com
     SettingsComponent,
     GroupCreateComponent,
     CallOverlayComponent,
+    GroupSettingsComponent,
   ],
   imports: [
     BrowserModule,

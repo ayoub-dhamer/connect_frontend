@@ -517,6 +517,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   hangUp(): void {
     if (this.hasHungUp) return;
     this.hasHungUp = true;
+    this.callSignal.markInCall(false);
 
     this.disconnectTimers.forEach((t) => clearTimeout(t)); // add this
     this.disconnectTimers.clear();
@@ -579,7 +580,6 @@ export class VideoCallComponent implements OnInit, OnDestroy {
         });
     }
 
-    this.callSignal.markInCall(false);
     this.router.navigate(['/user/chat'], {
       queryParams: this.isGroup
         ? { group: this.groupId }
