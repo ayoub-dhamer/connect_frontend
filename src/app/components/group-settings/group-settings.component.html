@@ -10,7 +10,7 @@
         group.name.slice(0, 2).toUpperCase()
       }}</span>
     </div>
-    <label class="avatar-upload-btn" *ngIf="isCreator">
+    <label class="avatar-upload-btn" *ngIf="canManage">
       {{ uploading ? "Uploading…" : "Change photo" }}
       <input
         type="file"
@@ -26,11 +26,11 @@
   <input
     class="group-name-input"
     [(ngModel)]="editedName"
-    [disabled]="!isCreator"
+    [disabled]="!canManage"
   />
   <button
     class="save-name-btn"
-    *ngIf="isCreator && editedName.trim() && editedName !== group.name"
+    *ngIf="canManage && editedName.trim() && editedName !== group.name"
     (click)="saveRename()"
   >
     Save name
@@ -135,10 +135,10 @@
 
   <!-- Danger zone -->
   <div class="danger-zone">
-    <button class="leave-btn" *ngIf="!isCreator" (click)="leaveGroup()">
+    <button class="leave-btn" *ngIf="!isOwner" (click)="leaveGroup()">
       Leave group
     </button>
-    <button class="delete-btn-full" *ngIf="isCreator" (click)="deleteGroup()">
+    <button class="delete-btn-full" *ngIf="isOwner" (click)="deleteGroup()">
       Delete group
     </button>
   </div>
