@@ -97,9 +97,10 @@ export class ChatComponent implements OnInit, OnDestroy {
       },
     );
 
-    this.groupService
-      .getMyGroups()
-      .subscribe((groups) => (this.groups = groups));
+    this.groupService.getMyGroups().subscribe((groups) => {
+      console.log(groups);
+      this.groups = groups;
+    });
   }
 
   openGroupSettings(): void {
