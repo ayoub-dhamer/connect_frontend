@@ -26,6 +26,8 @@ export class GroupSettingsComponent implements OnChanges {
   selectedIdsToAdd = new Set<number>();
   uploading = false;
 
+  promoting = new Set<number>();
+
   constructor(
     private groupService: GroupService,
     private userService: UserService,
@@ -48,24 +50,36 @@ export class GroupSettingsComponent implements OnChanges {
   }
 
   promoteToAdmin(userId: number): void {
-    if (!this.group) return;
+    if (!this.group || this.promoting.has(userId)) return;
+    this.promoting.add(userId);
+
     this.groupService.changeRole(this.group.id, userId, 'ADMIN').subscribe({
       next: (updated) => {
         this.group = updated;
         this.closed.emit(updated);
+        this.promoting.delete(userId);
       },
-      error: () => this.toast.error('Failed to change role'),
+      error: () => {
+        this.toast.error('Failed to change role');
+        this.promoting.delete(userId);
+      },
     });
   }
 
   demoteToMember(userId: number): void {
-    if (!this.group) return;
+    if (!this.group || this.promoting.has(userId)) return;
+    this.promoting.add(userId);
+
     this.groupService.changeRole(this.group.id, userId, 'MEMBER').subscribe({
       next: (updated) => {
         this.group = updated;
         this.closed.emit(updated);
+        this.promoting.delete(userId);
       },
-      error: () => this.toast.error('Failed to change role'),
+      error: () => {
+        this.toast.error('Failed to change role');
+        this.promoting.delete(userId);
+      },
     });
   }
 
@@ -164,8 +178,8 @@ export class GroupSettingsComponent implements OnChanges {
         this.uploading = false;
         this.closed.emit(updated);
       },
-      error: () => {
-        this.toast.error('Failed to upload avatar');
+      error: (err) => {
+        this.toast.error(err.error?.error ?? 'Failed to upload avatar');
         this.uploading = false;
       },
     });
