@@ -5,11 +5,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ChatMessage } from './websocket.service';
 import { CallLog } from './call.service';
-import { GroupCallSession } from './group.service';
+import { GroupActivity, GroupCallSession } from './group.service';
 
 export interface TimelineItem {
-  kind: 'message' | 'call' | 'group-call';
+  kind: 'message' | 'call' | 'group-call' | 'group-activity';
   timestamp: string;
+  activity?: GroupActivity;
   message: ChatMessage | null;
   call: CallLog | null;
   groupCall?: GroupCallSession | null;

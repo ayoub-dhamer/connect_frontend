@@ -44,22 +44,7 @@
 
     <!-- Group header — add a settings button, replace the inline avatar div similarly -->
     <div class="chat-header" *ngIf="selectedGroup">
-      <div class="chat-header-info">
-        <div
-          class="avatar group-avatar-fallback"
-          *ngIf="!selectedGroup.avatarUrl"
-        >
-          {{ selectedGroup.name.slice(0, 2).toUpperCase() }}
-        </div>
-        <img
-          *ngIf="selectedGroup.avatarUrl"
-          [src]="selectedGroup.avatarUrl"
-          class="avatar"
-        />
-        <span
-          >{{ selectedGroup.name }} ({{ selectedGroup.members.length }})</span
-        >
-      </div>
+      <div class="chat-header-info">...</div>
       <div class="chat-header-actions">
         <button
           class="call-btn"
@@ -83,6 +68,19 @@
           <mat-icon>settings</mat-icon>
         </button>
       </div>
+    </div>
+
+    <div class="active-call-banner" *ngIf="activeGroupCall">
+      <mat-icon>{{
+        activeGroupCall.callType === "VIDEO" ? "videocam" : "call"
+      }}</mat-icon>
+      <span
+        >A {{ activeGroupCall.callType === "VIDEO" ? "video" : "audio" }} call
+        is in progress</span
+      >
+      <button class="join-call-btn" (click)="joinActiveGroupCall()">
+        Join
+      </button>
     </div>
 
     <app-group-settings
@@ -179,6 +177,15 @@
           <div class="bubble">{{ item.message!.content }}</div>
           <span class="time">{{
             item.message!.timestamp | date: "shortTime"
+          }}</span>
+        </div>
+
+        <div *ngIf="item.kind === 'group-activity'" class="activity-entry">
+          <span class="activity-text">{{
+            formatActivity(item.activity!)
+          }}</span>
+          <span class="time">{{
+            item.activity!.timestamp | date: "shortTime"
           }}</span>
         </div>
 

@@ -8,6 +8,7 @@ import {
 } from './websocket.service';
 import { CallService } from './call.service';
 import { ToastMessageService } from './toast-message.service';
+import { GroupService } from './group.service';
 
 export interface LoggedCallEvent {
   call: CallSignal;
@@ -43,6 +44,7 @@ export class CallSignalService {
     private callService: CallService,
     private router: Router,
     private toast: ToastMessageService,
+    private groupService: GroupService,
   ) {}
 
   /** Call once, from a component guaranteed to live for the whole session. */
@@ -60,6 +62,29 @@ export class CallSignalService {
     );
 
     window.addEventListener('beforeunload', this.handleUnload);
+
+    this.checkPendingGroupInvites();
+  }
+
+  private checkPendingGroupInvites(): void {
+    this.groupService.getPendingInvites().subscribe((invites) => {
+      if (invites.length === 0) return;
+      // Surface only the most recent one — ringing for multiple simultaneous
+      // group invites isn't something the current UI models; take the latest.
+      const latest = invites[invites.length - 1];
+
+      this.incomingGroupCall$.next({
+        type: 'invite',
+        callId: latest.callId,
+        roomId: latest.roomId,
+        callType: latest.callType.toLowerCase() as 'video' | 'audio',
+        callerEmail: latest.callerEmail,
+        callerName: latest.callerName,
+        groupId: latest.groupId,
+        groupName: latest.groupName,
+      });
+      this.startRingtone();
+    });
   }
 
   markInCall(value: boolean): void {

@@ -44,10 +44,58 @@ export interface GroupCallSession {
   participants: ParticipantOutcome[];
 }
 
+export interface ActiveGroupCall {
+  callId: string;
+  roomId: string;
+  groupId: number;
+  callType: 'VIDEO' | 'AUDIO';
+  startedAt: string;
+}
+
+export interface PendingInvite {
+  callId: string;
+  roomId: string;
+  groupId: number;
+  groupName: string;
+  callType: 'VIDEO' | 'AUDIO';
+  callerEmail: string;
+  callerName: string;
+}
+
+export interface GroupActivity {
+  id: number;
+  type: string;
+  actorName: string;
+  targetName: string | null;
+  detail: string | null;
+  timestamp: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GroupService extends ApiService {
   constructor(http: HttpClient) {
     super(http);
+  }
+
+  getActivity(groupId: number): Observable<GroupActivity[]> {
+    return this.http.get<GroupActivity[]>(
+      this.url(`groups/${groupId}/activity`),
+      this.options(),
+    );
+  }
+
+  getPendingInvites(): Observable<PendingInvite[]> {
+    return this.http.get<PendingInvite[]>(
+      this.url('groups/pending-invites'),
+      this.options(),
+    );
+  }
+
+  getActiveCall(groupId: number): Observable<ActiveGroupCall | null> {
+    return this.http.get<ActiveGroupCall | null>(
+      this.url(`groups/${groupId}/active-call`),
+      this.options(),
+    );
   }
 
   renameGroup(groupId: number, name: string): Observable<Group> {

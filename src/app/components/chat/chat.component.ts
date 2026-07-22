@@ -5,7 +5,7 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import {
   WebSocketService,
@@ -19,7 +19,12 @@ import {
   ConversationService,
   TimelineItem,
 } from '../../services/conversation.service';
-import { Group, GroupService } from '../../services/group.service';
+import {
+  ActiveGroupCall,
+  Group,
+  GroupActivity,
+  GroupService,
+} from '../../services/group.service';
 import { CallSignalService } from '../../services/call-signal.service';
 
 @Component({
@@ -47,6 +52,8 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
 
+  activeGroupCall: ActiveGroupCall | null = null;
+
   constructor(
     private ws: WebSocketService,
     private auth: AuthService,
@@ -56,6 +63,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     private conversationService: ConversationService,
     private groupService: GroupService,
     public callSignal: CallSignalService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -141,10 +149,37 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
   }
 
+  joinActiveGroupCall(): void {
+    if (!this.activeGroupCall || !this.selectedGroup) return;
+    this.callSignal.markInCall(true);
+    this.router.navigate(
+      ['/user/video', this.buildGroupRoomId(this.activeGroupCall.callId)],
+      {
+        queryParams: {
+          type: this.activeGroupCall.callType.toLowerCase(),
+          callId: this.activeGroupCall.callId,
+          groupId: this.selectedGroup.id,
+          groupName: this.selectedGroup.name,
+          isGroup: true,
+        },
+      },
+    );
+  }
+
+  private buildGroupRoomId(callId: string): string {
+    return `group-${this.selectedGroup!.id}-${callId}`;
+  }
+
   selectGroup(group: Group): void {
     this.selectedUser = null;
     this.selectedGroup = group;
     this.timeline = [];
+
+    this.activeGroupCall = null;
+
+    this.groupService.getActiveCall(group.id).subscribe((call) => {
+      this.activeGroupCall = call;
+    });
 
     this.groupChatSub?.unsubscribe();
     this.groupChatSub = this.ws
@@ -190,13 +225,47 @@ export class ChatComponent implements OnInit, OnDestroy {
           groupCall: c,
         }));
 
-        this.timeline = [...msgItems, ...callItems].sort(
-          (a, b) =>
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-        );
-        this.scrollToBottom();
+        this.groupService.getActivity(group.id).subscribe((activities) => {
+          const activityItems = activities.map((a) => ({
+            kind: 'group-activity' as const,
+            timestamp: a.timestamp,
+            message: null,
+            call: null,
+            activity: a,
+          }));
+
+          this.timeline = [...msgItems, ...callItems, ...activityItems].sort(
+            (a, b) =>
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+          );
+          this.scrollToBottom();
+        });
       });
     });
+  }
+
+  // chat.component.ts
+  formatActivity(a: GroupActivity): string {
+    switch (a.type) {
+      case 'CREATED':
+        return `${a.actorName} created the group`;
+      case 'RENAMED':
+        return `${a.actorName} renamed the group (${a.detail})`;
+      case 'MEMBER_ADDED':
+        return `${a.actorName} added ${a.targetName}`;
+      case 'MEMBER_REMOVED':
+        return `${a.actorName} removed ${a.targetName}`;
+      case 'MEMBER_LEFT':
+        return `${a.actorName} left the group`;
+      case 'ROLE_CHANGED':
+        return `${a.actorName} changed ${a.targetName}'s role (${a.detail})`;
+      case 'OWNERSHIP_TRANSFERRED':
+        return `${a.actorName} transferred ownership to ${a.targetName}`;
+      case 'AVATAR_CHANGED':
+        return `${a.actorName} changed the group photo`;
+      default:
+        return `${a.actorName} did something`;
+    }
   }
 
   sendGroupMessage(): void {
