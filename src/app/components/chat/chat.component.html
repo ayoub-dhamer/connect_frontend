@@ -5,13 +5,23 @@
     >
       <h2>Contacts</h2>
     </div>
+    <!-- Contact list item -->
     <div
       *ngFor="let u of users"
       class="user-item"
       [class.active]="selectedUser?.id === u.id"
       (click)="selectUser(u)"
     >
-      <img [src]="u.pictureUrl || 'assets/img/user.jpg'" class="avatar" />
+      <div class="avatar-wrap">
+        <img [src]="u.pictureUrl || 'assets/img/user.jpg'" class="avatar" />
+        <span
+          class="call-indicator"
+          *ngIf="isInCall(u.email)"
+          title="On a call"
+        >
+          <mat-icon>call</mat-icon>
+        </span>
+      </div>
       <span>{{ u.name }}</span>
     </div>
 
@@ -87,6 +97,7 @@
       [isOpen]="groupSettingsOpen"
       [group]="selectedGroup"
       [currentUserEmail]="currentUserEmail"
+      [callStatuses]="callStatuses"
       (closed)="onGroupSettingsClosed($event)"
     ></app-group-settings>
   </div>

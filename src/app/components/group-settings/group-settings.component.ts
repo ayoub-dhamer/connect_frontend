@@ -8,6 +8,7 @@ import {
 import { Group, GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
 import { ToastMessageService } from '../../services/toast-message.service';
+import { CallStatus } from 'src/app/services/presence.service';
 
 @Component({
   selector: 'app-group-settings',
@@ -28,11 +29,17 @@ export class GroupSettingsComponent implements OnChanges {
 
   promoting = new Set<number>();
 
+  @Input() callStatuses: Record<string, CallStatus> = {};
+
   constructor(
     private groupService: GroupService,
     private userService: UserService,
     private toast: ToastMessageService,
   ) {}
+
+  isInCall(email: string): boolean {
+    return this.callStatuses[email]?.inCall ?? false;
+  }
 
   get myRole(): 'OWNER' | 'ADMIN' | 'MEMBER' | null {
     return (

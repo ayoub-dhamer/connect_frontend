@@ -26,6 +26,7 @@ import {
   GroupService,
 } from '../../services/group.service';
 import { CallSignalService } from '../../services/call-signal.service';
+import { CallStatus, PresenceService } from 'src/app/services/presence.service';
 
 @Component({
   selector: 'app-chat',
@@ -52,6 +53,9 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   @ViewChild('messageContainer') messageContainer!: ElementRef;
 
+  callStatuses: Record<string, CallStatus> = {};
+  private presenceSub: Subscription | null = null;
+
   activeGroupCall: ActiveGroupCall | null = null;
 
   constructor(
@@ -64,6 +68,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     private groupService: GroupService,
     public callSignal: CallSignalService,
     private router: Router,
+    private presenceService: PresenceService,
   ) {}
 
   ngOnInit(): void {
@@ -109,6 +114,21 @@ export class ChatComponent implements OnInit, OnDestroy {
       console.log(groups);
       this.groups = groups;
     });
+
+    this.presenceSub = this.presenceService
+      .watchCallStatus(() => this.allTrackedEmails())
+      .subscribe((statuses) => (this.callStatuses = statuses));
+  }
+
+  private allTrackedEmails(): string[] {
+    const contactEmails = this.users.map((u) => u.email);
+    const groupMemberEmails =
+      this.selectedGroup?.members.map((m) => m.email) ?? [];
+    return Array.from(new Set([...contactEmails, ...groupMemberEmails]));
+  }
+
+  isInCall(email: string): boolean {
+    return this.callStatuses[email]?.inCall ?? false;
   }
 
   openGroupSettings(): void {
@@ -400,5 +420,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
     this.groupChatSub?.unsubscribe();
     this.callLoggedSub?.unsubscribe();
+    this.presenceSub?.unsubscribe();
   }
 }

@@ -284,3 +284,29 @@
   padding: 4px 12px;
   border-radius: 999px;
 }
+
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.call-indicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #16a34a;
+  border: 2px solid var(--bg-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-indicator mat-icon {
+  font-size: 9px;
+  width: 9px;
+  height: 9px;
+  color: white;
+}
