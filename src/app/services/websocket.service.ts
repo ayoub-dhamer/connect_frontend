@@ -7,6 +7,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
 import { environment } from 'src/environments/environment';
 import { GroupMessage } from './group.service';
+import { PresenceEvent } from './presence.service';
 
 // websocket.service.ts
 export interface ChatMessage {
@@ -75,6 +76,13 @@ export interface GroupCallSignal {
   startedAt?: string;
 }
 
+export interface PresenceEvent {
+  email: string;
+  inCall: boolean;
+  callType: 'one_to_one' | 'group' | null;
+  callId: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   // ✅ Everything from @stomp/stompjs typed as any
@@ -109,6 +117,23 @@ export class WebSocketService {
 
   private groupMessageSubjects = new Map<number, Subject<GroupMessage>>();
   private groupSubscriptions = new Map<number, any>();
+
+  private presenceSubject = new Subject<PresenceEvent>();
+  private presenceSubscription: any;
+
+  subscribeToPresence(): Observable<PresenceEvent> {
+    if (this.client?.active && !this.presenceSubscription) {
+      this.presenceSubscription = this.client.subscribe(
+        '/topic/presence',
+        (message: any) => {
+          if (message.body) {
+            this.presenceSubject.next(JSON.parse(message.body));
+          }
+        },
+      );
+    }
+    return this.presenceSubject.asObservable();
+  }
 
   subscribeToGroupChat(groupId: number): Observable<GroupMessage> {
     if (!this.groupMessageSubjects.has(groupId)) {
@@ -239,6 +264,7 @@ export class WebSocketService {
     this.chatSubscription?.unsubscribe();
     this.callSignalSubscription?.unsubscribe();
     this.groupCallSignalSubscription?.unsubscribe(); // add
+    this.presenceSubscription?.unsubscribe();
     this.signalingSubscriptions.forEach((sub) => sub.unsubscribe());
     this.signalingSubscriptions.clear();
     if (this.client?.active) {

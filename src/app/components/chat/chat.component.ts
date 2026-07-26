@@ -115,9 +115,20 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.groups = groups;
     });
 
-    this.presenceSub = this.presenceService
-      .watchCallStatus(() => this.allTrackedEmails())
-      .subscribe((statuses) => (this.callStatuses = statuses));
+    this.presenceService.init();
+    // Initial snapshot on load (covers calls already in progress before this page opened)
+    this.presenceServiceRest
+      .getCallStatus(this.allTrackedEmails())
+      .subscribe((initial) => {
+        this.callStatuses = {
+          ...initial,
+          ...this.presenceService.getSnapshot(),
+        };
+      });
+
+    this.presenceSub = this.presenceService.presence$.subscribe((statuses) => {
+      this.callStatuses = { ...this.callStatuses, ...statuses };
+    });
   }
 
   private allTrackedEmails(): string[] {
