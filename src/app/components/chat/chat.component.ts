@@ -117,7 +117,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.presenceService.init();
     // Initial snapshot on load (covers calls already in progress before this page opened)
-    this.presenceServiceRest
+    this.presenceService
       .getCallStatus(this.allTrackedEmails())
       .subscribe((initial) => {
         this.callStatuses = {

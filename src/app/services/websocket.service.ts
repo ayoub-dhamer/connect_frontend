@@ -7,7 +7,6 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
 import { environment } from 'src/environments/environment';
 import { GroupMessage } from './group.service';
-import { PresenceEvent } from './presence.service';
 
 // websocket.service.ts
 export interface ChatMessage {

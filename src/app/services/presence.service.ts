@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, filter, take } from 'rxjs';
 import { WebSocketService } from './websocket.service';
+import { environment } from 'src/environments/environment';
 
 export interface CallStatus {
   inCall: boolean;
@@ -22,7 +24,10 @@ export class PresenceService {
 
   private subscribed = false;
 
-  constructor(private ws: WebSocketService) {}
+  constructor(
+    private ws: WebSocketService,
+    private http: HttpClient,
+  ) {}
 
   /** Call once — subscribes to the shared presence topic and keeps a live
    *  map of email -> call status updated in real time. */
@@ -54,5 +59,16 @@ export class PresenceService {
 
   getSnapshot(): Record<string, CallStatus> {
     return this.statuses$.value;
+  }
+
+  /** One-time REST bootstrap — covers calls already in progress before this
+   *  page/session loaded, before live events start updating the map. */
+  getCallStatus(emails: string[]): Observable<Record<string, CallStatus>> {
+    if (emails.length === 0) return new BehaviorSubject({}).asObservable();
+    return this.http.post<Record<string, CallStatus>>(
+      `${environment.apiUrl}/presence/call-status`,
+      { emails },
+      { withCredentials: true },
+    );
   }
 }
