@@ -9,6 +9,7 @@ import { Group, GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
 import { ToastMessageService } from '../../services/toast-message.service';
 import { CallStatus } from 'src/app/services/presence.service';
+import { ClickGuardService } from 'src/app/services/click-guard.service';
 
 @Component({
   selector: 'app-group-settings',
@@ -35,6 +36,7 @@ export class GroupSettingsComponent implements OnChanges {
     private groupService: GroupService,
     private userService: UserService,
     private toast: ToastMessageService,
+    private clickGuard: ClickGuardService,
   ) {}
 
   isInCall(email: string): boolean {

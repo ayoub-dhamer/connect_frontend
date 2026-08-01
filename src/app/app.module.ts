@@ -77,6 +77,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { GroupCreateComponent } from './components/group-create/group-create.component';
 import { CallOverlayComponent } from './components/call-overlay/call-overlay.component';
 import { GroupSettingsComponent } from './components/group-settings/group-settings.component';
+import { DebounceClickDirective } from './debounce-click.directive';
 
 @NgModule({
   declarations: [
@@ -107,6 +108,7 @@ import { GroupSettingsComponent } from './components/group-settings/group-settin
     GroupCreateComponent,
     CallOverlayComponent,
     GroupSettingsComponent,
+    DebounceClickDirective,
   ],
   imports: [
     BrowserModule,
