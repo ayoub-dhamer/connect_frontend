@@ -59,7 +59,7 @@
         <button
           class="role-btn"
           *ngIf="m.role === 'MEMBER'"
-          [disabled]="promoting.has(m.id)"
+          [disabled]="isBusy('promote-' + group!.id + '-' + m.id)"
           (click)="promoteToAdmin(m.id)"
           title="Make admin"
         >

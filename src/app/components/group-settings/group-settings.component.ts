@@ -10,6 +10,7 @@ import { UserService } from '../../services/user.service';
 import { ToastMessageService } from '../../services/toast-message.service';
 import { CallStatus } from 'src/app/services/presence.service';
 import { ClickGuardService } from 'src/app/services/click-guard.service';
+import { ConfirmDialogService } from 'src/app/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-group-settings',
@@ -37,6 +38,7 @@ export class GroupSettingsComponent implements OnChanges {
     private userService: UserService,
     private toast: ToastMessageService,
     private clickGuard: ClickGuardService,
+    private confirmDialog: ConfirmDialogService,
   ) {}
 
   isInCall(email: string): boolean {
@@ -73,6 +75,25 @@ export class GroupSettingsComponent implements OnChanges {
         this.promoting.delete(userId);
       },
     });
+  }
+
+  promoteToAdmin(userId: number): void {
+    if (!this.group) return;
+    const key = `promote-${this.group.id}-${userId}`;
+
+    this.clickGuard.guard(
+      key,
+      () => this.groupService.changeRole(this.group!.id, userId, 'ADMIN'),
+      (updated) => {
+        this.group = updated;
+        this.closed.emit(updated);
+      },
+      () => this.toast.error('Failed to change role'),
+    );
+  }
+
+  isBusy(key: string): boolean {
+    return this.clickGuard.isPending(key);
   }
 
   demoteToMember(userId: number): void {
@@ -163,8 +184,16 @@ export class GroupSettingsComponent implements OnChanges {
       });
   }
 
-  removeMember(userId: number): void {
-    if (!this.group || !confirm('Remove this member from the group?')) return;
+  async removeMember(userId: number): Promise<void> {
+    if (!this.group) return;
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Remove member',
+      message: 'Remove this member from the group?',
+      confirmText: 'Remove',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.groupService.removeMember(this.group.id, userId).subscribe({
       next: (updated) => {
         this.group = updated;
@@ -194,8 +223,16 @@ export class GroupSettingsComponent implements OnChanges {
     });
   }
 
-  leaveGroup(): void {
-    if (!this.group || !confirm(`Leave "${this.group.name}"?`)) return;
+  async leaveGroup(): Promise<void> {
+    if (!this.group) return;
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Leave group',
+      message: `Leave "${this.group.name}"?`,
+      confirmText: 'Leave',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.groupService.leaveGroup(this.group.id).subscribe({
       next: () => this.closed.emit('left'),
       error: (err) =>
@@ -203,12 +240,16 @@ export class GroupSettingsComponent implements OnChanges {
     });
   }
 
-  deleteGroup(): void {
-    if (
-      !this.group ||
-      !confirm(`Delete "${this.group.name}"? This cannot be undone.`)
-    )
-      return;
+  async deleteGroup(): Promise<void> {
+    if (!this.group) return;
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete group',
+      message: `Delete "${this.group.name}"? This cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.groupService.deleteGroup(this.group.id).subscribe({
       next: () => this.closed.emit('deleted'),
       error: () => this.toast.error('Failed to delete group'),

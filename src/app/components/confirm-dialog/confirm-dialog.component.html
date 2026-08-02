@@ -1,0 +1,24 @@
+<div class="modal-backdrop" *ngIf="isOpen" (click)="cancel()"></div>
+<div class="modal-box confirm-box" *ngIf="isOpen">
+  <div class="confirm-icon" [class.danger]="config.variant === 'danger'">
+    <mat-icon>{{
+      config.variant === "danger" ? "warning" : "help_outline"
+    }}</mat-icon>
+  </div>
+
+  <h3 class="modal-title">{{ config.title }}</h3>
+  <p class="confirm-message">{{ config.message }}</p>
+
+  <div class="confirm-actions">
+    <button class="cancel-btn" (click)="cancel()">
+      {{ config.cancelText }}
+    </button>
+    <button
+      class="confirm-btn"
+      [class.danger]="config.variant === 'danger'"
+      (click)="confirm()"
+    >
+      {{ config.confirmText }}
+    </button>
+  </div>
+</div>

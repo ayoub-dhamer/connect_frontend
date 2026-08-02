@@ -78,6 +78,7 @@ import { GroupCreateComponent } from './components/group-create/group-create.com
 import { CallOverlayComponent } from './components/call-overlay/call-overlay.component';
 import { GroupSettingsComponent } from './components/group-settings/group-settings.component';
 import { DebounceClickDirective } from './debounce-click.directive';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
@@ -109,6 +110,7 @@ import { DebounceClickDirective } from './debounce-click.directive';
     CallOverlayComponent,
     GroupSettingsComponent,
     DebounceClickDirective,
+    ConfirmDialogComponent,
   ],
   imports: [
     BrowserModule,
