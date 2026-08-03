@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TaskService } from '../../services/task.service';
 import { Router } from '@angular/router';
+import { ConfirmDialogService } from 'src/app/services/confirm-dialog.service';
 
 interface ProjectGroup {
   projectId: number | null;
@@ -30,6 +31,7 @@ export class TaskListComponent implements OnInit {
   constructor(
     private taskService: TaskService,
     private router: Router,
+    private confirmDialog: ConfirmDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -123,8 +125,16 @@ export class TaskListComponent implements OnInit {
     if (t.id) this.router.navigate(['/user/tasks', t.id]);
   }
 
-  delete(t: any): void {
-    if (!t.id || !confirm(`Delete "${t.name}"?`)) return;
+  async delete(t: any): Promise<void> {
+    if (!t.id) return;
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete task',
+      message: `Delete "${t.name}"?`,
+      confirmText: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.taskService.delete(t.id).subscribe(() => this.load());
   }
 }

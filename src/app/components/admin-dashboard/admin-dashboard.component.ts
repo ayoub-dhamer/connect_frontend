@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ProjectService } from '../../services/project.service';
 import { TaskService } from '../../services/task.service';
+import { ConfirmDialogService } from 'src/app/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -35,6 +36,7 @@ export class AdminDashboardComponent implements OnInit {
     private userService: UserService,
     private projectService: ProjectService,
     private taskService: TaskService,
+    private confirmDialog: ConfirmDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -108,8 +110,15 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  deleteUser(user: any): void {
-    if (!confirm(`Delete ${user.email}?`)) return;
+  async deleteUser(user: any): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete user',
+      message: `Delete ${user.email}?`,
+      confirmText: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.userService.delete(user.id).subscribe(() => this.loadUsers());
   }
 }

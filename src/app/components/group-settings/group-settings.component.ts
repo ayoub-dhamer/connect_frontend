@@ -61,23 +61,6 @@ export class GroupSettingsComponent implements OnChanges {
   }
 
   promoteToAdmin(userId: number): void {
-    if (!this.group || this.promoting.has(userId)) return;
-    this.promoting.add(userId);
-
-    this.groupService.changeRole(this.group.id, userId, 'ADMIN').subscribe({
-      next: (updated) => {
-        this.group = updated;
-        this.closed.emit(updated);
-        this.promoting.delete(userId);
-      },
-      error: () => {
-        this.toast.error('Failed to change role');
-        this.promoting.delete(userId);
-      },
-    });
-  }
-
-  promoteToAdmin(userId: number): void {
     if (!this.group) return;
     const key = `promote-${this.group.id}-${userId}`;
 
@@ -113,12 +96,16 @@ export class GroupSettingsComponent implements OnChanges {
     });
   }
 
-  transferOwnership(userId: number): void {
-    if (
-      !this.group ||
-      !confirm('Transfer ownership to this member? You will become an admin.')
-    )
-      return;
+  async transferOwnership(userId: number): Promise<void> {
+    if (!this.group) return;
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Transfer ownership',
+      message: 'Transfer ownership to this member? You will become an admin.',
+      confirmText: 'Transfer',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.groupService.transferOwnership(this.group.id, userId).subscribe({
       next: (updated) => {
         this.group = updated;

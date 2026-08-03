@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { Router } from '@angular/router';
+import { ConfirmDialogService } from 'src/app/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-project-list',
@@ -21,7 +22,10 @@ export class ProjectListComponent implements OnInit {
   pageSizes = [5, 10, 20];
   totalPages = 1;
 
-  constructor(private projectService: ProjectService) {}
+  constructor(
+    private projectService: ProjectService,
+    private confirmDialog: ConfirmDialogService,
+  ) {}
 
   ngOnInit(): void {
     this.loadProjects();
@@ -73,8 +77,15 @@ export class ProjectListComponent implements OnInit {
     }
   }
 
-  deleteProject(project: any) {
-    if (!confirm(`Delete ${project.name}?`)) return;
+  async deleteProject(project: any): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete project',
+      message: `Delete "${project.name}"? This cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.projectService.delete(project.id).subscribe(() => this.loadProjects());
   }
 

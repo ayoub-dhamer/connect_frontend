@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
+import { ConfirmDialogService } from 'src/app/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-user-list',
@@ -20,7 +21,10 @@ export class UserListComponent implements OnInit {
   pageSizes = [5, 10, 20];
   totalPages = 1;
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private confirmDialog: ConfirmDialogService,
+  ) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -74,8 +78,15 @@ export class UserListComponent implements OnInit {
     }
   }
 
-  deleteUser(user: any) {
-    if (!confirm(`Delete ${user.email}?`)) return;
+  async deleteUser(user: any): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete user',
+      message: `Delete ${user.email}?`,
+      confirmText: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.userService.delete(user.id).subscribe(() => this.loadUsers());
   }
 }
