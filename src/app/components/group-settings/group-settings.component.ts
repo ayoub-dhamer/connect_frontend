@@ -7,10 +7,10 @@ import {
 } from '@angular/core';
 import { Group, GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
-import { ToastMessageService } from '../../services/toast-message.service';
 import { CallStatus } from 'src/app/services/presence.service';
 import { ClickGuardService } from 'src/app/services/click-guard.service';
 import { ConfirmDialogService } from 'src/app/services/confirm-dialog.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-group-settings',
@@ -36,7 +36,7 @@ export class GroupSettingsComponent implements OnChanges {
   constructor(
     private groupService: GroupService,
     private userService: UserService,
-    private toast: ToastMessageService,
+    private toast: ToastService,
     private clickGuard: ClickGuardService,
     private confirmDialog: ConfirmDialogService,
   ) {}
@@ -70,6 +70,13 @@ export class GroupSettingsComponent implements OnChanges {
       (updated) => {
         this.group = updated;
         this.closed.emit(updated);
+        this.toast.show({
+          message: 'User promoted to Admin role',
+          type: 'success',
+          position: 'top-center',
+          duration: 5000,
+          title: 'Success',
+        });
       },
       () => this.toast.error('Failed to change role'),
     );

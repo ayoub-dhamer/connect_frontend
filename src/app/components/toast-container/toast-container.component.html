@@ -1,0 +1,31 @@
+<ng-container *ngIf="toastService.toasts | async as allToasts">
+  <div
+    *ngFor="let position of positions"
+    class="toast-stack"
+    [class]="'pos-' + position"
+    [class.has-toasts]="toastsFor(position, allToasts).length > 0"
+  >
+    <div
+      *ngFor="let toast of toastsFor(position, allToasts)"
+      class="toast"
+      [class]="'toast-' + toast.type"
+    >
+      <mat-icon class="toast-icon">{{ iconFor(toast.type) }}</mat-icon>
+
+      <div class="toast-body">
+        <div class="toast-title" *ngIf="toast.title">{{ toast.title }}</div>
+        <div class="toast-message">{{ toast.message }}</div>
+      </div>
+
+      <button class="toast-close" (click)="dismiss(toast.id)">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <div
+        class="toast-progress"
+        *ngIf="toast.duration > 0"
+        [style.animation-duration.ms]="toast.duration"
+      ></div>
+    </div>
+  </div>
+</ng-container>

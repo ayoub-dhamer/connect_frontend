@@ -7,7 +7,6 @@ import {
   HttpClient,
   HTTP_INTERCEPTORS,
 } from '@angular/common/http';
-import { RouteReuseStrategy } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -55,10 +54,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSortModule } from '@angular/material/sort';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatNativeDateModule } from '@angular/material/core';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpLoaderFactory } from './translate-loader.factory';
@@ -79,6 +75,7 @@ import { CallOverlayComponent } from './components/call-overlay/call-overlay.com
 import { GroupSettingsComponent } from './components/group-settings/group-settings.component';
 import { DebounceClickDirective } from './debounce-click.directive';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { ToastContainerComponent } from './components/toast-container/toast-container.component';
 
 @NgModule({
   declarations: [
@@ -111,6 +108,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     GroupSettingsComponent,
     DebounceClickDirective,
     ConfirmDialogComponent,
+    ToastContainerComponent,
   ],
   imports: [
     BrowserModule,
