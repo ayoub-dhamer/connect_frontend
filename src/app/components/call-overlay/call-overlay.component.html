@@ -59,3 +59,36 @@
     </button>
   </div>
 </div>
+
+<!-- Call waiting (busy, second call incoming) -->
+<div class="call-backdrop" *ngIf="callSignal.waitingCall$ | async"></div>
+<div
+  class="call-modal waiting-modal"
+  *ngIf="callSignal.waitingCall$ | async as call"
+>
+  <div class="call-modal-icon">
+    <mat-icon>{{ call.callType === "video" ? "videocam" : "call" }}</mat-icon>
+  </div>
+  <div class="call-modal-title">{{ call.callerName }}</div>
+  <div class="call-modal-sub">Calling while you're on another call</div>
+  <div class="waiting-actions">
+    <button
+      class="waiting-btn accept-end"
+      (click)="callSignal.acceptWaitingCall()"
+    >
+      <mat-icon>call</mat-icon>
+      End current & answer
+    </button>
+    <button class="waiting-btn hold" (click)="callSignal.holdWaitingCall()">
+      <mat-icon>pause</mat-icon>
+      Ask to wait
+    </button>
+    <button
+      class="waiting-btn decline"
+      (click)="callSignal.declineWaitingCall()"
+    >
+      <mat-icon>call_end</mat-icon>
+      Decline
+    </button>
+  </div>
+</div>

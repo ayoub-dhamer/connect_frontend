@@ -6,31 +6,51 @@ import { PageResponse } from './project.service';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService extends ApiService {
-
   constructor(http: HttpClient) {
     super(http);
   }
 
   /** Get all tasks */
   getAll(page = 0, size = 10): Observable<PageResponse<any>> {
-  return this.http.get<PageResponse<any>>(this.url('tasks'), this.options({ page, size }));
-}
+    return this.http.get<PageResponse<any>>(
+      this.url('tasks'),
+      this.options({ page, size }),
+    );
+  }
 
   /** Get task by ID */
   getById(id: number): Observable<any> {
-  return this.http.get<any>(this.url(`tasks/${id}`), this.options());
-}
+    return this.http.get<any>(this.url(`tasks/${id}`), this.options());
+  }
 
-create(task: any): Observable<any> {
-  return this.http.post<any>(this.url('tasks'), task, this.options());
-}
+  create(task: any): Observable<any> {
+    return this.http.post<any>(this.url('tasks'), task, this.options());
+  }
 
   /** Update existing task */
   update(id: number, task: any): Observable<any> {
-  return this.http.put<any>(this.url(`tasks/${id}`), task, this.options());
+    return this.http.put<any>(this.url(`tasks/${id}`), task, this.options());
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(this.url(`tasks/${id}`), this.options());
+  }
 }
 
-delete(id: number): Observable<void> {
-  return this.http.delete<void>(this.url(`tasks/${id}`), this.options());
-}
-}
+/*
+// Simple
+this.toast.success('Project created');
+this.toast.error('Failed to delete group');
+
+// Positioned, timed, titled
+this.toast.show({
+  message: 'Group deleted successfully',
+  type: 'success',
+  position: 'top-center',
+  duration: 5000,
+  title: 'Success',
+});
+
+// Persistent until manually dismissed
+this.toast.info('Reconnecting to server…', { duration: 0 });
+*/

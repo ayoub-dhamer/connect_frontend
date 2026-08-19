@@ -49,6 +49,7 @@ export class PresenceService {
 
   private applyEvent(event: PresenceEvent): void {
     const current = { ...this.statuses$.value };
+    // Only ever touches the exact email in the event — never bulk-clears.
     current[event.email] = {
       inCall: event.inCall,
       callType: event.callType,

@@ -79,6 +79,8 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
 
+  private forceLeaveSub!: Subscription;
+
   private readonly ICE_SERVERS = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -145,6 +147,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
     this.signalSub = this.ws.signals$.subscribe((signal) =>
       this.handleSignal(signal),
+    );
+
+    this.forceLeaveSub = this.callSignal.forceLeaveCurrentCall$.subscribe(() =>
+      this.hangUp(),
     );
 
     window.addEventListener('beforeunload', this.handleUnload);
@@ -590,6 +596,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     window.removeEventListener('beforeunload', this.handleUnload);
     this.hangUp();
+    this.forceLeaveSub?.unsubscribe();
     this.sub?.unsubscribe();
     this.signalSub?.unsubscribe();
     if (this.leftNoticeTimeout) clearTimeout(this.leftNoticeTimeout);

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import {
   WebSocketService,
   CallSignal,
@@ -9,6 +9,7 @@ import {
 import { CallService } from './call.service';
 import { ToastMessageService } from './toast-message.service';
 import { GroupService } from './group.service';
+import { ToastService } from './toast.service';
 
 export interface LoggedCallEvent {
   call: CallSignal;
@@ -36,14 +37,19 @@ export class CallSignalService {
   currentUserEmail = '';
   currentUserName = '';
 
+  waitingCall$ = new BehaviorSubject<CallSignal | null>(null);
+  private waitingChime: HTMLAudioElement | null = null;
+
   private readonly OUTGOING_LOCK_KEY = 'outgoing-call-lock';
   private readonly OUTGOING_LOCK_TTL_MS = 45000;
+
+  forceLeaveCurrentCall$ = new Subject<void>();
 
   constructor(
     private ws: WebSocketService,
     private callService: CallService,
     private router: Router,
-    private toast: ToastMessageService,
+    private toast: ToastService,
     private groupService: GroupService,
   ) {}
 
@@ -225,11 +231,16 @@ export class CallSignalService {
   private handleCallSignal(signal: CallSignal): void {
     switch (signal.type) {
       case 'invite':
-        if (
-          this.inCall ||
-          this.outgoingCall$.value ||
-          this.incomingCall$.value
-        ) {
+        if (this.inCall || this.outgoingCall$.value) {
+          // Already busy in an active call or actively ringing someone —
+          // surface a "call waiting" prompt instead of auto-declining.
+          if (!this.claimCall(signal.callId)) return;
+          this.waitingCall$.next(signal);
+          this.playWaitingChime();
+          return;
+        }
+        if (this.incomingCall$.value) {
+          // Already have a DIFFERENT incoming call ringing — still busy, decline this one.
           this.ws.sendCallSignal({
             ...signal,
             type: 'decline',
@@ -240,6 +251,16 @@ export class CallSignalService {
         if (!this.claimCall(signal.callId)) return;
         this.incomingCall$.next(signal);
         this.startRingtone();
+        break;
+
+      case 'waiting':
+        // We're the original caller — the person we called is on another call
+        // and has chosen to let us wait rather than declining outright.
+        if (this.outgoingCall$.value?.callId === signal.callId) {
+          this.toast.info(
+            'They are on another call — waiting for them to be free',
+          );
+        }
         break;
 
       case 'accept':
@@ -290,6 +311,96 @@ export class CallSignalService {
         }
         break;
     }
+  }
+
+  private playWaitingChime(): void {
+    this.stopWaitingChime();
+    this.waitingChime = new Audio('assets/sounds/call-waiting-chime.mp3');
+    this.waitingChime.volume = 0.4;
+    // A brief chime, not a looping ringtone — plays once, doesn't repeat
+    // to avoid interrupting the active call's audio.
+    this.waitingChime.play().catch(() => {});
+  }
+
+  private stopWaitingChime(): void {
+    this.waitingChime?.pause();
+    this.waitingChime = null;
+  }
+
+  // Accept the new call, ending the current one first.
+  acceptWaitingCall(): void {
+    const waiting = this.waitingCall$.value;
+    if (!waiting) return;
+    this.waitingCall$.next(null);
+    this.stopWaitingChime();
+    this.releaseClaim(waiting.callId);
+
+    // End whatever we're currently doing.
+    if (this.inCall) {
+      // Tell the video component to hang up before navigating to the new call.
+      // markInCall(false) alone doesn't hang up the live WebRTC session —
+      // VideoCallComponent needs to actually leave. We navigate away, which
+      // triggers its ngOnDestroy -> hangUp() via Angular's route teardown.
+      this.forceLeaveCurrentCall$.next();
+    } else if (this.outgoingCall$.value) {
+      this.cancelOutgoingCall();
+    }
+
+    this.ws.sendCallSignal({
+      ...waiting,
+      type: 'accept',
+      receiverEmail: waiting.callerEmail,
+    });
+    this.playCallAcceptedTone();
+    this.navigateToRoom(waiting, waiting.callerEmail);
+  }
+
+  declineWaitingCall(): void {
+    const waiting = this.waitingCall$.value;
+    if (!waiting) return;
+    this.waitingCall$.next(null);
+    this.stopWaitingChime();
+    this.releaseClaim(waiting.callId);
+
+    const startedAt = new Date().toISOString();
+    this.ws.sendCallSignal({
+      ...waiting,
+      type: 'decline',
+      receiverEmail: waiting.callerEmail,
+      startedAt,
+    });
+
+    this.callService
+      .logCall({
+        callId: waiting.callId,
+        callerEmail: waiting.callerEmail,
+        receiverEmail: waiting.receiverEmail,
+        callType: waiting.callType.toUpperCase() as 'VIDEO' | 'AUDIO',
+        status: 'DECLINED',
+        startedAt,
+      })
+      .subscribe({ error: (err) => console.error('Failed to log call:', err) });
+  }
+
+  /** Puts the caller "on hold" — tells them to wait, dismisses our dialog,
+   *  but keeps the invite claimed so we can come back and accept it later
+   *  via the pending-invites mechanism (already built for late-login). */
+  holdWaitingCall(): void {
+    const waiting = this.waitingCall$.value;
+    if (!waiting) return;
+    this.waitingCall$.next(null);
+    this.stopWaitingChime();
+    // Deliberately do NOT release the claim or send decline — the invite
+    // stays "pending" server-side (NO_ANSWER-equivalent for 1:1 isn't tracked
+    // the same way as group, so for 1:1 we just don't respond at all; the
+    // caller's own 30s timeout will fire if we never come back to it).
+
+    this.ws.sendCallSignal({
+      ...waiting,
+      type: 'waiting',
+      receiverEmail: waiting.callerEmail,
+    });
+    this.toast.info(`${waiting.callerName} is waiting`);
   }
 
   // ── Group ───────────────────────────────────────────────
