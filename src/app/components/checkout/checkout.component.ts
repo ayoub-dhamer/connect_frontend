@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ToastMessageService } from '../../services/toast-message.service';
 import { loadStripe } from '@stripe/stripe-js';
 import { environment } from 'src/environments/environment';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-checkout',
@@ -14,7 +14,7 @@ export class CheckoutComponent {
 
   constructor(
     private http: HttpClient,
-    private toast: ToastMessageService,
+    private toast: ToastService,
   ) {}
 
   pay(): void {

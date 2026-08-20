@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ThemeService, Theme } from '../../services/theme.service';
 import { AuthService } from '../../services/auth.service';
-import { ToastMessageService } from '../../services/toast-message.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-settings',
@@ -37,7 +37,7 @@ export class SettingsComponent implements OnInit {
     private themeService: ThemeService,
     private translate: TranslateService,
     private auth: AuthService,
-    private toast: ToastMessageService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {

@@ -9,9 +9,9 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { SharedService } from 'src/app/services/shared.service';
 import { Subscription } from 'rxjs';
-import { ToastMessageService } from 'src/app/services/toast-message.service';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from 'src/app/services/auth.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-home-header',
@@ -42,7 +42,7 @@ export class HomeHeaderComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private toast: ToastMessageService,
+    private toast: ToastService,
     private http: HttpClient,
     private sharedService: SharedService,
     private translate: TranslateService,

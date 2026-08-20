@@ -41,7 +41,8 @@ export type CallSignalType =
   | 'decline'
   | 'cancel'
   | 'busy'
-  | 'ended';
+  | 'ended'
+  | 'waiting';
 
 export interface CallSignal {
   type: CallSignalType;
