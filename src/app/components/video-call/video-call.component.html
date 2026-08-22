@@ -155,3 +155,8 @@
     </div>
   </div>
 </div>
+
+<div class="waiting-for-host" *ngIf="isHeld && remotePeers.length === 0">
+  <mat-icon>hourglass_empty</mat-icon>
+  <span>Waiting for the call to be free…</span>
+</div>

@@ -35,6 +35,7 @@ export interface CallInvite {
   receiverEmail: string;
 }
 
+// websocket.service.ts
 export type CallSignalType =
   | 'invite'
   | 'accept'
@@ -42,7 +43,8 @@ export type CallSignalType =
   | 'cancel'
   | 'busy'
   | 'ended'
-  | 'waiting';
+  | 'hold' // B tells C: go enter the room and wait for me
+  | 'held-left'; // C tells B: I left the waiting room before you arrived
 
 export interface CallSignal {
   type: CallSignalType;

@@ -39,6 +39,8 @@ export class CallSignalService {
   waitingCall$ = new BehaviorSubject<CallSignal | null>(null);
   private waitingChime: HTMLAudioElement | null = null;
 
+  private heldCall: CallSignal | null = null;
+
   private readonly OUTGOING_LOCK_KEY = 'outgoing-call-lock';
   private readonly OUTGOING_LOCK_TTL_MS = 45000;
 
@@ -252,13 +254,22 @@ export class CallSignalService {
         this.startRingtone();
         break;
 
-      case 'waiting':
-        // We're the original caller — the person we called is on another call
-        // and has chosen to let us wait rather than declining outright.
-        if (this.outgoingCall$.value?.callId === signal.callId) {
-          this.toast.info(
-            'They are on another call — waiting for them to be free',
-          );
+      case 'hold':
+        // We are C — B has put us on hold. Enter the room immediately and wait.
+        this.stopRingtone();
+        this.releaseClaim(signal.callId);
+        this.toast.info(
+          `${signal.callerName ? '' : ''}You've been placed on hold — entering the call`,
+        );
+        this.navigateToHeldRoom(signal);
+        break;
+
+      case 'held-left':
+        // We are B — the person we held (C) left the waiting room before we
+        // got back to them. Cancel the pending auto-join.
+        if (this.heldCall?.callId === signal.callId) {
+          this.heldCall = null;
+          this.toast.info('The caller left before you were free');
         }
         break;
 
@@ -312,20 +323,6 @@ export class CallSignalService {
     }
   }
 
-  private playWaitingChime(): void {
-    this.stopWaitingChime();
-    this.waitingChime = new Audio('assets/sounds/call-waiting-chime.mp3');
-    this.waitingChime.volume = 0.4;
-    // A brief chime, not a looping ringtone — plays once, doesn't repeat
-    // to avoid interrupting the active call's audio.
-    this.waitingChime.play().catch(() => {});
-  }
-
-  private stopWaitingChime(): void {
-    this.waitingChime?.pause();
-    this.waitingChime = null;
-  }
-
   // Accept the new call, ending the current one first.
   acceptWaitingCall(): void {
     const waiting = this.waitingCall$.value;
@@ -334,12 +331,7 @@ export class CallSignalService {
     this.stopWaitingChime();
     this.releaseClaim(waiting.callId);
 
-    // End whatever we're currently doing.
     if (this.inCall) {
-      // Tell the video component to hang up before navigating to the new call.
-      // markInCall(false) alone doesn't hang up the live WebRTC session —
-      // VideoCallComponent needs to actually leave. We navigate away, which
-      // triggers its ngOnDestroy -> hangUp() via Angular's route teardown.
       this.forceLeaveCurrentCall$.next();
     } else if (this.outgoingCall$.value) {
       this.cancelOutgoingCall();
@@ -381,25 +373,57 @@ export class CallSignalService {
       .subscribe({ error: (err) => console.error('Failed to log call:', err) });
   }
 
-  /** Puts the caller "on hold" — tells them to wait, dismisses our dialog,
-   *  but keeps the invite claimed so we can come back and accept it later
-   *  via the pending-invites mechanism (already built for late-login). */
+  /** B chooses to hold C — C enters the room now, B stays in their current call. */
   holdWaitingCall(): void {
     const waiting = this.waitingCall$.value;
     if (!waiting) return;
     this.waitingCall$.next(null);
     this.stopWaitingChime();
-    // Deliberately do NOT release the claim or send decline — the invite
-    // stays "pending" server-side (NO_ANSWER-equivalent for 1:1 isn't tracked
-    // the same way as group, so for 1:1 we just don't respond at all; the
-    // caller's own 30s timeout will fire if we never come back to it).
+    this.releaseClaim(waiting.callId);
 
+    this.heldCall = waiting;
     this.ws.sendCallSignal({
       ...waiting,
-      type: 'waiting',
+      type: 'hold',
       receiverEmail: waiting.callerEmail,
     });
-    this.toast.info(`${waiting.callerName} is waiting`);
+    this.toast.info(`${waiting.callerName} is waiting for you in the call`);
+  }
+
+  /** C's side — enters the room immediately upon being put on hold. */
+  private navigateToHeldRoom(call: CallSignal): void {
+    this.markInCall(true);
+    this.router.navigate(['/user/video', call.roomId], {
+      queryParams: {
+        type: call.callType,
+        callId: call.callId,
+        callerEmail: call.callerEmail,
+        receiverEmail: call.receiverEmail,
+        otherEmail: call.receiverEmail, // B — who we're waiting for
+        isGroup: false,
+        isHeld: true,
+        heldOriginatorEmail: call.receiverEmail, // notify B if we leave first
+      },
+    });
+  }
+
+  /** Called by VideoCallComponent right after B finishes their current call. */
+  checkAndJoinHeldCall(): CallSignal | null {
+    const held = this.heldCall;
+    this.heldCall = null;
+    return held;
+  }
+
+  private stopWaitingChime(): void {
+    this.waitingChime?.pause();
+    this.waitingChime = null;
+  }
+
+  private playWaitingChime(): void {
+    this.stopWaitingChime();
+    this.waitingChime = new Audio('assets/sounds/call-waiting-chime.mp3');
+    this.waitingChime.volume = 0.4;
+    this.waitingChime.play().catch(() => {});
   }
 
   // ── Group ───────────────────────────────────────────────

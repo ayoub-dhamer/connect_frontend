@@ -307,3 +307,13 @@ video {
   margin-bottom: 2px;
   display: block;
 }
+
+.waiting-for-host {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  padding: 16px;
+  color: #9ca3af;
+  font-size: 13px;
+}

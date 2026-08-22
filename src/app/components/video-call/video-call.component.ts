@@ -97,6 +97,9 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     ],
   };
 
+  isHeld = false;
+  heldOriginatorEmail = '';
+
   constructor(
     private route: ActivatedRoute,
     private ws: WebSocketService,
@@ -123,6 +126,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.otherEmail = this.route.snapshot.queryParamMap.get('otherEmail') || '';
     this.camOn = this.callType === 'video';
     this.joinedAt = Date.now();
+
+    this.isHeld = this.route.snapshot.queryParamMap.get('isHeld') === 'true';
+    this.heldOriginatorEmail =
+      this.route.snapshot.queryParamMap.get('heldOriginatorEmail') || '';
 
     const gid = this.route.snapshot.queryParamMap.get('groupId');
     this.groupId = gid ? Number(gid) : null;
@@ -520,7 +527,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     });
   }
 
-  hangUp(): void {
+  /*hangUp(): void {
     if (this.hasHungUp) return;
     this.hasHungUp = true;
     this.callSignal.markInCall(false);
@@ -591,12 +598,76 @@ export class VideoCallComponent implements OnInit, OnDestroy {
         ? { group: this.groupId }
         : { with: this.otherEmail },
     });
+  }*/
+
+  hangUp(): void {
+    if (this.hasHungUp) return;
+    this.hasHungUp = true;
+
+    this.disconnectTimers.forEach((t) => clearTimeout(t));
+    this.disconnectTimers.clear();
+
+    this.ws.sendSignalMessage(this.roomId, {
+      type: 'leave',
+      roomId: this.roomId,
+      sender: this.currentUserEmail,
+    });
+
+    // If we (C) are the one being held and we're leaving before B arrives,
+    // tell B so they don't try to auto-join an empty room.
+    if (
+      this.isHeld &&
+      this.heldOriginatorEmail &&
+      this.remotePeers.length === 0
+    ) {
+      this.ws.sendCallSignal({
+        type: 'held-left',
+        callId: this.callId,
+        roomId: this.roomId,
+        callType: this.callType,
+        callerEmail: this.currentUserEmail,
+        callerName: '',
+        receiverEmail: this.heldOriginatorEmail,
+      });
+    }
+
+    this.callSignal.markInCall(false);
+
+    // ...existing group/1:1 'ended' signal + logCall unchanged...
+
+    this.localStream?.getTracks().forEach((t) => t.stop());
+    this.peerConnections.forEach((pc) => pc.close());
+    this.peerConnections.clear();
+    this.remotePeers = [];
+    this.ws.unsubscribeFromRoom(this.roomId);
+
+    // Check if a held call is waiting for us — if so, join it instead of
+    // going back to chat.
+    const held = this.callSignal.checkAndJoinHeldCall();
+    if (held) {
+      this.router.navigate(['/user/video', held.roomId], {
+        queryParams: {
+          type: held.callType,
+          callId: held.callId,
+          callerEmail: held.callerEmail,
+          receiverEmail: held.receiverEmail,
+          otherEmail: held.callerEmail,
+          isGroup: false,
+        },
+      });
+      return;
+    }
+    this.router.navigate(['/user/chat'], {
+      queryParams: this.isGroup
+        ? { group: this.groupId }
+        : { with: this.otherEmail },
+    });
   }
 
   ngOnDestroy(): void {
     window.removeEventListener('beforeunload', this.handleUnload);
-    this.hangUp();
     this.forceLeaveSub?.unsubscribe();
+    this.hangUp();
     this.sub?.unsubscribe();
     this.signalSub?.unsubscribe();
     if (this.leftNoticeTimeout) clearTimeout(this.leftNoticeTimeout);
